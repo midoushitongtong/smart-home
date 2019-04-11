@@ -1,10 +1,9 @@
-<style lang="less">
-
-</style>
-
 <template>
   <view class="container">
-    <button @tap="sendData">发送数据</button>
+    <button @tap="sendData">开门</button>
+    <repeat wx:for="{{messageList}}" wx:key="index" index="index" item="item">
+      <text>{{item}}</text>
+    </repeat>
   </view>
 </template>
 
@@ -13,17 +12,51 @@ import wepy from 'wepy';
 
 export default class Index extends wepy.page {
   config = {
-    navigationBarTitleText: 'test page'
+    navigationBarTitleText: 'index'
+  };
+
+  data = {
+    messageList: []
   };
 
   methods = {
     sendData: () => {
-      console.log(12);
+      wx.sendSocketMessage({
+        data: JSON.stringify({
+          actionType: 'openTheDoor'
+        })
+      });
     }
   };
 
   onLoad = () => {
-    console.log(123);
+    wx.connectSocket({
+      url: 'wss://project.yyccyy.com/smart-home/backend/api/webSocket',
+      success: () => {
+        // 连接成功
+        wx.onSocketOpen(() => {
+          wx.sendSocketMessage({
+            data: JSON.stringify({
+              type: 'test'
+            })
+          });
+        });
+
+        // 接收数据
+        wx.onSocketMessage(({ data }) => {
+          console.log(`webSocket server receiver data: ${data}`);
+          this.messageList.push(data);
+          this.$apply();
+        });
+      },
+      fail: (e) => {
+        console.error(e);
+      }
+    });
   };
 }
 </script>
+
+<style lang="less">
+
+</style>
