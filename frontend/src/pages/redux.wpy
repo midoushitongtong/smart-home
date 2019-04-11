@@ -1,0 +1,66 @@
+<style lang="less">
+  .userinfo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .userinfo-avatar {
+    width: 80 rpx;
+    height: 80 rpx;
+    border-radius: 50%;
+  }
+
+  .userinfo-nickname {
+    color: #aaa;
+  }
+</style>
+<template>
+  <view class="container">
+    {{userInfo.name}}
+    <button @tap="changeUserInfo">123</button>
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy';
+import { connect } from 'wepy-redux';
+import { updateUserInfo } from '../store/account';
+
+@connect({
+  userInfo(state) {
+    return state.account.userInfo;
+  }
+}, {
+  updateUserInfo
+})
+
+export default class Index extends wepy.page {
+  config = {
+    navigationBarTitleText: 'test'
+  };
+  components = {};
+
+  mixins = [];
+
+  data = {
+    mynum: 20
+  };
+
+  computed = {};
+
+  methods = {
+    changeUserInfo() {
+      this.methods.updateUserInfo({
+        name: 'qqq'
+      });
+    }
+  };
+
+  events = {};
+
+  onLoad() {
+
+  }
+}
+</script>

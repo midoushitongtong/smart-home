@@ -1,0 +1,29 @@
+<style lang="less">
+
+</style>
+
+<template>
+  <view class="container">
+    <button @tap="sendData">发送数据</button>
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy';
+
+export default class Index extends wepy.page {
+  config = {
+    navigationBarTitleText: 'test page'
+  };
+
+  methods = {
+    sendData: () => {
+      console.log(12);
+    }
+  };
+
+  onLoad = () => {
+    console.log(123);
+  };
+}
+</script>
