@@ -1,0 +1,72 @@
+<template>
+  <view class="sign-in-container">
+    <i-input
+      value="{{password}}"
+      maxlength="-1"
+      right
+      mode="wrapped"
+      title="密码"
+      @change="changePassword"
+      placeholder="输入您的智能家居密码"
+    />
+    <view class="sign-in-button-container">
+      <i-button
+        loading="{{signInLoading}}"
+        type="primary"
+        long="true"
+        @click="signIn"
+      >
+        登陆
+      </i-button>
+    </view>
+  </view>
+  <!-- 提示框 -->
+  <i-toast id="toast"/>
+</template>
+
+<script>
+import wepy from 'wepy';
+import Base from '../../../components/iview/base/index';
+
+export default class Index extends wepy.page {
+  config = {
+    navigationBarTitleText: '登陆您的智能家居'
+  };
+
+  data = {
+    password: '123456',
+    signInLoading: false
+  };
+
+  methods = {
+    changePassword: (event) => {
+      this.password = event.detail.detail.value;
+    },
+    signIn: () => {
+      this.signInLoading = true;
+      setTimeout(() => {
+        this.signInLoading = false;
+        if (this.password !== '123456') {
+          Base.$Toast({
+            content: '登陆失败, 请确认密码是否正确!',
+            duration: 3,
+            mask: false
+          });
+        } else {
+          wepy.switchTab({
+            url: '/pages/home/index'
+          });
+        }
+      }, 1000);
+    }
+  };
+}
+</script>
+
+<style lang="less">
+  .sign-in-container {
+    .sign-in-button-container {
+      padding: 10px 15px;
+    }
+  }
+</style>

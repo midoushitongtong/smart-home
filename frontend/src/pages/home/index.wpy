@@ -1,0 +1,110 @@
+<template>
+  <view class="home-container">
+    <view class="feature-list-container">
+      <view class="feature-list-item" @tap="toFeaturePage('kitchen')">
+        <text>厨房</text>
+      </view>
+      <view class="feature-list-item" @tap="toFeaturePage('living')">
+        <text>客厅</text>
+      </view>
+      <view class="feature-list-item" @tap="toFeaturePage('restaurant')">
+        <text>餐厅</text>
+      </view>
+      <view class="feature-list-item" @tap="toFeaturePage('balcony')">
+        <text>阳台</text>
+      </view>
+      <view class="feature-list-item" @tap="toFeaturePage('master-bedroom')">
+        <text>主卧</text>
+      </view>
+      <view class="feature-list-item" @tap="toFeaturePage('second-bedroom')">
+        <text>次卧</text>
+      </view>
+      <view class="feature-list-item" @tap="toFeaturePage('bathroom')">
+        <text>卫生间</text>
+      </view>
+    </view>
+    <view class="log-container">
+      <repeat wx:for="{{messageList}}" wx:key="index" index="index" item="item">
+        <text>{{item}}</text>
+      </repeat>
+    </view>
+  </view>
+  <!-- 提示框 -->
+  <i-toast id="toast"/>
+</template>
+
+<script>
+import wepy from 'wepy';
+import { connect } from 'wepy-redux';
+import Base from '../../components/iview/base/index';
+import { initWebSocketClient, sendWebSocketData } from '../../store/feature';
+
+@connect({}, {
+  initWebSocketClient,
+  sendWebSocketData
+})
+export default class Index extends wepy.page {
+  config = {
+    navigationBarTitleText: '智能家居'
+  };
+
+  methods = {
+    toFeaturePage: (pageName) => {
+      switch (pageName) {
+        case 'kitchen':
+          this.$navigate(`/pages/feature/${pageName}/index`);
+          break;
+        default:
+          Base.$Toast({
+            content: '页面暂未开发',
+            duration: 3,
+            mask: false
+          });
+      }
+    }
+  };
+
+  onLoad = async () => {
+    // 初始化 webSocket 客户端
+    this.methods.initWebSocketClient();
+    setTimeout(() => {
+      this.methods.sendWebSocketData(JSON.stringify({
+        actionType: 'test',
+        actionTypeDetailName: 'test1',
+        actionTypeDetailValue: true
+      }));
+    }, 200);
+  };
+}
+</script>
+
+<style lang="less">
+  .home-container {
+    .feature-list-container {
+      display: flex;
+      flex-wrap: wrap;
+      border-top: ~"1rpx" solid #e9eaec;
+      border-left: ~"1rpx" solid #e9eaec;
+      .feature-list-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 33.33333333%;
+        padding-top: ~"65rpx";
+        padding-bottom: ~"65rpx";
+        border-right: ~"1rpx" solid #e9eaec;
+        border-bottom: ~"1rpx" solid #e9eaec;
+        box-sizing: border-box;
+        font-size: ~"30rpx";
+        &:active {
+          background: rgba(0, 0, 0, .1);
+        }
+        text {
+          display: flex;
+          width: auto;
+        }
+      }
+    }
+  }
+</style>

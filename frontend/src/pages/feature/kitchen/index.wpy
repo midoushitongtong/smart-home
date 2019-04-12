@@ -1,0 +1,69 @@
+<template>
+  <i-cell-group>
+    <i-cell title="灯光">
+      <i-switch value="{{featureInfo.kitchen.switch1}}" data-value="switch1" size="large" @change="onChangeSwitch" slot="footer"></i-switch>
+    </i-cell>
+    <i-cell title="水龙头">
+      <i-switch value="{{featureInfo.kitchen.switch2}}" data-value="switch2" size="large" @change="onChangeSwitch" slot="footer"></i-switch>
+    </i-cell>
+  </i-cell-group>
+  <!-- 提示框 -->
+  <i-toast id="toast"/>
+</template>
+
+<script>
+import wepy from 'wepy';
+import { connect } from 'wepy-redux';
+import { sendWebSocketData } from '../../../store/feature';
+
+@connect({
+  featureInfo(state) {
+    return state.feature.featureInfo;
+  }
+}, {
+  sendWebSocketData
+})
+export default class Index extends wepy.page {
+  config = {
+    navigationBarTitleText: '厨房'
+  };
+
+  methods = {
+    onChangeSwitch: (event) => {
+      this[event.target.dataset.value] = event.detail.value;
+      // 发送数据到服务端
+      this.methods.sendWebSocketData(JSON.stringify({
+        actionType: 'kitchen',
+        actionTypeDetailName: event.target.dataset.value,
+        actionTypeDetailValue: event.detail.value
+      }));
+    }
+  };
+}
+</script>
+
+<style lang="less">
+  .home-container {
+    .feature-list-container {
+      display: flex;
+      flex-wrap: wrap;
+      border-top: ~"1rpx" solid #e9eaec;
+      border-left: ~"1rpx" solid #e9eaec;
+      .feature-list-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 33.33333333%;
+        height: ~"300rpx";
+        border-right: ~"1rpx" solid #e9eaec;
+        border-bottom: ~"1rpx" solid #e9eaec;
+        box-sizing: border-box;
+        text {
+          display: flex;
+          width: auto;
+        }
+      }
+    }
+  }
+</style>

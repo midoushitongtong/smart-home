@@ -1,14 +1,3 @@
-<style lang="less">
-  .container {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
-    box-sizing: border-box;
-  }
-</style>
-
 <script>
 import wepy from 'wepy';
 import 'wepy-async-function';
@@ -22,36 +11,54 @@ setStore(store);
 export default class extends wepy.app {
   config = {
     pages: [
-      'pages/index'
+      'pages/home/index',
+      'pages/person/index',
+      'pages/account/sign-in/index',
+      'pages/feature/kitchen/index'
     ],
     window: {
       backgroundTextStyle: 'light',
-      navigationBarBackgroundColor: '#fff',
-      navigationBarTitleText: 'WeChat',
-      navigationBarTextStyle: 'black'
+      navigationBarBackgroundColor: '#40a9ff',
+      navigationBarTextStyle: 'white'
+    },
+    tabBar: {
+      color: '#8a8a8a',
+      selectedColor: '#40a9ff',
+      backgroundColor: '#fff',
+      list: [
+        {
+          pagePath: 'pages/home/index',
+          text: '智能家居',
+          iconPath: '/assets/images/md-home.png',
+          selectedIconPath: '/assets/images/md-home-selected.png'
+        },
+        {
+          pagePath: 'pages/person/index',
+          text: '我的',
+          iconPath: '/assets/images/md-person.png',
+          selectedIconPath: '/assets/images/md-person-selected.png'
+        }
+      ]
+    },
+    usingComponents: {
+      'i-button': '../../../components/iview/button/index',
+      'i-cell': '../../../components/iview/cell/index',
+      'i-cell-group': '../../../components/iview/cell-group/index',
+      'i-icon': '../../../components/iview/icon/index',
+      'i-switch': '../../../components/iview/switch/index',
+      'i-toast': '../../../components/iview/toast/index',
+      'i-input': '../../../components/iview/input/index'
     }
-  };
-
-  globalData = {
-    userInfo: null
   };
 
   constructor() {
     super();
     this.use('requestfix');
-  }
-
-  getUserInfo(cb) {
-    const that = this;
-    if (this.globalData.userInfo) {
-      return this.globalData.userInfo;
-    }
-    wepy.getUserInfo({
-      success(res) {
-        that.globalData.userInfo = res.userInfo;
-        cb && cb(res.userInfo);
-      }
-    });
+    this.use('promisify');
   }
 }
 </script>
+
+<style lang="less">
+
+</style>

@@ -58,17 +58,15 @@ module.exports = obj = {
   },
   handlerWebSocketData: (webSocket, data) => {
     try {
-      data = JSON.parse(data);
       // 发送数据给小程序客户端
-      webSocket.send(`${JSON.stringify(data)}`);
+      console.log(obj.webSocketList.length);
+      obj.webSocketList.forEach((webSocketItem) => {
+        webSocketItem.send(`${data}`);
+      });
       // 发送数据给硬件客户端
-      switch (data.actionType) {
-        case 'openTheDoor':
-          obj.socketList.forEach((socketItem) => {
-            socketItem.write(`openTheDor`);
-          });
-          break;
-      }
+      obj.socketList.forEach((socketItem) => {
+        socketItem.write(`${data}`);
+      });
     } catch (e) {
       console.log('==webSocket 字符串转对象失败');
     }
