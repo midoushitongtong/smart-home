@@ -39,13 +39,14 @@ export default class Index extends wepy.page {
   };
 
   methods = {
-    changePassword: (event) => {
-      this.password = event.detail.detail.value;
+    changePassword: (e) => {
+      this.password = e.detail.detail.value;
     },
     signIn: () => {
       this.signInLoading = true;
       setTimeout(() => {
         this.signInLoading = false;
+        this.$apply();
         if (this.password !== '123456') {
           Base.$Toast({
             content: '登陆失败, 请确认密码是否正确!',

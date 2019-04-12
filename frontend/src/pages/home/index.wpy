@@ -67,13 +67,6 @@ export default class Index extends wepy.page {
   onLoad = async () => {
     // 初始化 webSocket 客户端
     this.methods.initWebSocketClient();
-    setTimeout(() => {
-      this.methods.sendWebSocketData(JSON.stringify({
-        actionType: 'test',
-        actionTypeDetailName: 'test1',
-        actionTypeDetailValue: true
-      }));
-    }, 200);
   };
 }
 </script>

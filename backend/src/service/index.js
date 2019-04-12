@@ -48,27 +48,32 @@ module.exports = obj = {
       console.log(`==webSocket client connect close: ${request.connection.remoteAddress}`);
     });
   },
-  handlerSocketData: (socket, data) => {
-    // 发送数据给硬件客户端
-    socket.write(`${data}`);
-    // 发送数据给小程序客户端
-    obj.webSocketList.forEach((webSocketItem) => {
-      webSocketItem.send(`${data}`);
-    });
-  },
-  handlerWebSocketData: (webSocket, data) => {
+  handlerSocketData: (socket, JSONStr) => {
     try {
-      // 发送数据给小程序客户端
-      console.log(obj.webSocketList.length);
-      obj.webSocketList.forEach((webSocketItem) => {
-        webSocketItem.send(`${data}`);
-      });
-      // 发送数据给硬件客户端
-      obj.socketList.forEach((socketItem) => {
-        socketItem.write(`${data}`);
-      });
+      const JSONObj = JSON.parse(JSONStr);
+      switch (JSONObj.actionType) {
+        default:
+          // 发送数据给小程序客户端
+          obj.webSocketList.forEach((webSocketItem) => {
+            webSocketItem.send(`${JSONStr}`);
+          });
+      }
     } catch (e) {
-      console.log('==webSocket 字符串转对象失败');
+      console.log('==socket client 字符串转对象失败', e);
+    }
+  },
+  handlerWebSocketData: (webSocket, JSONStr) => {
+    try {
+      const JSONObj = JSON.parse(JSONStr);
+      switch (JSONObj.actionType) {
+        default:
+          // 发送数据给硬件客户端
+          obj.socketList.forEach((socketItem) => {
+            socketItem.write(`${JSONStr}`);
+          });
+      }
+    } catch (e) {
+      console.log('==webSocket client 字符串转对象失败', e);
     }
   }
 };

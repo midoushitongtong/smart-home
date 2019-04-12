@@ -29,13 +29,13 @@ export default class Index extends wepy.page {
   };
 
   methods = {
-    onChangeSwitch: (event) => {
-      this[event.target.dataset.value] = event.detail.value;
+    onChangeSwitch: (e) => {
+      this[e.target.dataset.value] = e.detail.value;
       // 发送数据到服务端
       this.methods.sendWebSocketData(JSON.stringify({
         actionType: 'kitchen',
-        actionTypeDetailName: event.target.dataset.value,
-        actionTypeDetailValue: event.detail.value
+        actionTypeDetailName: e.target.dataset.value,
+        actionTypeDetailValue: e.detail.value
       }));
     }
   };
