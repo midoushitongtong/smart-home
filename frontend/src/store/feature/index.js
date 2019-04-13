@@ -66,8 +66,8 @@ export default (state = initState, action) => {
 export const initWebSocketClient = () => {
   return dispatch => {
     wx.connectSocket({
-      url: 'wss://project.yyccyy.com/smart-home/backend/api/webSocket',
-      // url: 'ws://10.0.19.175:5002',
+      // url: 'wss://project.yyccyy.com/smart-home/backend/api/webSocket',
+      url: 'ws://10.0.19.175:5002',
       success: () => {
         // 连接成功
         wx.onSocketOpen(() => {

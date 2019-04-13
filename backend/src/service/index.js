@@ -49,31 +49,15 @@ module.exports = obj = {
     });
   },
   handlerSocketData: (socket, JSONStr) => {
-    try {
-      const JSONObj = JSON.parse(JSONStr);
-      switch (JSONObj.actionType) {
-        default:
-          // 发送数据给小程序客户端
-          obj.webSocketList.forEach((webSocketItem) => {
-            webSocketItem.send(`${JSONStr}`);
-          });
-      }
-    } catch (e) {
-      console.log('==socket client 字符串转对象失败', e);
-    }
+    // 发送数据给小程序客户端
+    obj.webSocketList.forEach((webSocketItem) => {
+      webSocketItem.send(`${JSONStr}`);
+    });
   },
   handlerWebSocketData: (webSocket, JSONStr) => {
-    try {
-      const JSONObj = JSON.parse(JSONStr);
-      switch (JSONObj.actionType) {
-        default:
-          // 发送数据给硬件客户端
-          obj.socketList.forEach((socketItem) => {
-            socketItem.write(`${JSONStr}`);
-          });
-      }
-    } catch (e) {
-      console.log('==webSocket client 字符串转对象失败', e);
-    }
+    // 发送数据给硬件客户端
+    obj.socketList.forEach((socketItem) => {
+      socketItem.write(`${JSONStr}`);
+    });
   }
 };
