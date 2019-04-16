@@ -11,10 +11,17 @@ setStore(store);
 export default class extends wepy.app {
   config = {
     pages: [
-      'pages/account/sign-in/index',
       'pages/home/index',
+      'pages/account/sign-in/index',
       'pages/person/index',
-      'pages/feature/kitchen/index'
+      'pages/feature/home/index',
+      'pages/feature/kitchen/index',
+      'pages/feature/living/index',
+      'pages/feature/restaurant/index',
+      'pages/feature/balcony/index',
+      'pages/feature/master-bedroom/index',
+      'pages/feature/second-bedroom/index',
+      'pages/feature/bathroom/index'
     ],
     window: {
       backgroundTextStyle: 'light',
@@ -47,7 +54,9 @@ export default class extends wepy.app {
       'i-icon': '../../../components/iview/icon/index',
       'i-switch': '../../../components/iview/switch/index',
       'i-toast': '../../../components/iview/toast/index',
-      'i-input': '../../../components/iview/input/index'
+      'i-input': '../../../components/iview/input/index',
+      'i-input-number': '../../../components/iview/input-number/index',
+      'i-spin': '../../../components/iview/spin/index'
     }
   };
 

@@ -1,25 +1,36 @@
 <template>
   <view class="home-container">
     <view class="feature-list-container">
+      <view class="feature-list-item" @tap="toFeaturePage('home')">
+        <image src="/assets/images/home.png" alt="主控制"/>
+        <text>主控制</text>
+      </view>
       <view class="feature-list-item" @tap="toFeaturePage('kitchen')">
+        <image src="/assets/images/kitchen.png" alt="厨房"/>
         <text>厨房</text>
       </view>
       <view class="feature-list-item" @tap="toFeaturePage('living')">
+        <image src="/assets/images/living.png" alt="客厅"/>
         <text>客厅</text>
       </view>
       <view class="feature-list-item" @tap="toFeaturePage('restaurant')">
+        <image src="/assets/images/restaurant.png" alt="餐厅"/>
         <text>餐厅</text>
       </view>
       <view class="feature-list-item" @tap="toFeaturePage('balcony')">
+        <image src="/assets/images/balcony.png" alt="阳台"/>
         <text>阳台</text>
       </view>
       <view class="feature-list-item" @tap="toFeaturePage('master-bedroom')">
+        <image src="/assets/images/master-bedroom.png" alt="主卧"/>
         <text>主卧</text>
       </view>
       <view class="feature-list-item" @tap="toFeaturePage('second-bedroom')">
+        <image src="/assets/images/second-bedroom.png" alt="次卧"/>
         <text>次卧</text>
       </view>
       <view class="feature-list-item" @tap="toFeaturePage('bathroom')">
+        <image src="/assets/images/bathroom.png" alt=""/>
         <text>卫生间</text>
       </view>
     </view>
@@ -31,6 +42,8 @@
   </view>
   <!-- 提示框 -->
   <i-toast id="toast"/>
+  <!-- loading -->
+  <i-spin i-class="loading-container" size="large" fix wx:if="{{loading}}"/>
 </template>
 
 <script>
@@ -43,15 +56,26 @@ import { initWebSocketClient, sendWebSocketData } from '../../store/feature';
   initWebSocketClient,
   sendWebSocketData
 })
-export default class Index extends wepy.page {
+export default class Home extends wepy.page {
   config = {
     navigationBarTitleText: '智能家居'
+  };
+
+  data = {
+    loading: true
   };
 
   methods = {
     toFeaturePage: (pageName) => {
       switch (pageName) {
+        case 'home':
         case 'kitchen':
+        case 'living':
+        case 'restaurant':
+        case 'balcony':
+        case 'master-bedroom':
+        case 'second-bedroom':
+        case 'bathroom':
           this.$navigate(`/pages/feature/${pageName}/index`);
           break;
         default:
@@ -66,7 +90,9 @@ export default class Index extends wepy.page {
 
   onLoad = async () => {
     // 初始化 webSocket 客户端
-    this.methods.initWebSocketClient();
+    this.methods.initWebSocketClient(() => {
+      this.loading = false;
+    });
   };
 }
 </script>
@@ -89,15 +115,24 @@ export default class Index extends wepy.page {
         border-right: ~"1rpx" solid #e9eaec;
         border-bottom: ~"1rpx" solid #e9eaec;
         box-sizing: border-box;
-        font-size: ~"30rpx";
         &:active {
           background: rgba(0, 0, 0, .1);
+        }
+        image {
+          width: 32px;
+          height: 32px;
         }
         text {
           display: flex;
           width: auto;
+          margin-top: ~"20rpx";
+          font-size: ~"25rpx";
+          color: #333;
         }
       }
     }
+  }
+  .loading-container {
+    background: rgba(255, 255, 255, .65) !important;
   }
 </style>

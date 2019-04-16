@@ -2,12 +2,36 @@
   <i-cell-group>
     <i-cell title="灯光开关">
       <i-switch
-        value="{{featureInfo.LED1}}"
-        data-control-name="LED1"
+        value="{{featureInfo.LED2}}"
+        data-control-name="LED2"
         size="large"
         slot="footer"
         @change="onChangeSwitch"
-      ></i-switch>
+      />
+    </i-cell>
+    <i-cell title="风扇挡位">
+      <i-input-number
+        value="{{featureInfo.fan1}}"
+        data-control-name="fan1"
+        min="0" max="3"
+        bindchange="onInputNumberChange"
+        slot="footer"/>
+    </i-cell>
+    <i-cell title="室内温度调控">
+      <i-input-number
+        value="{{featureInfo.tem1}}"
+        data-control-name="tem1"
+        min="15" max="30"
+        bindchange="onInputNumberChange"
+        slot="footer"/>
+    </i-cell>
+  </i-cell-group>
+  <i-cell-group>
+    <i-cell title="当前室内温度">
+      <text slot="footer">{{featureInfo.temHum1Tem}}</text>
+    </i-cell>
+    <i-cell title="当前室内湿度">
+      <text slot="footer">{{featureInfo.temHum1Hum}}</text>
     </i-cell>
   </i-cell-group>
   <!-- 提示框 -->
@@ -28,12 +52,17 @@ import { sendWebSocketData } from '../../../store/feature';
 })
 export default class FeatureKitchen extends wepy.page {
   config = {
-    navigationBarTitleText: '厨房'
+    navigationBarTitleText: '客厅'
   };
 
   methods = {
     onChangeSwitch: (e) => {
       const data = `${e.target.dataset.controlName}-${e.detail.value ? '1' : '0'}`;
+      // 发送数据到服务端
+      this.methods.sendWebSocketData(data);
+    },
+    onInputNumberChange: (e) => {
+      const data = `${e.target.dataset.controlName}-${e.detail.value}`;
       // 发送数据到服务端
       this.methods.sendWebSocketData(data);
     }

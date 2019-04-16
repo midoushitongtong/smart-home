@@ -1,7 +1,7 @@
 {
 	"description": "A WePY project",
 	"setting": {
-		"urlCheck": false,
+		"urlCheck": true,
 		"es6": false,
 		"postcss": false,
 		"minified": false,
@@ -9,8 +9,10 @@
 		"autoAudits": false
 	},
 	"compileType": "miniprogram",
-	"appid": "wxe53a968243dffdd8",
+	"appid": "wx05a523d429cc4536",
 	"projectname": "smart-home-frontend",
 	"miniprogramRoot": "dist/",
+	"simulatorType": "wechat",
+	"simulatorPluginLibVersion": {},
 	"condition": {}
 }

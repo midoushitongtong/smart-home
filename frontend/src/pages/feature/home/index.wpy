@@ -1,9 +1,9 @@
 <template>
   <i-cell-group>
-    <i-cell title="灯光开关">
+    <i-cell title="大门开关">
       <i-switch
-        value="{{featureInfo.LED1}}"
-        data-control-name="LED1"
+        value="{{featureInfo.door1}}"
+        data-control-name="door1"
         size="large"
         slot="footer"
         @change="onChangeSwitch"
@@ -26,9 +26,9 @@ import { sendWebSocketData } from '../../../store/feature';
 }, {
   sendWebSocketData
 })
-export default class FeatureKitchen extends wepy.page {
+export default class FeatureHome extends wepy.page {
   config = {
-    navigationBarTitleText: '厨房'
+    navigationBarTitleText: '主控制'
   };
 
   methods = {

@@ -7,6 +7,7 @@
     "test": "test"
   },
   "dependencies": {
+    "qcloudsms_js": "^0.1.1",
     "ws": "^6.2.1"
   },
   "devDependencies": {},

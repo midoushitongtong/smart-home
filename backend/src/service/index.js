@@ -1,4 +1,5 @@
-module.exports = obj = {
+const smsUtil = require('../util/sms');
+const obj = {
   socketList: [],
   webSocketList: [],
   handlerSocket: (socket) => {
@@ -48,16 +49,31 @@ module.exports = obj = {
       console.log(`==webSocket client connect close: ${request.connection.remoteAddress}`);
     });
   },
-  handlerSocketData: (socket, JSONStr) => {
+  handlerSocketData: (socket, str) => {
+    str = str.toString();
     // 发送数据给小程序客户端
     obj.webSocketList.forEach((webSocketItem) => {
-      webSocketItem.send(`${JSONStr}`);
+      webSocketItem.send(str);
     });
   },
-  handlerWebSocketData: (webSocket, JSONStr) => {
+  handlerWebSocketData: (webSocket, str) => {
+    str = str.toString();
+    // 发送报警短信
+    if (str.indexOf('send-call1') > -1) {
+      const phoneNumber = str.split('-')[2];
+      smsUtil.sendSMSMessage([phoneNumber], '报警');
+      return;
+    }
+    if (str.indexOf('send-smoke1') > -1) {
+      const phoneNumber = str.split('-')[2];
+      smsUtil.sendSMSMessage([phoneNumber], '烟雾报警');
+      return;
+    }
     // 发送数据给硬件客户端
     obj.socketList.forEach((socketItem) => {
-      socketItem.write(`${JSONStr}`);
+      socketItem.write(str);
     });
   }
 };
+
+module.exports = obj;

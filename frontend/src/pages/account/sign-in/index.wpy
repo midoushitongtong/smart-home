@@ -28,7 +28,7 @@
 import wepy from 'wepy';
 import Base from '../../../components/iview/base/index';
 
-export default class Index extends wepy.page {
+export default class AccountSignIn extends wepy.page {
   config = {
     navigationBarTitleText: '登陆您的智能家居'
   };

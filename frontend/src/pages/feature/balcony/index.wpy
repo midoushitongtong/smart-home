@@ -2,8 +2,17 @@
   <i-cell-group>
     <i-cell title="灯光开关">
       <i-switch
-        value="{{featureInfo.LED1}}"
-        data-control-name="LED1"
+        value="{{featureInfo.LED4}}"
+        data-control-name="LED4"
+        size="large"
+        slot="footer"
+        @change="onChangeSwitch"
+      ></i-switch>
+    </i-cell>
+    <i-cell title="窗帘开关">
+      <i-switch
+        value="{{featureInfo.cur1}}"
+        data-control-name="cur1"
         size="large"
         slot="footer"
         @change="onChangeSwitch"
@@ -28,7 +37,7 @@ import { sendWebSocketData } from '../../../store/feature';
 })
 export default class FeatureKitchen extends wepy.page {
   config = {
-    navigationBarTitleText: '厨房'
+    navigationBarTitleText: '阳台'
   };
 
   methods = {

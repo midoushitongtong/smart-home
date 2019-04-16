@@ -14,7 +14,7 @@
 <script>
 import wepy from 'wepy';
 
-export default class Index extends wepy.page {
+export default class Person extends wepy.page {
   config = {
     navigationBarTitleText: '我的'
   };
@@ -28,6 +28,7 @@ export default class Index extends wepy.page {
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      height: ~"100px";
       padding-top: ~"35rpx";
       padding-bottom: ~"35rpx";
       border-bottom: 1px solid #d1d1d1;
