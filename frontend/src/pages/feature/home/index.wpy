@@ -17,15 +17,13 @@
 <script>
 import wepy from 'wepy';
 import { connect } from 'wepy-redux';
-import { sendWebSocketData } from '../../../store/feature';
+import featureSocketUtil from '../../../util/feature-socket';
 
 @connect({
   featureInfo(state) {
     return state.feature.featureInfo;
   }
-}, {
-  sendWebSocketData
-})
+}, {})
 export default class FeatureHome extends wepy.page {
   config = {
     navigationBarTitleText: '主控制'
@@ -35,7 +33,7 @@ export default class FeatureHome extends wepy.page {
     onChangeSwitch: (e) => {
       const data = `${e.target.dataset.controlName}-${e.detail.value ? '1' : '0'}`;
       // 发送数据到服务端
-      this.methods.sendWebSocketData(data);
+      featureSocketUtil.sendWebSocketData(data);
     }
   };
 }

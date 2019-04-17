@@ -50,11 +50,11 @@
 import wepy from 'wepy';
 import { connect } from 'wepy-redux';
 import Base from '../../components/iview/base/index';
-import { initWebSocketClient, sendWebSocketData } from '../../store/feature';
+import { updateFeatureInfo } from '../../store/feature';
+import featureSocketUtil from '../../util/feature-socket';
 
 @connect({}, {
-  initWebSocketClient,
-  sendWebSocketData
+  updateFeatureInfo
 })
 export default class Home extends wepy.page {
   config = {
@@ -90,8 +90,12 @@ export default class Home extends wepy.page {
 
   onLoad = async () => {
     // 初始化 webSocket 客户端
-    this.methods.initWebSocketClient(() => {
+    featureSocketUtil.initWebSocketClient(() => {
       this.loading = false;
+      // 处理 webSocket 数据
+      featureSocketUtil.receiverWebSocketData(this.methods.updateFeatureInfo);
+      // 发送 webSocket 数据
+      featureSocketUtil.sendWebSocketData('INIT');
     });
   };
 }
@@ -132,6 +136,7 @@ export default class Home extends wepy.page {
       }
     }
   }
+
   .loading-container {
     background: rgba(255, 255, 255, .65) !important;
   }

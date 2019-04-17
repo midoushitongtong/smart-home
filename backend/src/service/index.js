@@ -1,4 +1,5 @@
 const smsUtil = require('../util/sms');
+
 const obj = {
   socketList: [],
   webSocketList: [],
@@ -50,6 +51,7 @@ const obj = {
     });
   },
   handlerSocketData: (socket, str) => {
+    console.log(`socket length ${obj.socketList.length} webSocket length ${obj.webSocketList.length}`);
     str = str.toString();
     // 发送数据给小程序客户端
     obj.webSocketList.forEach((webSocketItem) => {
@@ -57,6 +59,7 @@ const obj = {
     });
   },
   handlerWebSocketData: (webSocket, str) => {
+    console.log(`webSocket length ${obj.webSocketList.length} socket length ${obj.socketList.length}`);
     str = str.toString();
     // 发送报警短信
     if (str.indexOf('send-call1') > -1) {
