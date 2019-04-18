@@ -12,6 +12,9 @@
   },
   "devDependencies": {},
   "scripts": {
+    "start": "nodemon src/index.js",
+    "start-s": "nodemon test/s.js",
+    "start-ws": "nodemon test/ws.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",

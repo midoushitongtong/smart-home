@@ -7,7 +7,6 @@ const actionType = {
 // state
 const initState = {
   featureInfo: {
-    door1: false
   }
 };
 

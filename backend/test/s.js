@@ -8,6 +8,9 @@ function connect() {
   socket.connect(PORT, HOST, function () {
     console.log('socket server connect success');
 
+    // 发送唯一标识
+    socket.write('id-w');
+
     socket.on('data', function (str) {
       str = str.toString();
       console.log(`socket server receiver data: ${str}`);

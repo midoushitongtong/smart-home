@@ -42,27 +42,15 @@
   </view>
   <!-- 提示框 -->
   <i-toast id="toast"/>
-  <!-- loading -->
-  <i-spin i-class="loading-container" size="large" fix wx:if="{{loading}}"/>
 </template>
 
 <script>
 import wepy from 'wepy';
-import { connect } from 'wepy-redux';
 import Base from '../../components/iview/base/index';
-import { updateFeatureInfo } from '../../store/feature';
-import featureSocketUtil from '../../util/feature-socket';
 
-@connect({}, {
-  updateFeatureInfo
-})
 export default class Home extends wepy.page {
   config = {
     navigationBarTitleText: '智能家居'
-  };
-
-  data = {
-    loading: true
   };
 
   methods = {
@@ -86,17 +74,6 @@ export default class Home extends wepy.page {
           });
       }
     }
-  };
-
-  onLoad = async () => {
-    // 初始化 webSocket 客户端
-    featureSocketUtil.initWebSocketClient(() => {
-      this.loading = false;
-      // 处理 webSocket 数据
-      featureSocketUtil.receiverWebSocketData(this.methods.updateFeatureInfo);
-      // 发送 webSocket 数据
-      featureSocketUtil.sendWebSocketData('INIT');
-    });
   };
 }
 </script>

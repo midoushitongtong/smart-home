@@ -3,43 +3,57 @@ import Base from '../components/iview/base';
 const featureSocketUtil = {
   initWebSocketClient: (successCallback) => {
     Base.$Toast({
-      content: `连接中...`,
+      content: `重新连接中...`,
       duration: 3,
       mask: false
     });
+
     wx.connectSocket({
-      url: 'wss://project.yyccyy.com/smart-home/backend/api/webSocket',
-      // url: 'ws://10.0.19.175:5002',
+      // url: 'wss://project.yyccyy.com/smart-home/backend/api/webSocket',
+      url: 'ws://10.0.19.175:5002',
       success: () => {
+        console.log('==webSocket server connect success');
         Base.$Toast({
-          content: `连接完成...`,
+          content: `服务端连接完成...`,
           duration: 3,
           mask: false
-        });
-        // 连接成功
-        wx.onSocketOpen(() => {
-          console.log('==webSocket server connect success');
-          // 回调
-          successCallback();
         });
       },
       fail: (e) => {
         console.error(e);
         Base.$Toast({
-          content: `webSocket 连接失败: ${e}`,
+          content: `连接失败: ${e}`,
           duration: 3,
           mask: false
         });
       }
     });
 
+    // 连接成功
+    wx.onSocketOpen(() => {
+      // 回调
+      successCallback();
+    });
+
     wx.onSocketClose((e) => {
+      // 智能家居连接中断
+      Base.$Toast({
+        content: '智能家居连接关闭!',
+        duration: 3,
+        mask: false
+      });
+      // 跳转至登陆页
+      setTimeout(() => {
+        wx.navigateTo({
+          url: '/pages/account/sign-in/index'
+        });
+      }, 1111);
       console.log('==webSocket server connect close', e);
     });
 
     wx.onSocketError((e) => {
       Base.$Toast({
-        content: `webSocket 连接失败: ${JSON.stringify(e)}`,
+        content: `连接错误: ${JSON.stringify(e)}`,
         duration: 3,
         mask: false
       });
@@ -64,6 +78,14 @@ const featureSocketUtil = {
     wx.onSocketMessage(({ data }) => {
       data = data.toString();
       console.log(`webSocket server receiver data: ${data}`);
+
+      // 是否是判断智能家居是否连接
+      if (data.indexOf('hasSocket') > -1) {
+        const flag = data.split('-')[1];
+        // 防止多次调用方法
+        updateFeatureInfo({ hasSocket: flag, initHasSocketIdFlag: true });
+        return;
+      }
 
       // 是否是警告通知
       if (data.indexOf('call1') > -1) {

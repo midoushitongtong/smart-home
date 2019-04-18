@@ -1,9 +1,9 @@
 const WebSocket = require('ws');
-var webSocket = new WebSocket("ws://127.0.0.1:5002");
+var webSocket = new WebSocket('ws://0.0.0.0:5002');
 
 webSocket.onopen = function (e) {
   console.log('webSocket server connect success');
-  webSocket.send('{"actionType":"kitchen","actionTypeDetailName":"switch1","actionTypeDetailValue":false}');
+  webSocket.send('id-ppppp');
 };
 
 webSocket.onmessage = function (event) {
@@ -11,6 +11,5 @@ webSocket.onmessage = function (event) {
 };
 
 webSocket.onclose = function (e) {
-  console.log('connection aclosed.');
+  console.log('webSocket server connect closed.');
 };
-

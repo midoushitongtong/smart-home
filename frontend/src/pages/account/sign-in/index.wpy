@@ -1,13 +1,13 @@
 <template>
   <view class="sign-in-container">
     <i-input
-      value="{{password}}"
+      value="{{socketId}}"
       maxlength="-1"
       right
       mode="wrapped"
       title="密码"
       @change="changePassword"
-      placeholder="输入您的智能家居密码"
+      placeholder="输入您的智能家居id"
     />
     <view class="sign-in-button-container">
       <i-button
@@ -26,40 +26,82 @@
 
 <script>
 import wepy from 'wepy';
+import { connect } from 'wepy-redux';
+import { updateFeatureInfo } from '../../../store/feature';
+import featureSocketUtil from '../../../util/feature-socket';
 import Base from '../../../components/iview/base/index';
 
+@connect({
+  featureInfo: function featureInfo(state) {
+    return state.feature.featureInfo;
+  }
+}, {
+  updateFeatureInfo
+})
 export default class AccountSignIn extends wepy.page {
   config = {
     navigationBarTitleText: '登陆您的智能家居'
   };
 
   data = {
-    password: '123456',
+    socketId: 'ppppp',
     signInLoading: false
   };
 
   methods = {
     changePassword: (e) => {
-      this.password = e.detail.detail.value;
+      this.socketId = e.detail.detail.value;
     },
     signIn: () => {
+      if (this.signInLoading) return;
       this.signInLoading = true;
       setTimeout(() => {
+        featureSocketUtil.sendWebSocketData(`hasSocket-${this.socketId}`);
         this.signInLoading = false;
         this.$apply();
-        if (this.password !== '123456') {
+      }, 1000);
+    }
+  };
+
+  watch = {
+    featureInfo(newValue, oldValue) {
+      // 监听智能家居是否连接
+      if (newValue.hasSocket && newValue.initHasSocketIdFlag === true) {
+        this.methods.updateFeatureInfo({ initHasSocketIdFlag: false });
+        if (newValue.hasSocket === 'yes') {
           Base.$Toast({
-            content: '登陆失败, 请确认密码是否正确!',
+            content: '连接智能家居成功!',
             duration: 3,
             mask: false
           });
+          // 发送 webSocket id 让服务器保存
+          featureSocketUtil.sendWebSocketData(`id-${this.socketId}`);
+          setTimeout(() => {
+            // 初始化数据
+            featureSocketUtil.sendWebSocketData(`INIT`);
+          }, 111);
+          setTimeout(() => {
+            wepy.switchTab({
+              url: '/pages/home/index'
+            });
+          }, 1111);
         } else {
-          wepy.switchTab({
-            url: '/pages/home/index'
+          Base.$Toast({
+            content: '连接智能家居失败!',
+            duration: 3,
+            mask: false
           });
         }
-      }, 1000);
+      }
     }
+  };
+
+  onLoad() {
+    // 初始化 webSocket 客户端
+    featureSocketUtil.initWebSocketClient(() => {
+      // 处理 webSocket 数据
+      featureSocketUtil.receiverWebSocketData(this.methods.updateFeatureInfo);
+    });
   };
 }
 </script>
