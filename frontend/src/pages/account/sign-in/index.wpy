@@ -5,7 +5,7 @@
       maxlength="-1"
       right
       mode="wrapped"
-      title="密码"
+      title="家居id"
       @change="changePassword"
       placeholder="输入您的智能家居id"
     />
@@ -16,7 +16,7 @@
         long="true"
         @click="signIn"
       >
-        登陆
+        连接
       </i-button>
     </view>
   </view>
@@ -40,11 +40,11 @@ import Base from '../../../components/iview/base/index';
 })
 export default class AccountSignIn extends wepy.page {
   config = {
-    navigationBarTitleText: '登陆您的智能家居'
+    navigationBarTitleText: '连接您的智能家居'
   };
 
   data = {
-    socketId: 'ppppp',
+    socketId: 'p',
     signInLoading: false
   };
 
@@ -55,23 +55,24 @@ export default class AccountSignIn extends wepy.page {
     signIn: () => {
       if (this.signInLoading) return;
       this.signInLoading = true;
+      this.$apply();
       setTimeout(() => {
         featureSocketUtil.sendWebSocketData(`hasSocket-${this.socketId}`);
-        this.signInLoading = false;
-        this.$apply();
       }, 1000);
     }
   };
 
   watch = {
     featureInfo(newValue, oldValue) {
+      this.signInLoading = false;
+      this.$apply();
       // 监听智能家居是否连接
       if (newValue.hasSocket && newValue.initHasSocketIdFlag === true) {
         this.methods.updateFeatureInfo({ initHasSocketIdFlag: false });
         if (newValue.hasSocket === 'yes') {
           Base.$Toast({
-            content: '连接智能家居成功!',
-            duration: 3,
+            content: '智能家居-连接成功',
+            duration: 1,
             mask: false
           });
           // 发送 webSocket id 让服务器保存
@@ -79,16 +80,16 @@ export default class AccountSignIn extends wepy.page {
           setTimeout(() => {
             // 初始化数据
             featureSocketUtil.sendWebSocketData(`INIT`);
+            setTimeout(() => {
+              wepy.switchTab({
+                url: '/pages/home/index'
+              });
+            }, 500);
           }, 111);
-          setTimeout(() => {
-            wepy.switchTab({
-              url: '/pages/home/index'
-            });
-          }, 1111);
         } else {
           Base.$Toast({
-            content: '连接智能家居失败!',
-            duration: 3,
+            content: '智能家居-连接失败',
+            duration: 1,
             mask: false
           });
         }
@@ -98,10 +99,7 @@ export default class AccountSignIn extends wepy.page {
 
   onLoad() {
     // 初始化 webSocket 客户端
-    featureSocketUtil.initWebSocketClient(() => {
-      // 处理 webSocket 数据
-      featureSocketUtil.receiverWebSocketData(this.methods.updateFeatureInfo);
-    });
+    featureSocketUtil.initWebSocketClient(this.methods.updateFeatureInfo);
   };
 }
 </script>

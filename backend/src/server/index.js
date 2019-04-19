@@ -8,7 +8,7 @@ module.exports = {
     const tcpServer = net.createServer();
 
     // 有客户端连接交给 service 处理
-    tcpServer.on('connection', (socket) => smartHomeSocketService.handlerSocket(socket));
+    tcpServer.on('connection', (socket) => smartHomeSocketService.handlerSocketConnect(socket));
 
     tcpServer.on('error', (e) => {
       console.log('tcpServer error', e);
@@ -27,6 +27,6 @@ module.exports = {
     });
 
     // 有客户端连接交给 service 处理
-    wss.on('connection', (webSocket, request) => smartHomeSocketService.handlerWebSocket(webSocket, request));
+    wss.on('connection', (webSocket, request) => smartHomeSocketService.handlerWebSocketConnect(webSocket, request));
   }
 };

@@ -12,7 +12,7 @@ export default class extends wepy.app {
     pages: [
       'pages/account/sign-in/index',
       'pages/home/index',
-      'pages/person/index',
+      'pages/account/person/index',
       'pages/feature/home/index',
       'pages/feature/kitchen/index',
       'pages/feature/living/index',
@@ -39,7 +39,7 @@ export default class extends wepy.app {
           selectedIconPath: '/assets/images/md-home-selected.png'
         },
         {
-          pagePath: 'pages/person/index',
+          pagePath: 'pages/account/person/index',
           text: '我的',
           iconPath: '/assets/images/md-person.png',
           selectedIconPath: '/assets/images/md-person-selected.png'

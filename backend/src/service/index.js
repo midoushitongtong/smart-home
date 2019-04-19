@@ -3,7 +3,7 @@ const smsUtil = require('../util/sms');
 const obj = {
   validSocketList: [],
   validWebSocketList: [],
-  handlerSocket: (socket) => {
+  handlerSocketConnect: (socket) => {
     console.log(`=socket client connect success: ${socket.remoteAddress}`);
 
     // 处理每个客户端发送的消息
@@ -38,7 +38,7 @@ const obj = {
       console.log(`=socket client connect error: ${socket.remoteAddress}`);
     });
   },
-  handlerWebSocket: (webSocket, request) => {
+  handlerWebSocketConnect: (webSocket, request) => {
     console.log(`==webSocket client connect success: ${request.connection.remoteAddress}`);
 
     // 处理每个客户端发送的消息
@@ -66,6 +66,24 @@ const obj = {
       });
       console.log(`=====valid socket connect success id: ${id}`);
     } else {
+      // 发送报警短信
+      if (str.indexOf('call1') > -1) {
+        const flag = str.split('-')[1];
+        if (flag === '1') {
+          const params = ['报警', '1'];
+          const phoneNumberList = ['13026628310', '14715142455', '13537279739'];
+          phoneNumberList.forEach(phone => smsUtil.sendSMSMessage([phone], params));
+        }
+      }
+      if (str.indexOf('smoke1') > -1) {
+        const flag = str.split('-')[1];
+        if (flag === '1') {
+          const params = ['烟雾报警', '1'];
+          const phoneNumberList = ['13026628310', '14715142455', '13537279739'];
+          phoneNumberList.forEach(phone => smsUtil.sendSMSMessage([phone], params));
+        }
+      }
+
       // 获取当前连接的有效 socket
       const validSocket = obj.validSocketList.find(validSocketItem => validSocketItem.socket === socket);
 
@@ -89,18 +107,6 @@ const obj = {
       });
       console.log(`=====valid webSocket connect success id: ${id}`);
     } else {
-      // 发送报警短信
-      if (str.indexOf('send-call1') > -1) {
-        const phoneNumber = str.split('-')[2];
-        smsUtil.sendSMSMessage([phoneNumber], '报警');
-        return;
-      }
-      if (str.indexOf('send-smoke1') > -1) {
-        const phoneNumber = str.split('-')[2];
-        smsUtil.sendSMSMessage([phoneNumber], '烟雾报警');
-        return;
-      }
-
       // 检测是否存在 socket
       if (str.indexOf('hasSocket') > -1) {
         const socketId = str.split('-')[1];

@@ -1,6 +1,5 @@
 const net = require('net');
 const HOST = '0.0.0.0';
-// const HOST = '47.106.77.210';
 const PORT = 5001;
 
 function connect() {
@@ -9,7 +8,7 @@ function connect() {
     console.log('socket server connect success');
 
     // 发送唯一标识
-    socket.write('id-w');
+    socket.write(`id-p`);
 
     socket.on('data', function (str) {
       str = str.toString();
@@ -18,10 +17,18 @@ function connect() {
         switch (str) {
           case 'INIT':
             // 发送数据给服务端
-            // 房子
+
+            // 发送警告数据
             setTimeout(() => {
-              socket.write('call1-0');
-            }, 50);
+              setTimeout(() => {
+                socket.write('call1-0');
+              }, 50);
+              setTimeout(() => {
+                socket.write('smoke1-0');
+              }, 100);
+            }, 3000);
+
+            // 房子
             setTimeout(() => {
               socket.write('door1-1');
             }, 50 * 2);
@@ -30,9 +37,6 @@ function connect() {
             setTimeout(() => {
               socket.write('LED1-1');
             }, 50 * 3);
-            setTimeout(() => {
-              socket.write('smoke1-0');
-            }, 50 * 4);
 
             // 客厅
             setTimeout(() => {

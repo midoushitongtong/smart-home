@@ -8,6 +8,20 @@
         <open-data type="userNickName"></open-data>
       </view>
     </view>
+    <i-cell-group>
+      <i-cell>
+        <i-button
+          type="error"
+          long="true"
+          loading="{{closeWebSocketLoading}}"
+          @click="closeWebSocket"
+        >
+          关闭连接
+        </i-button>
+      </i-cell>
+    </i-cell-group>
+    <!-- 提示框 -->
+    <i-toast id="toast"/>
   </view>
 </template>
 
@@ -17,6 +31,22 @@ import wepy from 'wepy';
 export default class Person extends wepy.page {
   config = {
     navigationBarTitleText: '我的'
+  };
+
+  data = {
+    closeWebSocketLoading: false
+  };
+
+  methods = {
+    closeWebSocket: () => {
+      this.closeWebSocketLoading = true;
+      this.$apply();
+      setTimeout(() => {
+        this.closeWebSocketLoading = false;
+        this.$apply();
+        wx.closeSocket();
+      }, 500);
+    }
   };
 }
 </script>
@@ -40,7 +70,7 @@ export default class Person extends wepy.page {
         border-radius: 50%;
       }
       .user-info-nickname {
-        margin-top: ~"20rpx";
+        margin-top: ~"35rpx";
         font-size: ~"30rpx";
       }
     }

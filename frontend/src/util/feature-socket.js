@@ -1,85 +1,31 @@
 import Base from '../components/iview/base';
+import config from '../config';
 
 const featureSocketUtil = {
-  initWebSocketClient: (successCallback) => {
-    Base.$Toast({
-      content: `重新连接中...`,
-      duration: 3,
-      mask: false
-    });
-
+  initWebSocketClient: (updateFeatureInfo) => {
     wx.connectSocket({
-      // url: 'wss://project.yyccyy.com/smart-home/backend/api/webSocket',
-      url: 'ws://10.0.19.175:5002',
+      url: config.WEB_SOCKET_ROOT,
       success: () => {
         console.log('==webSocket server connect success');
-        Base.$Toast({
-          content: `服务端连接完成...`,
-          duration: 3,
-          mask: false
-        });
+        featureSocketUtil.initWebSocketEventHandler(updateFeatureInfo);
       },
       fail: (e) => {
         console.error(e);
         Base.$Toast({
-          content: `连接失败: ${e}`,
+          content: `服务器连接失败: ${e}`,
           duration: 3,
           mask: false
         });
       }
     });
-
-    // 连接成功
-    wx.onSocketOpen(() => {
-      // 回调
-      successCallback();
-    });
-
-    wx.onSocketClose((e) => {
-      // 智能家居连接中断
-      Base.$Toast({
-        content: '智能家居连接关闭!',
-        duration: 3,
-        mask: false
-      });
-      // 跳转至登陆页
-      setTimeout(() => {
-        wx.navigateTo({
-          url: '/pages/account/sign-in/index'
-        });
-      }, 1111);
-      console.log('==webSocket server connect close', e);
-    });
-
-    wx.onSocketError((e) => {
-      Base.$Toast({
-        content: `连接错误: ${JSON.stringify(e)}`,
-        duration: 3,
-        mask: false
-      });
-    });
   },
-  sendWebSocketData: (data) => {
-    // 发送数据
-    wx.sendSocketMessage({
-      data,
-      fail: (e) => {
-        console.log('webSocket send data fail', e);
-        // 重连 webSocket
-        featureSocketUtil.initWebSocketClient(() => {
-          // 重新发送数据
-          featureSocketUtil.sendWebSocketData(data);
-        });
-      }
-    });
-  },
-  receiverWebSocketData: (updateFeatureInfo) => {
+  initWebSocketEventHandler: (updateFeatureInfo) => {
     // 接收数据
     wx.onSocketMessage(({ data }) => {
       data = data.toString();
       console.log(`webSocket server receiver data: ${data}`);
 
-      // 是否是判断智能家居是否连接
+      // 是否是判断智能家居-是否连接
       if (data.indexOf('hasSocket') > -1) {
         const flag = data.split('-')[1];
         // 防止多次调用方法
@@ -90,7 +36,6 @@ const featureSocketUtil = {
       // 是否是警告通知
       if (data.indexOf('call1') > -1) {
         if (data.split('-')[1] === '1') {
-          featureSocketUtil.sendWebSocketData('send-call1-13026628310');
           Base.$Toast({
             content: '报警系统1已打开',
             duration: 3,
@@ -101,7 +46,6 @@ const featureSocketUtil = {
       }
       if (data.indexOf('smoke1') > -1) {
         if (data.split('-')[1] === '1') {
-          featureSocketUtil.sendWebSocketData('send-smoke1-13026628310');
           Base.$Toast({
             content: '烟雾报警系统1已打开',
             duration: 3,
@@ -189,6 +133,38 @@ const featureSocketUtil = {
         duration: 3,
         mask: false
       });
+    });
+
+    wx.onSocketClose((e) => {
+      Base.$Toast({
+        content: '智能家居-连接关闭',
+        duration: 1,
+        mask: false
+      });
+      // 跳转至登陆页
+      setTimeout(() => {
+        wx.redirectTo({
+          url: '/pages/account/sign-in/index'
+        });
+      }, 1111);
+      console.log('==webSocket server connect close', e);
+    });
+
+    wx.onSocketError((e) => {
+      Base.$Toast({
+        content: `服务器连接错误: ${JSON.stringify(e)}`,
+        duration: 3,
+        mask: false
+      });
+    });
+  },
+  sendWebSocketData: (data) => {
+    // 发送数据
+    wx.sendSocketMessage({
+      data,
+      fail: (e) => {
+        console.log(`发送数据失败${e}`);
+      }
     });
   }
 };
