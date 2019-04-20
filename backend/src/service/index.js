@@ -57,7 +57,7 @@ const obj = {
     });
   },
   handlerSocketData: (socket, str) => {
-    if (str.indexOf('id') > -1) {
+    if (str.substring(0, 'id'.length) === 'id') {
       // 初始化有效 socket 连接
       const id = str.split('-')[1];
       obj.validSocketList.push({
@@ -67,7 +67,7 @@ const obj = {
       console.log(`=====valid socket connect success id: ${id}`);
     } else {
       // 发送报警短信
-      if (str.indexOf('call1') > -1) {
+      if (str.substring(0, 'call1'.length) === 'call1') {
         const flag = str.split('-')[1];
         if (flag === '1') {
           const params = ['报警', '1'];
@@ -75,7 +75,7 @@ const obj = {
           phoneNumberList.forEach(phone => smsUtil.sendSMSMessage([phone], params));
         }
       }
-      if (str.indexOf('smoke1') > -1) {
+      if (str.substring(0, 'smoke1'.length) === 'smoke1') {
         const flag = str.split('-')[1];
         if (flag === '1') {
           const params = ['烟雾报警', '1'];
@@ -98,7 +98,7 @@ const obj = {
     }
   },
   handlerWebSocketData: (webSocket, str) => {
-    if (str.indexOf('id') > -1) {
+    if (str.substring(0, 'id'.length) === 'id') {
       // 初始化有效 webSocket 连接
       const id = str.split('-')[1];
       obj.validWebSocketList.push({
@@ -108,7 +108,7 @@ const obj = {
       console.log(`=====valid webSocket connect success id: ${id}`);
     } else {
       // 检测是否存在 socket
-      if (str.indexOf('hasSocket') > -1) {
+      if (str.substring(0, 'hasSocket'.length) === 'hasSocket') {
         const socketId = str.split('-')[1];
         const validSocket = obj.validSocketList.find(validSocketItem => validSocketItem.id === socketId);
         if (validSocket) {

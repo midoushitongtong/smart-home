@@ -26,7 +26,7 @@ const featureSocketUtil = {
       console.log(`webSocket server receiver data: ${data}`);
 
       // 是否是判断智能家居-是否连接
-      if (data.indexOf('hasSocket') > -1) {
+      if (data.substring(0, 'hasSocket'.length) === 'hasSocket') {
         const flag = data.split('-')[1];
         // 防止多次调用方法
         updateFeatureInfo({ hasSocket: flag, initHasSocketIdFlag: true });
@@ -34,7 +34,7 @@ const featureSocketUtil = {
       }
 
       // 是否是警告通知
-      if (data.indexOf('call1') > -1) {
+      if (data.substring(0, 'call1'.length) === 'call1') {
         if (data.split('-')[1] === '1') {
           Base.$Toast({
             content: '报警系统1已打开',
@@ -44,7 +44,7 @@ const featureSocketUtil = {
         }
         return;
       }
-      if (data.indexOf('smoke1') > -1) {
+      if (data.substring(0, 'smoke1'.length) === 'smoke1') {
         if (data.split('-')[1] === '1') {
           Base.$Toast({
             content: '烟雾报警系统1已打开',
@@ -57,31 +57,31 @@ const featureSocketUtil = {
 
       // 将数据保存到 reudx 中
       // 主控制
-      if (data.indexOf('door1') > -1) {
+      if (data.substring(0, 'door1'.length) === 'door1') {
         updateFeatureInfo({ door1: data.split('-')[1] === '1' });
         return;
       }
 
       // 厨房
-      if (data.indexOf('LED1') > -1) {
+      if (data.substring(0, 'LED1'.length) === 'LED1') {
         updateFeatureInfo({ LED1: data.split('-')[1] === '1' });
         return;
       }
 
       // 客厅
-      if (data.indexOf('LED2') > -1) {
+      if (data.substring(0, 'LED2'.length) === 'LED2') {
         updateFeatureInfo({ LED2: data.split('-')[1] === '1' });
         return;
       }
-      if (data.indexOf('fan1') > -1) {
+      if (data.substring(0, 'fan1'.length) === 'fan1') {
         updateFeatureInfo({ fan1: data.split('-')[1] });
         return;
       }
-      if (data.indexOf('tem1') > -1) {
+      if (data.substring(0, 'tem1'.length) === 'tem1') {
         updateFeatureInfo({ tem1: data.split('-')[1] });
         return;
       }
-      if (data.indexOf('tem-hum1') > -1) {
+      if (data.substring(0, 'tem-hum1'.length) === 'tem-hum1') {
         updateFeatureInfo({
           temHum1Tem: data.split('-')[2],
           temHum1Hum: data.split('-')[3]
@@ -90,39 +90,39 @@ const featureSocketUtil = {
       }
 
       // 餐厅
-      if (data.indexOf('LED3') > -1) {
+      if (data.substring(0, 'LED3'.length) === 'LED3') {
         updateFeatureInfo({ LED3: data.split('-')[1] === '1' });
         return;
       }
 
       // 阳台
-      if (data.indexOf('LED4') > -1) {
+      if (data.substring(0, 'LED4'.length) === 'LED4') {
         updateFeatureInfo({ LED4: data.split('-')[1] === '1' });
         return;
       }
-      if (data.indexOf('cur1') > -1) {
+      if (data.substring(0, 'cur1'.length) === 'cur1') {
         updateFeatureInfo({ cur1: data.split('-')[1] === '1' });
         return;
       }
 
       // 主卧
-      if (data.indexOf('LED5') > -1) {
+      if (data.substring(0, 'LED5'.length) === 'LED5') {
         updateFeatureInfo({ LED5: data.split('-')[1] === '1' });
         return;
       }
-      if (data.indexOf('cur2') > -1) {
+      if (data.substring(0, 'cur2'.length) === 'cur2') {
         updateFeatureInfo({ cur2: data.split('-')[1] === '1' });
         return;
       }
 
       // 次卧
-      if (data.indexOf('LED6') > -1) {
+      if (data.substring(0, 'LED6'.length) === '') {
         updateFeatureInfo({ LED6: data.split('-')[1] === '1' });
         return;
       }
 
       // 洗手间
-      if (data.indexOf('LED7') > -1) {
+      if (data.substring(0, 'LED7'.length) === '') {
         updateFeatureInfo({ LED7: data.split('-')[1] === '1' });
         return;
       }
