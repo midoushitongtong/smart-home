@@ -10,17 +10,9 @@ setStore(store);
 export default class extends wepy.app {
   config = {
     pages: [
-      'pages/account/sign-in/index',
+      'pages/add-feature/index',
       'pages/home/index',
-      'pages/account/person/index',
-      'pages/feature/home/index',
-      'pages/feature/kitchen/index',
-      'pages/feature/living/index',
-      'pages/feature/restaurant/index',
-      'pages/feature/balcony/index',
-      'pages/feature/master-bedroom/index',
-      'pages/feature/second-bedroom/index',
-      'pages/feature/bathroom/index'
+      'pages/account/person/index'
     ],
     window: {
       backgroundTextStyle: 'light',
@@ -34,7 +26,7 @@ export default class extends wepy.app {
       list: [
         {
           pagePath: 'pages/home/index',
-          text: '智能家居',
+          text: '科创家',
           iconPath: '/assets/images/md-home.png',
           selectedIconPath: '/assets/images/md-home-selected.png'
         },
@@ -55,7 +47,11 @@ export default class extends wepy.app {
       'i-toast': '../../../components/iview/toast/index',
       'i-input': '../../../components/iview/input/index',
       'i-input-number': '../../../components/iview/input-number/index',
-      'i-spin': '../../../components/iview/spin/index'
+      'i-spin': '../../../components/iview/spin/index',
+      'i-grid': '../../../components/iview/grid/index',
+      'i-grid-item': '../../../components/iview/grid-item/index',
+      'i-grid-icon': '../../../components/iview/grid-icon/index',
+      'i-grid-label': '../../../components/iview/grid-label/index'
     }
   };
 
@@ -68,5 +64,7 @@ export default class extends wepy.app {
 </script>
 
 <style lang="less">
-
+  page {
+    background-color: #f3f3f3;
+  }
 </style>

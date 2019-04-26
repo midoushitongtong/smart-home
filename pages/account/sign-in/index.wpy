@@ -44,7 +44,7 @@ export default class AccountSignIn extends wepy.page {
   };
 
   data = {
-    socketId: 'p',
+    socketId: 'ESP8266Clinet',
     signInLoading: false
   };
 
@@ -99,7 +99,7 @@ export default class AccountSignIn extends wepy.page {
 
   onLoad() {
     // 初始化 webSocket 客户端
-    featureSocketUtil.initWebSocketClient(this.methods.updateFeatureInfo);
+    // featureSocketUtil.initWebSocketClient(this.methods.updateFeatureInfo);
   };
 }
 </script>

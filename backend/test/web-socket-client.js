@@ -3,7 +3,6 @@ var webSocket = new WebSocket('ws://0.0.0.0:5002');
 
 webSocket.onopen = function (e) {
   console.log('webSocket server connect success');
-  webSocket.send('id-ppppp');
 };
 
 webSocket.onmessage = function (event) {

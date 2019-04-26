@@ -16,7 +16,6 @@ const smsSign = '科创家居助手';  // NOTE: 这里的签名只是示例，�
 const qcloudsms = QcloudSms(appid, appkey);
 
 // 设置请求回调处理, 这里只是演示，用户需要自定义相应处理回调
-
 const obj = {
   sendSMSMessage: (phoneNumbers, params) => {
     var ssender = qcloudsms.SmsSingleSender();
@@ -35,7 +34,8 @@ const obj = {
           console.log('request data: ', res.req);
           console.log('response data: ', resData);
         }
-      });
+      }
+    );
   }
 };
 

@@ -7,17 +7,12 @@ function connect() {
   socket.connect(PORT, HOST, function () {
     console.log('socket server connect success');
 
-    // 发送唯一标识
-    socket.write(`id-p`);
-
     socket.on('data', function (str) {
       str = str.toString();
       console.log(`socket server receiver data: ${str}`);
       try {
         switch (str) {
           case 'INIT':
-            // 发送数据给服务端
-
             // 发送警告数据
             setTimeout(() => {
               setTimeout(() => {
@@ -28,63 +23,10 @@ function connect() {
               }, 100);
             }, 3000);
 
-            // 房子
-            setTimeout(() => {
-              socket.write('door1-1');
-            }, 50 * 2);
-
-            // 厨房
-            setTimeout(() => {
-              socket.write('LED1-1');
-            }, 50 * 3);
-
-            // 客厅
-            setTimeout(() => {
-              socket.write('LED2-1');
-            }, 50 * 5);
-            setTimeout(() => {
-              socket.write('fan1-2');
-            }, 50 * 6);
-            setTimeout(() => {
-              socket.write('tem1-15');
-            }, 50 * 7);
-            setTimeout(() => {
-              socket.write('tem-hum1-15-20');
-            }, 50 * 8);
-
-            // 餐厅
-            setTimeout(() => {
-              socket.write('LED3-1');
-            }, 50 * 9);
-
-            // 阳台
-            setTimeout(() => {
-              socket.write('LED4-0');
-            }, 50 * 10);
-            setTimeout(() => {
-              socket.write('cur1-0');
-            }, 50 * 11);
-
-            // 主卧
-            setTimeout(() => {
-              socket.write('LED5-1');
-            }, 50 * 12);
-            setTimeout(() => {
-              socket.write('cur2-0');
-            }, 50 * 13);
-
-            // 次卧
-            setTimeout(() => {
-              socket.write('LED6-1');
-            }, 50 * 14);
-
-            // 卫生间
-            setTimeout(() => {
-              socket.write('LED7-1');
-            }, 50 * 15);
+            // 初始化数据
+            socket.write('INIT-LED1-0,LED2-1,LED3-0,LED4-0,LED5-0,LED6-0,LED7-0,door1-0,cur1-0,cur2-0,fan1-0,tem-hum1-23-33,tem1-15,hood1-1');
             break;
           default:
-            // 保存状态
             // 发送数据给服务端
             socket.write(str);
         }
