@@ -1,14 +1,14 @@
 import Base from '../components/iview/base';
 import config from '../config';
 
-const featureSocketUtil = {
+const featureSocket = {
   // 初始化 webSocket 连接
   initWebSocketClient: (updateFeatureInfo) => {
     wx.connectSocket({
       url: config.WEB_SOCKET_ROOT,
       success: () => {
         console.log('==webSocket server connect success');
-        featureSocketUtil.initWebSocketEventHandler(updateFeatureInfo);
+        featureSocket.initWebSocketEventHandler(updateFeatureInfo);
       },
       fail: (e) => {
         console.error(e);
@@ -29,10 +29,10 @@ const featureSocketUtil = {
 
       // 初始化
       if (data.substring(0, 'INIT'.length) === 'INIT') {
-        // 处理初始化的数据
+        // 初始化的数据
         const initFeatureInfo = {};
         data.substring('INIT'.length + 1).split(',').forEach(dataItem => {
-          const featureInfo = featureSocketUtil.handlerWebSocketData(updateFeatureInfo, dataItem, false);
+          const featureInfo = featureSocket.handlerWebSocketData(updateFeatureInfo, dataItem, false);
           Object.keys(featureInfo).forEach(key => {
             initFeatureInfo[key] = featureInfo[key];
           });
@@ -43,13 +43,23 @@ const featureSocketUtil = {
         return;
       }
 
+      // 关闭连接
+      if (data.substring(0, 'CLOSE'.length) === 'CLOSE') {
+        // 清空数据
+        updateFeatureInfo({
+          isCLOSE: true,
+          isINIT: true
+        });
+        return;
+      }
+
       // 处理发送的数据
-      featureSocketUtil.handlerWebSocketData(updateFeatureInfo, data, true);
+      featureSocket.handlerWebSocketData(updateFeatureInfo, data, true);
     });
 
     wx.onSocketOpen(() => {
       // 连接成功初始化数据
-      featureSocketUtil.sendWebSocketData('INIT');
+      featureSocket.sendWebSocketData('INIT');
     });
 
     wx.onSocketClose((e) => {
@@ -220,4 +230,4 @@ const featureSocketUtil = {
   }
 };
 
-export default featureSocketUtil;
+export default featureSocket;

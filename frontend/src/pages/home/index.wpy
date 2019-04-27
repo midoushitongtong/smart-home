@@ -8,16 +8,13 @@
     >+
     </i-button>
   </view>
-
-  <!-- 提示框 -->
-  <i-toast id="toast"/>
 </template>
 
 <script>
 import wepy from 'wepy';
 import { connect } from 'wepy-redux';
 import { updateFeatureInfo } from '../../store/feature';
-import featureUtil from '../../util/feature-socket';
+import featureSocket from '../../util/feature-socket';
 
 @connect({}, {
   updateFeatureInfo
@@ -28,16 +25,17 @@ export default class Home extends wepy.page {
   };
 
   methods = {
+    // 前往签加设备页面
     addFeature: () => {
       wx.navigateTo({
-        url: '/pages/add-feature/index'
+        url: '/pages/device/add-device/index'
       });
     }
   };
 
   onLoad() {
     // 初始化 webSocket 链接
-    featureUtil.initWebSocketClient(this.methods.updateFeatureInfo);
+    featureSocket.initWebSocketClient(this.methods.updateFeatureInfo);
   }
 }
 </script>

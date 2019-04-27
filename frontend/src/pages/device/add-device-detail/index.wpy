@@ -1,0 +1,283 @@
+<template>
+  <view class="add-device-detail-container">
+    <view class="form-container">
+      <i-cell-group>
+        <i-cell value="{{deviceInfo.name}}" i-class="device-base-info-container">
+          <image src="{{deviceInfo.icon}}"/>
+        </i-cell>
+        <i-cell title="设备别名">
+          <input
+            slot="footer"
+            value="{{name}}"
+            type="text"
+            placeholder="{{deviceInfo.name}}"
+            @input="changeName"
+          />
+        </i-cell>
+        <i-cell title="设备所属房间" is-link @tap="toggleModal({{true}})">
+          <input
+            slot="footer"
+            value="{{room}}"
+            type="text"
+            disabled
+            placeholder="请选择设备所属房间"
+            @tap="toggleModal({{true}})"
+          />
+        </i-cell>
+      </i-cell-group>
+      <i-button
+        i-class="i-button-add-device"
+        type="primary"
+        loading="{{loading}}"
+        @tap="addDevice"
+      >保存并添加</i-button>
+    </view>
+
+    <i-modal
+      i-class="i-modal-room"
+      action-mode="vertical"
+      visible="{{visible}}"
+      actions="{{actions}}"
+      @click="handlerAction"
+    >
+      <view class="room-list-container">
+        <view wx:if="{{roomInfoList.length > 0}}">
+          <i-cell-group>
+            <radio-group class="radio-group" bindchange="changeRoomBuf">
+              <repeat for="{{roomInfoList}}" key="index" index="index" item="item">
+                <label class="room-list-item">
+                  <i-cell>
+                    <view class="room-base-info-container" slot="icon">
+                      <image src="{{item.icon}}"/>
+                      <text>{{item.name}}</text>
+                    </view>
+                    <view slot="footer">
+                      <radio color="#40a9ff" value="{{item.name}}" checked="{{item.roomBuf === name}}"/>
+                    </view>
+                  </i-cell>
+                </label>
+              </repeat>
+            </radio-group>
+          </i-cell-group>
+        </view>
+        <view class="not-room-container" wx:else>
+          <text>当前暂无房间</text>
+        </view>
+        <i-button
+          size="small"
+          i-class="i-button-to-add-room"
+          type="success"
+          @tap="toAddRoom"
+        >添加新的房间</i-button>
+      </view>
+    </i-modal>
+  </view>
+  <i-message id="message"/>
+</template>
+
+<script>
+import wepy from 'wepy';
+import { connect } from 'wepy-redux';
+import Base from '../../../components/iview/base/index';
+import roomStorage from '../../../util/room-stoage';
+import deviceStorage from '../../../util/device-stoage';
+import { updateRoomInfoList, updateDeviceInfoList } from '../../../store/feature';
+
+@connect({
+  roomInfoList: (state) => state.feature.roomInfoList
+}, {
+  updateRoomInfoList,
+  updateDeviceInfoList
+})
+export default class Home extends wepy.page {
+  config = {
+    navigationBarTitleText: '添加设备'
+  };
+
+  data = {
+    // 设备别名
+    name: '',
+    // 设备所属房间
+    room: '',
+    // 设备所属房间, 用于延迟修改
+    roomBuf: '',
+    // 添加设备信息加载状态
+    loading: false,
+    // 控制 显示/隐藏 选中房间容器
+    visible: false,
+    // 可选房间列表
+    actionList: [],
+    // 模态框按钮
+    actions: [
+      {
+        name: '确定',
+        color: '#40a9ff'
+      },
+      {
+        name: '取消'
+      }
+    ],
+    // 当前添加的设备信息
+    deviceInfo: {}
+  };
+
+  methods = {
+    // 改变设备别名
+    changeName: (e) => {
+      this.name = e.detail.value;
+    },
+    // 显示/隐藏 选择房间列表容器
+    toggleModal: (flag) => {
+      this.visible = flag;
+      this.$apply();
+    },
+    // 改变当前选中的房间
+    changeRoomBuf: (e) => {
+      this.roomBuf = e.detail.value;
+    },
+    // 模态框按钮点击事件
+    handlerAction: (e) => {
+      if (e.detail.index === 0) {
+        // 保存当前选择的房间
+        this.room = this.roomBuf;
+      }
+      this.methods.toggleModal(false);
+    },
+    // 添加设备
+    addDevice: () => {
+      this.loading = true;
+      this.$apply();
+
+      const deviceInfo = {
+        room: this.room,
+        name: this.name || this.deviceInfo.name,
+        controlName: this.deviceInfo.controlName,
+        thumb: this.deviceInfo.thumb
+      };
+
+      if (!deviceInfo.room) {
+        Base.$Message({
+          content: '请选择设备所属房间',
+          type: 'error'
+        });
+
+        this.loading = false;
+        this.$apply();
+
+        return;
+      }
+
+      // 判断设备是否存在
+      if (!deviceStorage.existDeviceInfo(deviceInfo.controlName)) {
+        setTimeout(() => {
+          deviceStorage.addDeviceInfo(deviceInfo);
+          this.methods.updateDeviceInfoList(deviceStorage.getDeviceInfoList());
+
+          // 返回首页
+          setTimeout(() => {
+            wx.reLaunch({
+              url: '/pages/home/index'
+            });
+          }, 1000);
+        }, 1000);
+      } else {
+        setTimeout(() => {
+          Base.$Message({
+            content: '当前添加设备已存在',
+            type: 'error'
+          });
+
+          this.loading = false;
+          this.$apply();
+        }, 1000);
+      }
+    },
+    // 前往添加房间页面
+    toAddRoom: () => {
+      wx.navigateTo({
+        url: '/pages/room/add-room-detail/index'
+      });
+    }
+  };
+
+  watch = {
+    // 监听, 更新房间列表数据
+    roomInfoList: (newValue) => {
+      this.actionList = newValue;
+    }
+  };
+
+  onLoad(options) {
+    // 调试
+    if (!options.name) {
+      options = {
+        name: '科创暖白灯',
+        controlName: 'LED1',
+        icon: '/assets/images/LED.png'
+      };
+    }
+    // 动态设置标题
+    wx.setNavigationBarTitle({
+      title: options.name
+    });
+    // 初始化页面所需数据
+    this.actionList = roomStorage.getRoomList();
+    this.deviceInfo = options;
+    // 更新房间列表数据
+    this.methods.updateRoomInfoList(roomStorage.getRoomList());
+    this.$apply();
+  }
+}
+</script>
+
+<style lang="less">
+  .add-device-detail-container {
+    padding-bottom: 15px;
+    background-color: #fff;
+    .form-container {
+      .device-base-info-container {
+        background-color: rgba(0, 0, 0, .03);
+        image {
+          width: 65px;
+          height: 65px;
+        }
+      }
+      .i-button-add-device {
+        margin-left: 15px;
+        margin-right: 15px;
+        margin-bottom: 0;
+      }
+    }
+    .i-modal-room {
+      & > view:first-child {
+        width: 90%;
+        & > view:first-child {
+          & > view:first-child {
+            max-height: 90%;
+            margin-bottom: 0;
+            padding-left: 10px;
+            padding-right: 10px;
+          }
+        }
+      }
+    }
+    .room-list-container {
+      .room-list-item {
+        .room-base-info-container {
+          display: flex;
+          align-items: center;
+          image {
+            width: 35px;
+            height: 35px;
+            margin-right: 10px;
+          }
+        }
+      }
+      .i-button-to-add-room {
+        margin-left: 15px;
+        margin-right: 15px;
+        margin-bottom: 15px;
+      }
+    }
+  }
+</style>

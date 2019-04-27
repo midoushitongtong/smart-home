@@ -33,6 +33,8 @@ function connect() {
       } catch (e) {
         console.log('==socket server 字符串转对象失败', e);
       }
+
+      // 1
     });
 
     socket.on('close', function () {

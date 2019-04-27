@@ -1,0 +1,186 @@
+<template>
+  <view class="add-device-container">
+    <view class="nearby-device-container">附近的设备</view>
+    <view class="loading-container" wx:if="{{isLoading}}">
+      <i-spin size="large" fix></i-spin>
+    </view>
+    <view wx:else>
+      <view class="nearby-device-list" wx:if="{{nearbyDeviceList.length > 0}}">
+        <repeat for="{{nearbyDeviceList}}" key="index" index="index" item="item">
+          <view class="nearby-device-list-item" @tap="toAddDeviceDetail({{item}})">
+            <image src="{{item.icon}}" alt="{{item.name}}"/>
+            <text>{{item.name}}</text>
+          </view>
+        </repeat>
+      </view>
+      <view class="not-nearby-device" wx:else>附近暂无设备可用~</view>
+    </view>
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy';
+import { connect } from 'wepy-redux';
+import deviceStorage from '../../../util/device-stoage';
+
+@connect({
+  featureInfo: (state) => {
+    return state.feature.featureInfo;
+  }
+}, {})
+export default class Home extends wepy.page {
+  config = {
+    navigationBarTitleText: '添加设备'
+  };
+
+  data = {
+    // 加载设备列表状态
+    isLoading: true,
+    // 附近的设备列表
+    nearbyDeviceList: []
+  };
+
+  methods = {
+    // 生成附近的设备列表
+    refreshNearbyDeviceList: (currentData) => {
+      this.isLoading = true;
+      this.$apply();
+
+      const newNearbyDeviceList = [];
+      Object.keys(currentData).forEach(controlName => {
+        // 设备已存在加则不显示
+        if (deviceStorage.existDeviceInfo(controlName)) {
+          return;
+        }
+        let data = null;
+        if (controlName.substring(0, 'LED'.length) === 'LED') {
+          data = {
+            name: `科创暖白灯${controlName.substr('LED'.length, 1)}`,
+            controlName,
+            icon: '/assets/images/LED.png'
+          };
+        } else if (controlName.substring(0, 'door'.length) === 'door') {
+          data = {
+            name: `科创智慧门${controlName.substr('door'.length, 1)}`,
+            controlName,
+            icon: '/assets/images/door.png'
+          };
+        } else if (controlName.substring(0, 'cur'.length) === 'cur') {
+          data = {
+            name: `科创窗帘电机${controlName.substr('cur'.length, 1)}`,
+            controlName,
+            icon: '/assets/images/cur.png'
+          };
+        } else if (controlName.substring(0, 'fan'.length) === 'fan') {
+          data = {
+            name: `科创自然风扇${controlName.substr('fan'.length, 1)}`,
+            controlName,
+            icon: '/assets/images/fan.png'
+          };
+        } else if (controlName.substring(0, 'tem'.length) === 'tem' && controlName.substring(0, 'temHum'.length) !== 'temHum') {
+          data = {
+            name: `科创变频空调${controlName.substr('tem'.length, 1)}`,
+            controlName,
+            icon: '/assets/images/tem.png'
+          };
+        } else if (controlName.substring(0, 'hood'.length) === 'hood') {
+          data = {
+            name: `科创吸油烟机${controlName.substr('hood'.length, 1)}`,
+            controlName,
+            icon: '/assets/images/hood.png'
+          };
+        }
+        if (data) {
+          newNearbyDeviceList.push(data);
+        }
+      });
+      setTimeout(() => {
+        this.nearbyDeviceList = newNearbyDeviceList;
+        this.$apply();
+
+        setTimeout(() => {
+          this.isLoading = false;
+          this.$apply();
+        }, 10);
+      }, 1000);
+    },
+    // 前往添加设备详情页
+    toAddDeviceDetail: (device) => {
+      wx.navigateTo({
+        url: `/pages/device/add-device-detail/index?name=${device.name}&controlName=${device.controlName}&icon=${device.icon}`
+      });
+    }
+  };
+
+  watch = {
+    // 监听设备信息, 更新附近的设备列表
+    featureInfo: (newData) => {
+      this.methods.refreshNearbyDeviceList(newData);
+    }
+  };
+
+  onLoad() {
+    // 初始化附近设备列表
+    this.methods.refreshNearbyDeviceList(this.featureInfo);
+  }
+}
+</script>
+
+<style lang="less">
+  .add-device-container {
+    .nearby-device-container,
+    .not-nearby-device {
+      height: 50px;
+      text-align: center;
+      font-size: 13px;
+      line-height: 50px;
+      background-color: #fff;
+      color: #40a9ff;
+    }
+    .not-nearby-device {
+      margin-top: 25px;
+      color: #666;
+    }
+    .loading-container {
+      position: absolute;
+      top: 75px;
+      right: 0;
+      left: 0;
+      bottom: 0;
+      background: #fff;
+    }
+    .nearby-device-list {
+      margin-top: 25px;
+      display: flex;
+      flex-wrap: wrap;
+      border-top: ~"1rpx" solid #e9eaec;
+      border-left: ~"1rpx" solid #e9eaec;
+      background-color: #fff;
+      .nearby-device-list-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 33.33333333%;
+        padding-top: ~"50rpx";
+        padding-bottom: ~"50rpx";
+        border-right: ~"1rpx" solid #e9eaec;
+        border-bottom: ~"1rpx" solid #e9eaec;
+        box-sizing: border-box;
+        &:active {
+          background: rgba(0, 0, 0, .05);
+        }
+        image {
+          width: 32px;
+          height: 32px;
+        }
+        text {
+          display: flex;
+          width: auto;
+          margin-top: ~"20rpx";
+          font-size: ~"25rpx";
+        }
+      }
+    }
+  }
+</style>

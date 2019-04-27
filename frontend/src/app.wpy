@@ -10,9 +10,11 @@ setStore(store);
 export default class extends wepy.app {
   config = {
     pages: [
-      'pages/add-feature/index',
+      'pages/account/person/index',
       'pages/home/index',
-      'pages/account/person/index'
+      'pages/device/add-device-detail/index',
+      'pages/device/add-device/index',
+      'pages/room/add-room-detail/index'
     ],
     window: {
       backgroundTextStyle: 'light',
@@ -42,11 +44,14 @@ export default class extends wepy.app {
       'i-button': '../../../components/iview/button/index',
       'i-cell': '../../../components/iview/cell/index',
       'i-cell-group': '../../../components/iview/cell-group/index',
+      'i-modal': '../../../components/iview/modal/index',
       'i-icon': '../../../components/iview/icon/index',
       'i-switch': '../../../components/iview/switch/index',
       'i-toast': '../../../components/iview/toast/index',
-      'i-input': '../../../components/iview/input/index',
+      'i-message': '../../../components/iview/message/index',
+      'i-action-sheet': '../../components/iview/action-sheet/index',
       'i-input-number': '../../../components/iview/input-number/index',
+      'i-card': '../../../components/iview/card/index',
       'i-spin': '../../../components/iview/spin/index',
       'i-grid': '../../../components/iview/grid/index',
       'i-grid-item': '../../../components/iview/grid-item/index',
@@ -66,5 +71,6 @@ export default class extends wepy.app {
 <style lang="less">
   page {
     background-color: #f3f3f3;
+    color: #555;
   }
 </style>

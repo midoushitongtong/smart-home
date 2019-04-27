@@ -19,17 +19,21 @@ const obj = {
     // 客户端正常断开时执行
     socket.on('close', () => {
       // 连接关闭时，将其移出连接池
-      obj.validSocketList = obj.validSocketList.filter((validSocket) => {
-        if (validSocket === socket) {
+      obj.validSocketList = obj.validSocketList.filter((validSocketItem) => {
+        if (validSocketItem === socket) {
           // 告诉小程序客户端硬件已经断开链接
-          obj.validWebSocketList = obj.validWebSocketList.forEach(validWebSocketItem => {
-            validWebSocketItem.send('socket-close');
+          obj.validWebSocketList.forEach(validWebSocketItem => {
+            validWebSocketItem.send('CLOSE');
           });
           return false;
         }
         return true;
       });
       console.log(`=socket client connect close: ${socket.remoteAddress}`);
+    });
+
+    socket.on('error', () => {
+      console.log(`=socket client connect error: ${socket.remoteAddress}`);
     });
   },
   handlerWebSocketConnect: (webSocket, request) => {

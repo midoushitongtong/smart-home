@@ -8,8 +8,11 @@
         <open-data type="userNickName"></open-data>
       </view>
     </view>
-    <!-- 提示框 -->
-    <i-toast id="toast"/>
+    <view class="function-list">
+      <i-cell-group>
+        <i-cell i-class="function-item" title="房间管理" is-link url="/pages/room/edit-room-detail/index"></i-cell>
+      </i-cell-group>
+    </view>
   </view>
 </template>
 
@@ -21,12 +24,7 @@ export default class Person extends wepy.page {
     navigationBarTitleText: '我的'
   };
 
-  data = {
-    closeWebSocketLoading: false
-  };
-
-  methods = {
-  };
+  methods = {};
 }
 </script>
 
@@ -40,7 +38,7 @@ export default class Person extends wepy.page {
       height: ~"100px";
       padding-top: ~"35rpx";
       padding-bottom: ~"35rpx";
-      border-bottom: 1px solid #d1d1d1;
+      border-bottom: 1px solid #e1e1e1;
       background-color: #fff;
       .user-info-avatar {
         overflow: hidden;
@@ -52,6 +50,14 @@ export default class Person extends wepy.page {
       .user-info-nickname {
         margin-top: ~"35rpx";
         font-size: ~"30rpx";
+      }
+    }
+    .function-list {
+      padding-top: 10px;
+      .function-item {
+        &:active {
+          background-color: rgba(0, 0, 0, .05);
+        }
       }
     }
   }
