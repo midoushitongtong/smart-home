@@ -9,7 +9,8 @@
       <view
         class="to-add-deice"
         @tap="addFeature"
-      >+</view>
+      >+
+      </view>
     </view>
     <view class="room-device-container" wx:if="{{!loading}}">
       <!-- 房间信息 -->
@@ -39,7 +40,7 @@
                         <view class="image">
                           <image src="{{item2.icon}}"></image>
                         </view>
-                        <!-- 电灯 油烟机 窗帘 -->
+                        <!-- 只有swiper的设备 -->
                         <view
                           class="action-power {{featureInfo[item2.controlName] ? 'active' : ''}}"
                           wx:if="{{item2.originControlName === 'LED' || item2.originControlName === 'door' || item2.originControlName === 'hood' || item2.originControlName === 'cur'}}"
@@ -52,7 +53,9 @@
                           class="action-fan {{featureInfo[item2.controlName] !== '0' ? 'active' : ''}}"
                           wx:if="{{item2.originControlName === 'fan'}}"
                         >
-                          <view class="fan-number" wx:if="{{featureInfo[item2.controlName] !== '0'}}">{{featureInfo[item2.controlName]}}档</view>
+                          <view class="fan-number" wx:if="{{featureInfo[item2.controlName] !== '0'}}">
+                            {{featureInfo[item2.controlName]}}档
+                          </view>
                           <image src="/assets/images/power-off.png" wx:else/>
                         </view>
                         <!-- 空调 -->
@@ -60,7 +63,9 @@
                           class="action-tem {{featureInfo[item2.controlName] !== '0' ? 'active' : ''}}"
                           wx:if="{{item2.originControlName === 'tem'}}"
                         >
-                          <view class="tem-number" wx:if="{{featureInfo[item2.controlName] !== '0'}}">{{featureInfo[item2.controlName]}}°</view>
+                          <view class="tem-number" wx:if="{{featureInfo[item2.controlName] !== '0'}}">
+                            {{featureInfo[item2.controlName]}}°
+                          </view>
                           <image src="/assets/images/power-off.png" wx:else/>
                         </view>
                       </view>
@@ -90,13 +95,70 @@
     >
       <view class="device-name">{{actionDeviceInfo.name}}</view>
       <view class="device-action-form">
-        <view wx:if="{{actionDeviceInfo.originControlName === 'LED'}}">
+        <!-- 只有swiper的设备 -->
+        <view
+          wx:if="{{actionDeviceInfo.originControlName === 'LED' || actionDeviceInfo.originControlName === 'door' || actionDeviceInfo.originControlName === 'cur' || actionDeviceInfo.originControlName === 'hood'}}">
           <i-cell-group>
             <i-cell title="开关">
               <i-switch
                 value="{{featureInfo[actionDeviceInfo.controlName]}}"
                 @change="changeFeatureInfo"
-                slot="footer"/>
+                slot="footer"
+              />
+            </i-cell>
+          </i-cell-group>
+        </view>
+        <!-- 风扇 -->
+        <view wx:if="{{actionDeviceInfo.originControlName === 'fan'}}">
+          <i-cell-group>
+            <i-cell title="开关">
+              <i-switch
+                value="{{true}}"
+                @change="changeFeatureInfo"
+                slot="footer"
+                wx:if="{{featureInfo[actionDeviceInfo.controlName] !== '0'}}"
+              />
+              <i-switch
+                value="{{false}}"
+                @change="changeFeatureInfo"
+                slot="footer"
+                wx:else
+              />
+            </i-cell>
+            <i-cell title="挡位" wx:if="{{featureInfo[actionDeviceInfo.controlName] !== '0'}}">
+              <i-input-number
+                value="{{(featureInfo[actionDeviceInfo.controlName])}}"
+                min="1" max="3"
+                bindchange="changeFeatureInfo"
+                slot="footer"
+              />
+            </i-cell>
+          </i-cell-group>
+        </view>
+        <!-- 空调 -->
+        <view wx:if="{{actionDeviceInfo.originControlName === 'tem'}}">
+          <i-cell-group>
+            <i-cell title="开关">
+              <i-switch
+                value="{{true}}"
+                @change="changeFeatureInfo"
+                slot="footer"
+                wx:if="{{featureInfo[actionDeviceInfo.controlName] !== '0'}}"
+              />
+              <i-switch
+                value="{{false}}"
+                @change="changeFeatureInfo"
+                slot="footer"
+                wx:else
+              />
+            </i-cell>
+            <i-cell title="温度" wx:if="{{featureInfo[actionDeviceInfo.controlName] !== '0'}}">
+              <i-input-number
+                value="{{featureInfo[actionDeviceInfo.controlName]}}"
+                min="1" max="25"
+                bindchange="changeFeatureInfo"
+                slot="footer"
+              />
             </i-cell>
           </i-cell-group>
         </view>
@@ -123,7 +185,7 @@ export default class Home extends wepy.page {
 
   data = {
     // 模态框显示/隐藏
-    visible: true,
+    visible: false,
     // 当前滑块的位置
     current: 0,
     // swiper 高度
@@ -202,7 +264,26 @@ export default class Home extends wepy.page {
     changeFeatureInfo: (e) => {
       switch (this.actionDeviceInfo.originControlName) {
         case 'LED':
+        case 'door':
+        case 'cur':
+        case 'hood':
           featureSocket.sendWebSocketData(`${this.actionDeviceInfo.controlName}-${e.detail.value ? '1' : '0'}`);
+          break;
+        case 'fan':
+          // 判断是开关还是挡位
+          if (typeof e.detail.value === 'boolean') {
+            featureSocket.sendWebSocketData(`${this.actionDeviceInfo.controlName}-${e.detail.value ? '1' : '0'}`);
+          } else if (typeof e.detail.value === 'number') {
+            featureSocket.sendWebSocketData(`${this.actionDeviceInfo.controlName}-${e.detail.value}`);
+          }
+          break;
+        case 'tem':
+          // 判断是开关还是挡位
+          if (typeof e.detail.value === 'boolean') {
+            featureSocket.sendWebSocketData(`${this.actionDeviceInfo.controlName}-${e.detail.value ? '15' : '0'}`);
+          } else if (typeof e.detail.value === 'number') {
+            featureSocket.sendWebSocketData(`${this.actionDeviceInfo.controlName}-${e.detail.value}`);
+          }
           break;
         default:
           console.log('未知 originControlName');
