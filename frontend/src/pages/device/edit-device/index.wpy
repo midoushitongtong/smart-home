@@ -1,0 +1,135 @@
+<template>
+  <view class="edit-device-container">
+    <view class="device-list-container">
+      <view wx:if="{{newDeviceInfoList.length > 0}}">
+        <i-cell-group>
+          <repeat for="{{newDeviceInfoList}}" key="index" index="index" item="item">
+            <i-cell
+              i-class="i-cell-device-list-item"
+              is-link
+              url='/pages/device/edit-device-detail/index?id={{item.id}}&name={{item.name}}&originName={{item.originName}}&controlName={{item.controlName}}&icon={{item.icon}}&roomId={{item.roomId}}'
+            >
+              <view class="device-base-info-container" slot="icon">
+                <image src="{{item.icon}}"/>
+                <view class="name-room-name">
+                  <text>{{item.name}}</text>
+                  <text>{{item.roomName}}</text>
+                </view>
+              </view>
+            </i-cell>
+          </repeat>
+        </i-cell-group>
+      </view>
+      <view class="not-device-container" wx:else>
+        <text>当前暂无已添加的设备</text>
+      </view>
+    </view>
+    <view class="action-container">
+      <i-button
+        size="small"
+        i-class="i-button-to-add-device"
+        type="success"
+        @tap="toAddDevice"
+      >添加新的设备</i-button>
+    </view>
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy';
+import { connect } from 'wepy-redux';
+
+@connect({
+  roomInfoList: (state) => state.feature.roomInfoList,
+  deviceInfoList: (state) => state.feature.deviceInfoList
+}, {})
+export default class Home extends wepy.page {
+  config = {
+    navigationBarTitleText: '设备管理'
+  };
+
+  data = {
+    newDeviceInfoList: []
+  };
+
+  methods = {
+    // 前往添加设备页面
+    toAddDevice: () => {
+      wx.navigateTo({
+        url: '/pages/device/add-device/index'
+      });
+    },
+    refreshNewDeviceInfoList: () => {
+      this.newDeviceInfoList = this.deviceInfoList.map(deviceInfoItem => {
+        const newDeviceInfoItem = {
+          ...deviceInfoItem
+        };
+        newDeviceInfoItem.roomName = this.roomInfoList.find((roomInfoItem) => roomInfoItem.id === deviceInfoItem.roomId).name;
+        return newDeviceInfoItem;
+      });
+    }
+  };
+
+  watch = {
+    // 监听房间数据, 更新房间数据
+    roomInfoList: () => {
+      this.methods.refreshNewDeviceInfoList();
+    },
+    // 监听设备数据, 更新新房间数据
+    deviceInfoList: () => {
+      this.methods.refreshNewDeviceInfoList();
+    }
+  };
+
+  onLoad() {
+    this.methods.refreshNewDeviceInfoList();
+  }
+}
+</script>
+
+<style lang="less">
+  .edit-device-container {
+    .device-list-container {
+      padding-bottom: 1px;
+      background-color: #fff;
+      .not-device-container {
+        font-size: 12px;
+        text-align: center;
+        padding-top: 10px;
+        padding-bottom: 10px;
+      }
+      .i-cell-device-list-item {
+        &:active {
+          background-color: rgba(0, 0, 0, .05);
+        }
+        .device-base-info-container {
+          display: flex;
+          align-items: center;
+          image {
+            width: 25px;
+            height: 25px;
+            margin-right: 10px;
+            padding: 9px;
+            border: ~"1rpx" solid #e9eaec;
+          }
+          .name-room-name {
+            display: flex;
+            flex-direction: column;
+            text:last-child {
+              margin-top: 3px;
+              font-size: 11px;
+              color: #999;
+            }
+          }
+        }
+      }
+    }
+    .action-container {
+      .i-button-to-add-device {
+        margin-left: 15px;
+        margin-right: 15px;
+        margin-bottom: 15px;
+      }
+    }
+  }
+</style>

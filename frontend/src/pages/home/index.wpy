@@ -1,27 +1,91 @@
 <template>
   <view class="home-container">
-    <!-- 添加设备按钮 -->
-    <i-button
-      type="primary"
-      class="add-feature"
-      @tap="addFeature"
-    >+
-    </i-button>
+    <view class="home-info-container">
+      <view class="home-name">
+        <open-data type="userNickName"></open-data>
+        <text>的家</text>
+      </view>
+      <!-- 添加设备按钮 -->
+      <view
+        class="to-add-deice"
+        @tap="addFeature"
+      >+
+      </view>
+    </view>
+    <view class="room-device-container" wx:if="{{!loading}}">
+      <!-- 房间信息 -->
+      <view class="room-info-list-container">
+        <scroll-view class="scroll-view" scroll-x>
+          <repeat for="{{newRoomDeviceInfoList}}" key="index" index="index" item="item">
+            <view class="room-name {{index === current ? 'active' : ''}}" @tap="changeCurrent({{index}})">
+              {{item.name}}
+            </view>
+          </repeat>
+        </scroll-view>
+      </view>
+      <!-- 房间对应的设备信息 -->
+      <view class="device-info-list">
+        <swiper style="height: {{swiperHeight}}" current="{{current}}" bindchange="chaneScroll">
+          <repeat for="{{newRoomDeviceInfoList}}" key="index" index="index" item="item">
+            <swiper-item>
+              <view class="device-info-list-container" wx:if="{{item.deviceInfoList.length > 0}}">
+                <repeat for="{{item.deviceInfoList}}" key="index2" index="index2" item="item2">
+                  <view class="device-info-list-item">
+                    <view class="device-info">
+                      <view class="name-room-name">
+                        <view class="name">{{item2.name}}</view>
+                        <view class="room-name">{{item2.roomName}}</view>
+                      </view>
+                      <view class="image-action-list">
+                        <view class="image">
+                          <image src="{{item2.icon}}"></image>
+                        </view>
+                        <view class="action" wx:if="{{item2.originControlName === 'LED'}}">
+                          <image src="/assets/images/power-off.png"></image>
+                        </view>
+                      </view>
+                    </view>
+                  </view>
+                </repeat>
+              </view>
+              <view class="not-device-container" wx:else>
+                <view class="not-device">尚未添加设备!</view>
+              </view>
+            </swiper-item>
+          </repeat>
+        </swiper>
+      </view>
+    </view>
+    <view class="loading-container" wx:else>
+      <i-spin size="large" fix></i-spin>
+    </view>
   </view>
+  <i-message id="message"/>
 </template>
 
 <script>
 import wepy from 'wepy';
 import { connect } from 'wepy-redux';
-import { updateFeatureInfo } from '../../store/feature';
-import featureSocket from '../../util/feature-socket';
 
-@connect({}, {
-  updateFeatureInfo
-})
+@connect({
+  featureInfo: (state) => state.feature.featureInfo,
+  roomInfoList: (state) => state.feature.roomInfoList,
+  deviceInfoList: (state) => state.feature.deviceInfoList
+}, {})
 export default class Home extends wepy.page {
   config = {
     navigationBarTitleText: '我的设备'
+  };
+
+  data = {
+    // 当前滑块的位置
+    current: 0,
+    // swiper 高度
+    swiperHeight: '100vh',
+    // 加载房间与设备对应的数据
+    loading: true,
+    // 房间与设备对应的数据
+    newRoomDeviceInfoList: []
   };
 
   methods = {
@@ -30,30 +94,234 @@ export default class Home extends wepy.page {
       wx.navigateTo({
         url: '/pages/device/add-device/index'
       });
+    },
+    // 刷新房间与设备对应的数据
+    refreshNewRoomDeviceInfoList: () => {
+      this.loading = true;
+      this.$apply();
+      setTimeout(() => {
+        // 设置设备对应的房间名称, 以及控制前缀
+        let newDeviceInfoList = this.deviceInfoList.map(deviceInfoItem => {
+          deviceInfoItem.roomName = this.roomInfoList.find(roomInfoItem => roomInfoItem.id === deviceInfoItem.roomId).name;
+          if (deviceInfoItem.controlName.substring(0, 'LED'.length) === 'LED') deviceInfoItem.originControlName = 'LED';
+          if (deviceInfoItem.controlName.substring(0, 'cur'.length) === 'cur') deviceInfoItem.originControlName = 'cur';
+          if (deviceInfoItem.controlName.substring(0, 'hool'.length) === 'hool') deviceInfoItem.originControlName = 'hool';
+          if (deviceInfoItem.controlName.substring(0, 'tem'.length) === 'tem') deviceInfoItem.originControlName = 'tem';
+          // 设置硬件状态
+          deviceInfoItem.controlValue = this.featureInfo[deviceInfoItem.controlName];
+          return deviceInfoItem;
+        });
+        // 将设备归类到对应的房间
+        const newRoomDeviceInfoList = this.roomInfoList.map((roomInfoItem) => {
+          roomInfoItem.deviceInfoList = newDeviceInfoList.filter(deviceInfoItem => deviceInfoItem.roomId === roomInfoItem.id);
+          return roomInfoItem;
+        });
+        // 全部设备显示全部设备
+        newRoomDeviceInfoList.unshift({
+          name: '全部设备',
+          deviceInfoList: newDeviceInfoList
+        });
+
+        // 更新数据
+        this.newRoomDeviceInfoList = newRoomDeviceInfoList;
+        this.loading = false;
+        if (newDeviceInfoList.length > 0) {
+          this.swiperHeight = (Math.ceil(newDeviceInfoList.length / 2) * 115) + 'px';
+        } else {
+          this.swiperHeight = '115px';
+        }
+        this.$apply();
+      }, 0);
+    },
+    // 改变轮播图当前的索引
+    changeCurrent: (index) => {
+      this.current = index;
+      this.$apply();
+    },
+    // 轮播图滚动触发
+    chaneScroll: (e) => {
+      this.current = e.detail.current;
+      this.$apply();
+    }
+  };
+
+  watch = {
+    roomInfoList: () => {
+      // 监听房间数据, 更新房间与设备对应的数据
+      this.methods.refreshNewRoomDeviceInfoList();
+    },
+    deviceInfoList: () => {
+      // 监听设备数据, 更新房间与设备对应的数据
+      this.methods.refreshNewRoomDeviceInfoList();
+    },
+    featureInfo: () => {
+      // 监听硬件数据, 更新房间与设备对应的数据
+      this.methods.refreshNewRoomDeviceInfoList();
     }
   };
 
   onLoad() {
-    // 初始化 webSocket 链接
-    featureSocket.initWebSocketClient(this.methods.updateFeatureInfo);
+    // 刷新房间与设备对应的数据
+    this.methods.refreshNewRoomDeviceInfoList();
   }
 }
 </script>
 
 <style lang="less">
   .home-container {
-    .add-feature {
-      position: absolute;
-      bottom: ~"50rpx";
-      right: ~"50rpx";
-      button {
-        width: 45px;
-        height: 45px;
-        border-radius: 50%;
-        font-size: 19px;
+    .home-info-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 65px;
+      padding-left: 20px;
+      padding-right: 20px;
+      background-color: #fff;
+      box-shadow: 0 1px 10px rgba(0, 0, 0, .1);
+      .home-name {
+        font-size: ~"35rpx";
         font-weight: bold;
-        line-height: 45px;
+        letter-spacing: 1px;
+        color: #40a9ff;
       }
+      // 添加设备按钮
+      .to-add-deice {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 33px;
+        height: 33px;
+        border-radius: 50%;
+        font-size: 20px;
+        font-weight: bold;
+        background-color: #40a9ff;
+        color: #fff;
+      }
+    }
+    .room-device-container {
+      .room-info-list-container {
+        display: flex;
+        margin-top: 10px;
+        padding-left: 10px;
+        padding-right: 10px;
+        background-color: #fff;
+        box-shadow: 0 0 10px rgba(0, 0, 0, .05);
+        .scroll-view {
+          white-space: nowrap;
+          view {
+            display: inline-block;
+            padding: 10px;
+            font-size: 14px;
+            color: #888;
+            &.active {
+              color: #40a9ff;
+            }
+            &:last-child {
+              margin-right: 0;
+            }
+          }
+        }
+      }
+      .device-info-list {
+        swiper {
+          min-height: 100vh;
+          margin-top: 10px;
+          .device-info-list-container {
+            display: flex;
+            flex-wrap: wrap;
+            .device-info-list-item {
+              width: 50%;
+              padding-left: 10px;
+              padding-right: 10px;
+              margin-bottom: 10px;
+              box-sizing: border-box;
+              &:nth-child(odd) {
+                padding-right: 5px;
+              }
+              &:nth-child(even) {
+                padding-left: 5px;
+              }
+              .device-info {
+                height: 105px;
+                background-color: #fff;
+                border-radius: 11px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, .1);
+                .name-room-name {
+                  display: flex;
+                  justify-content: space-between;
+                  padding: 15px;
+                  .name {
+                    max-width: 65%;
+                    overflow: hidden;
+                    white-space: nowrap;
+                    text-overflow: ellipsis;
+                    font-size: 14px;
+                  }
+                  .room-name {
+                    max-width: 35%;
+                    padding: 2px 3px;
+                    border-radius: 5px;
+                    overflow: hidden;
+                    white-space: nowrap;
+                    text-overflow: ellipsis;
+                    font-size: 11px;
+                    text-align: center;
+                    color: #888;
+                    background-color: rgba(0, 0, 0, .05);
+                  }
+                }
+                .image-action-list {
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  padding: 5px 15px 15px;
+                  .image {
+                    image {
+                      width: 35px;
+                      height: 35px;
+                    }
+                  }
+                  .action {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    width: 28px;
+                    height: 28px;
+                    border-radius: 50%;
+                    background-color: #eee;
+                    image {
+                      width: 15px;
+                      height: 15px;
+                    }
+                  }
+                }
+              }
+            }
+          }
+          .not-device-container {
+            padding-left: 10px;
+            padding-right: 10px;
+            .not-device {
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              height: 105px;
+              border-radius: 10px;
+              background-color: #fff;
+              font-size: 14px;
+              color: #999;
+            }
+          }
+        }
+      }
+    }
+    .loading-container {
+      position: absolute;
+      top: 75px;
+      right: 0;
+      left: 0;
+      bottom: 0;
+      background: #fff;
     }
   }
 </style>

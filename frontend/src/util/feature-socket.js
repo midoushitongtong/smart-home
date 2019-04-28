@@ -11,12 +11,7 @@ const featureSocket = {
         featureSocket.initWebSocketEventHandler(updateFeatureInfo);
       },
       fail: (e) => {
-        console.error(e);
-        Base.$Toast({
-          content: `服务器连接失败: ${e}`,
-          duration: 3,
-          mask: false
-        });
+        console.error(`服务器连接失败: ${e}`);
       }
     });
   },
@@ -64,21 +59,12 @@ const featureSocket = {
 
     wx.onSocketClose((e) => {
       // 提示连接已关闭
-      Base.$Toast({
-        content: '智能家居-连接关闭',
-        duration: 1,
-        mask: false
-      });
       console.log('==webSocket server connect close', e);
     });
 
     wx.onSocketError((e) => {
       // 提示连接错误
-      Base.$Toast({
-        content: `服务器连接错误: ${JSON.stringify(e)}`,
-        duration: 3,
-        mask: false
-      });
+      console.log('==webSocket server connect error', e);
     });
   },
   // 处理 webSocket 发送的数据
@@ -86,21 +72,13 @@ const featureSocket = {
     // 是否是警告通知
     if (data.substring(0, 'call1'.length) === 'call1') {
       if (data.split('-')[1] === '1') {
-        Base.$Toast({
-          content: '报警系统1已打开',
-          duration: 3,
-          mask: false
-        });
+        console.log('报警系统1已打开');
       }
       return;
     }
     if (data.substring(0, 'smoke1'.length) === 'smoke1') {
       if (data.split('-')[1] === '1') {
-        Base.$Toast({
-          content: '烟雾报警系统1已打开',
-          duration: 3,
-          mask: false
-        });
+        console.log('烟雾报警系统1已打开');
       }
       return;
     }
@@ -190,6 +168,13 @@ const featureSocket = {
       }
       return { tem1: data.split('-')[1] };
     }
+    if (data.substring(0, 'tem2'.length) === 'tem2') {
+      if (isDispatch) {
+        updateFeatureInfo({ tem2: data.split('-')[1] });
+        return;
+      }
+      return { tem2: data.split('-')[1] };
+    }
     if (data.substring(0, 'hood1'.length) === 'hood1') {
       if (isDispatch) {
         updateFeatureInfo({ hood1: data.split('-')[1] });
@@ -212,11 +197,7 @@ const featureSocket = {
     }
 
     // 提示返回的数据
-    Base.$Toast({
-      content: `命令识别失败: ${data}`,
-      duration: 3,
-      mask: false
-    });
+    console.log(`命令识别失败: ${data}`);
   },
   // 发送 webSocket 数据
   sendWebSocketData: (data) => {

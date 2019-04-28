@@ -5,7 +5,7 @@
         <i-cell title="房间名称">
           <input
             slot="footer"
-            value="{{name}}"
+            value="{{form.name}}"
             type="text"
             placeholder="请输入房间名称"
             @input="changeName"
@@ -14,11 +14,11 @@
         <i-cell title="房间图标" is-link @tap="toggleModal({{true}})">
           <image
             slot="footer"
-            src="{{icon}}"
+            src="{{form.icon}}"
             alt="房间图标"
             class="room-icon"
             @tap="toggleModal({{true}})"
-            wx:if="{{icon}}"
+            wx:if="{{form.icon}}"
           />
         </i-cell>
       </i-cell-group>
@@ -27,7 +27,8 @@
         type="primary"
         loading="{{loading}}"
         @tap="addRoom"
-      >保存并添加</i-button>
+      >保存并添加
+      </i-button>
     </view>
 
     <i-modal
@@ -40,15 +41,15 @@
       <view class="select-icon-container">
         <view class="room-icon-list-item">
           <view class="image-container">
-            <image src="{{selectIcon}}" alt="房间图标"/>
+            <image src="{{form.iconBuf}}" alt="房间图标"/>
           </view>
         </view>
       </view>
       <view class="room-icon-list-container">
         <repeat for="{{roomIconList}}" key="index" index="index" item="item">
-          <view class="room-icon-list-item" @tap="changeRoomIcon({{item.src}})">
+          <view class="room-icon-list-item" @tap="changeRoomIcon({{item.icon}})">
             <view class="image-container">
-              <image src="{{item.src}}" alt="房间图标"/>
+              <image src="{{item.icon}}" alt="房间图标"/>
             </view>
           </view>
         </repeat>
@@ -74,36 +75,38 @@ export default class Home extends wepy.page {
   };
 
   data = {
-    // 房间名称
-    name: '',
-    // 房间图标
-    icon: '/assets/images/living.png',
-    // 选择的房间图标
-    selectIcon: '/assets/images/living.png',
+    form: {
+      // 房间名称
+      name: '',
+      // 房间图标
+      icon: '/assets/images/living.png',
+      // 房间图标, 用于延迟修改
+      iconBuf: '/assets/images/living.png'
+    },
     // 控制 显示/隐藏 房间图标选择容器
     visible: false,
     // 房间的可用图标
     roomIconList: [
       {
-        src: '/assets/images/home.png'
+        icon: '/assets/images/home.png'
       },
       {
-        src: '/assets/images/kitchen.png'
+        icon: '/assets/images/kitchen.png'
       },
       {
-        src: '/assets/images/living.png'
+        icon: '/assets/images/living.png'
       },
       {
-        src: '/assets/images/restaurant.png'
+        icon: '/assets/images/restaurant.png'
       },
       {
-        src: '/assets/images/master-bedroom.png'
+        icon: '/assets/images/master-bedroom.png'
       },
       {
-        src: '/assets/images/second-bedroom.png'
+        icon: '/assets/images/second-bedroom.png'
       },
       {
-        src: '/assets/images/bathroom.png'
+        icon: '/assets/images/bathroom.png'
       }
     ],
     // 模态框按钮
@@ -123,7 +126,7 @@ export default class Home extends wepy.page {
   methods = {
     // 改变房间名称
     changeName: (e) => {
-      this.name = e.detail.value;
+      this.form.name = e.detail.value;
     },
     // 显示/隐藏 房间图标选中容器
     toggleModal: (flag) => {
@@ -132,18 +135,18 @@ export default class Home extends wepy.page {
     },
     // 改变房间图标
     changeRoomIcon: (icon) => {
-      this.selectIcon = icon;
+      this.form.iconBuf = icon;
       this.$apply();
     },
     // 模态框按钮点击事件
     handlerAction: (e) => {
       if (e.detail.index === 0) {
         // 保存当前选择的图片
-        this.icon = this.selectIcon;
+        this.form.icon = this.form.iconBuf;
         this.$apply();
       } else {
         // 还原已选择的图片
-        this.selectIcon = this.icon;
+        this.form.iconBuf = this.form.icon;
         this.$apply();
       }
       this.methods.toggleModal(false);
@@ -154,8 +157,8 @@ export default class Home extends wepy.page {
       this.$apply();
 
       const roomInfo = {
-        name: this.name,
-        icon: this.icon
+        name: this.form.name,
+        icon: this.form.icon
       };
 
       if (!roomInfo.name) {
@@ -201,13 +204,12 @@ export default class Home extends wepy.page {
 
 <style lang="less">
   .add-room-detail-container {
-    padding-top: 10px;
     padding-bottom: 15px;
     background-color: #fff;
     .form-container {
       .room-icon {
-        width: 35px;
-        height: 35px;
+        width: 25px;
+        height: 25px;
         margin-right: 5px;
       }
       .i-button-add-room {
@@ -225,46 +227,46 @@ export default class Home extends wepy.page {
             margin-bottom: 0;
             padding-left: 10px;
             padding-right: 10px;
+            .select-icon-container,
+            .room-icon-list-container {
+              display: flex;
+              flex-wrap: wrap;
+              .room-icon-list-item {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                width: 25%;
+                margin-bottom: 15px;
+                box-sizing: border-box;
+                .image-container {
+                  padding: ~"35rpx";
+                  border: ~"1rpx" solid #e9eaec;
+                  &:active {
+                    background: rgba(0, 0, 0, .05);
+                  }
+                  image {
+                    width: 35px;
+                    height: 35px;
+                  }
+                }
+              }
+            }
+            .select-icon-container {
+              justify-content: center;
+              border-bottom: 1px solid #e1e1e1;
+              margin-bottom: 15px;
+              .room-icon-list-item {
+                width: 100%;
+              }
+            }
+            .room-icon-list-container {
+              overflow-y: auto;
+              max-height: 300px;
+            }
           }
         }
       }
-    }
-    .select-icon-container,
-    .room-icon-list-container {
-      display: flex;
-      flex-wrap: wrap;
-      .room-icon-list-item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        width: 25%;
-        margin-bottom: 15px;
-        box-sizing: border-box;
-        .image-container {
-          padding: ~"35rpx";
-          border: ~"1rpx" solid #e9eaec;
-          &:active {
-            background: rgba(0, 0, 0, .05);
-          }
-          image {
-            width: 35px;
-            height: 35px;
-          }
-        }
-      }
-    }
-    .select-icon-container {
-      justify-content: center;
-      border-bottom: 1px solid #e1e1e1;
-      margin-bottom: 15px;
-      .room-icon-list-item {
-        width: 100%;
-      }
-    }
-    .room-icon-list-container {
-      overflow-y: auto;
-      max-height: 190px;
     }
   }
 </style>

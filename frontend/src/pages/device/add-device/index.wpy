@@ -1,19 +1,31 @@
 <template>
   <view class="add-device-container">
-    <view class="nearby-device-container">附近的设备</view>
+    <view class="nearby-device-container">附近暂未添加的设备</view>
     <view class="loading-container" wx:if="{{isLoading}}">
       <i-spin size="large" fix></i-spin>
     </view>
     <view wx:else>
-      <view class="nearby-device-list" wx:if="{{nearbyDeviceList.length > 0}}">
-        <repeat for="{{nearbyDeviceList}}" key="index" index="index" item="item">
-          <view class="nearby-device-list-item" @tap="toAddDeviceDetail({{item}})">
-            <image src="{{item.icon}}" alt="{{item.name}}"/>
-            <text>{{item.name}}</text>
-          </view>
-        </repeat>
+      <view class="nearby-device-list-container">
+        <view wx:if="{{nearbyDeviceList.length > 0}}">
+          <i-cell-group>
+            <repeat for="{{nearbyDeviceList}}" key="index" index="index" item="item">
+              <i-cell
+                i-class="i-cell-device-list-item"
+                is-link
+                url='/pages/device/add-device-detail/index?originName={{item.originName}}&controlName={{item.controlName}}&icon={{item.icon}}'
+              >
+                <view class="device-base-info-container" slot="icon">
+                  <image src="{{item.icon}}"/>
+                  <view class="name-device">
+                    <text>{{item.originName}}</text>
+                  </view>
+                </view>
+              </i-cell>
+            </repeat>
+          </i-cell-group>
+        </view>
+        <view class="not-nearby-device-container" wx:else>附近暂无设备可用~</view>
       </view>
-      <view class="not-nearby-device" wx:else>附近暂无设备可用~</view>
     </view>
   </view>
 </template>
@@ -55,37 +67,37 @@ export default class Home extends wepy.page {
         let data = null;
         if (controlName.substring(0, 'LED'.length) === 'LED') {
           data = {
-            name: `科创暖白灯${controlName.substr('LED'.length, 1)}`,
+            originName: `科创暖白灯${controlName.substr('LED'.length, 1)}`,
             controlName,
             icon: '/assets/images/LED.png'
           };
         } else if (controlName.substring(0, 'door'.length) === 'door') {
           data = {
-            name: `科创智慧门${controlName.substr('door'.length, 1)}`,
+            originName: `科创智慧门${controlName.substr('door'.length, 1)}`,
             controlName,
             icon: '/assets/images/door.png'
           };
         } else if (controlName.substring(0, 'cur'.length) === 'cur') {
           data = {
-            name: `科创窗帘电机${controlName.substr('cur'.length, 1)}`,
+            originName: `科创窗帘电机${controlName.substr('cur'.length, 1)}`,
             controlName,
             icon: '/assets/images/cur.png'
           };
         } else if (controlName.substring(0, 'fan'.length) === 'fan') {
           data = {
-            name: `科创自然风扇${controlName.substr('fan'.length, 1)}`,
+            originName: `科创自然风扇${controlName.substr('fan'.length, 1)}`,
             controlName,
             icon: '/assets/images/fan.png'
           };
         } else if (controlName.substring(0, 'tem'.length) === 'tem' && controlName.substring(0, 'temHum'.length) !== 'temHum') {
           data = {
-            name: `科创变频空调${controlName.substr('tem'.length, 1)}`,
+            originName: `科创变频空调${controlName.substr('tem'.length, 1)}`,
             controlName,
             icon: '/assets/images/tem.png'
           };
         } else if (controlName.substring(0, 'hood'.length) === 'hood') {
           data = {
-            name: `科创吸油烟机${controlName.substr('hood'.length, 1)}`,
+            originName: `科创吸油烟机${controlName.substr('hood'.length, 1)}`,
             controlName,
             icon: '/assets/images/hood.png'
           };
@@ -103,12 +115,6 @@ export default class Home extends wepy.page {
           this.$apply();
         }, 10);
       }, 1000);
-    },
-    // 前往添加设备详情页
-    toAddDeviceDetail: (device) => {
-      wx.navigateTo({
-        url: `/pages/device/add-device-detail/index?name=${device.name}&controlName=${device.controlName}&icon=${device.icon}`
-      });
     }
   };
 
@@ -128,8 +134,7 @@ export default class Home extends wepy.page {
 
 <style lang="less">
   .add-device-container {
-    .nearby-device-container,
-    .not-nearby-device {
+    .nearby-device-container {
       height: 50px;
       text-align: center;
       font-size: 13px;
@@ -137,48 +142,38 @@ export default class Home extends wepy.page {
       background-color: #fff;
       color: #40a9ff;
     }
-    .not-nearby-device {
-      margin-top: 25px;
-      color: #666;
-    }
     .loading-container {
       position: absolute;
-      top: 75px;
+      top: 60px;
       right: 0;
       left: 0;
       bottom: 0;
       background: #fff;
     }
-    .nearby-device-list {
-      margin-top: 25px;
-      display: flex;
-      flex-wrap: wrap;
-      border-top: ~"1rpx" solid #e9eaec;
-      border-left: ~"1rpx" solid #e9eaec;
-      background-color: #fff;
-      .nearby-device-list-item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        width: 33.33333333%;
-        padding-top: ~"50rpx";
-        padding-bottom: ~"50rpx";
-        border-right: ~"1rpx" solid #e9eaec;
-        border-bottom: ~"1rpx" solid #e9eaec;
-        box-sizing: border-box;
+    .nearby-device-list-container {
+      margin-top: 10px;
+      .not-nearby-device-container {
+        font-size: 12px;
+        text-align: center;
+      }
+      .i-cell-device-list-item {
         &:active {
-          background: rgba(0, 0, 0, .05);
+          background-color: rgba(0, 0, 0, .05);
         }
-        image {
-          width: 32px;
-          height: 32px;
-        }
-        text {
+        .device-base-info-container {
           display: flex;
-          width: auto;
-          margin-top: ~"20rpx";
-          font-size: ~"25rpx";
+          align-items: center;
+          image {
+            width: 25px;
+            height: 25px;
+            margin-right: 10px;
+            padding: 9px;
+            border: ~"1rpx" solid #e9eaec;
+          }
+          .name {
+            display: flex;
+            flex-direction: column;
+          }
         }
       }
     }

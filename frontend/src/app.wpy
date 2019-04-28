@@ -1,19 +1,33 @@
 <script>
 import wepy from 'wepy';
 import 'wepy-async-function';
-import { setStore } from 'wepy-redux';
+import { setStore, connect } from 'wepy-redux';
+import roomStorage from './util/room-stoage';
+import deviceStorage from './util/device-stoage';
 import configStore from './store';
+import featureSocket from './util/feature-socket';
+import { updateFeatureInfo, updateRoomInfoList, updateDeviceInfoList } from './store/feature';
 
 const store = configStore();
 setStore(store);
 
+@connect({
+}, {
+  updateFeatureInfo,
+  updateRoomInfoList,
+  updateDeviceInfoList
+})
 export default class extends wepy.app {
   config = {
     pages: [
-      'pages/account/person/index',
       'pages/home/index',
-      'pages/device/add-device-detail/index',
+      'pages/device/edit-device-detail/index',
+      'pages/device/edit-device/index',
       'pages/device/add-device/index',
+      'pages/device/add-device-detail/index',
+      'pages/room/edit-room/index',
+      'pages/room/edit-room-detail/index',
+      'pages/account/person/index',
       'pages/room/add-room-detail/index'
     ],
     window: {
@@ -56,7 +70,8 @@ export default class extends wepy.app {
       'i-grid': '../../../components/iview/grid/index',
       'i-grid-item': '../../../components/iview/grid-item/index',
       'i-grid-icon': '../../../components/iview/grid-icon/index',
-      'i-grid-label': '../../../components/iview/grid-label/index'
+      'i-grid-label': '../../../components/iview/grid-label/index',
+      'i-panel': '../../../components/iview/panel/index'
     }
   };
 
@@ -64,6 +79,15 @@ export default class extends wepy.app {
     super();
     this.use('requestfix');
     this.use('promisify');
+  }
+
+  onLaunch() {
+    // 更新房间列表数据
+    this.methods.updateRoomInfoList(roomStorage.getRoomList());
+    // 更新设备列表数据
+    this.methods.updateDeviceInfoList(deviceStorage.getDeviceInfoList());
+    // 初始化 webSocket 链接
+    featureSocket.initWebSocketClient(this.methods.updateFeatureInfo);
   }
 }
 </script>

@@ -1,0 +1,138 @@
+<template>
+  <view class="edit-room-container">
+    <view class="room-list-container">
+      <view wx:if="{{newRoomInfoList.length > 0}}">
+        <i-cell-group>
+          <repeat for="{{newRoomInfoList}}" key="index" index="index" item="item">
+            <i-cell
+              i-class="i-cell-room-list-item"
+              is-link
+              url='/pages/room/edit-room-detail/index?id={{item.id}}&name={{item.name}}&icon={{item.icon}}'
+            >
+              <view class="room-base-info-container" slot="icon">
+                <image src="{{item.icon}}"/>
+                <view class="name-device">
+                  <text>{{item.name}}</text>
+                  <text>{{item.deviceCount}}个设备</text>
+                </view>
+              </view>
+            </i-cell>
+          </repeat>
+        </i-cell-group>
+      </view>
+      <view class="not-room-container" wx:else>
+        <text>当前暂无房间</text>
+      </view>
+    </view>
+    <view class="action-container">
+      <i-button
+        size="small"
+        i-class="i-button-to-add-room"
+        type="success"
+        @tap="toAddRoom"
+      >添加新的房间</i-button>
+    </view>
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy';
+import { connect } from 'wepy-redux';
+
+@connect({
+  roomInfoList: (state) => state.feature.roomInfoList,
+  deviceInfoList: (state) => state.feature.deviceInfoList
+}, {})
+export default class Home extends wepy.page {
+  config = {
+    navigationBarTitleText: '房间管理'
+  };
+
+  data = {
+    newRoomInfoList: []
+  };
+
+  methods = {
+    // 前往添加房间页面
+    toAddRoom: () => {
+      wx.navigateTo({
+        url: '/pages/room/add-room-detail/index'
+      });
+    },
+    refreshNewRoomInfoList: () => {
+      this.newRoomInfoList = this.roomInfoList.map(roomInfoItem => {
+        const newRoomInfoItem = {
+          ...roomInfoItem
+        };
+        newRoomInfoItem.deviceCount = this.deviceInfoList.reduce((preCount, deviceInfoItem) => {
+          // 计算当前房间所占设备
+          return deviceInfoItem.roomId === roomInfoItem.id ? preCount + 1 : preCount;
+        }, 0);
+        return newRoomInfoItem;
+      });
+    }
+  };
+
+  watch = {
+    // 监听房间数据, 更新房间数据
+    roomInfoList: () => {
+      this.methods.refreshNewRoomInfoList();
+    },
+    // 监听设备数据, 更新新房间数据
+    deviceInfoList: () => {
+      this.methods.refreshNewRoomInfoList();
+    }
+  };
+
+  onLoad() {
+    this.methods.refreshNewRoomInfoList();
+  }
+}
+</script>
+
+<style lang="less">
+  .edit-room-container {
+    .room-list-container {
+      padding-bottom: 1px;
+      background-color: #fff;
+      .not-room-container {
+        padding-top: 10px;
+        padding-bottom: 10px;
+        font-size: 12px;
+        text-align: center;
+      }
+      .i-cell-room-list-item {
+        &:active {
+          background-color: rgba(0, 0, 0, .05);
+        }
+        .room-base-info-container {
+          display: flex;
+          align-items: center;
+          image {
+            width: 25px;
+            height: 25px;
+            margin-right: 10px;
+            padding: 9px;
+            border: ~"1rpx" solid #e9eaec;
+          }
+          .name-device {
+            display: flex;
+            flex-direction: column;
+            text:last-child {
+              margin-top: 3px;
+              font-size: 11px;
+              color: #999;
+            }
+          }
+        }
+      }
+    }
+    .action-container {
+      .i-button-to-add-room {
+        margin-left: 15px;
+        margin-right: 15px;
+        margin-bottom: 15px;
+      }
+    }
+  }
+</style>
