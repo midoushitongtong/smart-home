@@ -31,7 +31,7 @@
               <view class="device-info-list-container" wx:if="{{item.deviceInfoList.length > 0}}">
                 <repeat for="{{item.deviceInfoList}}" key="index2" index="index2" item="item2">
                   <view class="device-info-list-item" @tap="toActionDevice({{item2}})">
-                    <view class="device-info">
+                    <view class="device-info {{featureInfo[item2.controlName] == undefined ? 'offline' : ''}}">
                       <view class="name-room-name">
                         <view class="name">{{item2.name}}</view>
                         <view class="room-name">{{item2.roomName}}</view>
@@ -50,23 +50,29 @@
                         </view>
                         <!-- 风扇 -->
                         <view
-                          class="action-fan {{featureInfo[item2.controlName] !== '0' ? 'active' : ''}}"
+                          class="action-fan {{featureInfo[item2.controlName] !== '0' ? 'active' : ''}} {{featureInfo[item2.controlName] == undefined ? 'offline' : ''}}"
                           wx:if="{{item2.originControlName === 'fan'}}"
                         >
-                          <view class="fan-number" wx:if="{{featureInfo[item2.controlName] !== '0'}}">
-                            {{featureInfo[item2.controlName]}}档
+                          <view class="offline" wx:if="{{featureInfo[item2.controlName] == undefined}}">离线</view>
+                          <view class="online" wx:else>
+                            <view class="fan-number" wx:if="{{featureInfo[item2.controlName] !== '0'}}">
+                              {{featureInfo[item2.controlName]}}档
+                            </view>
+                            <image src="/assets/images/power-off.png" wx:else/>
                           </view>
-                          <image src="/assets/images/power-off.png" wx:else/>
                         </view>
                         <!-- 空调 -->
                         <view
-                          class="action-tem {{featureInfo[item2.controlName] !== '0' ? 'active' : ''}}"
+                          class="action-tem {{featureInfo[item2.controlName] !== '0' ? 'active' : ''}} {{featureInfo[item2.controlName] == undefined ? 'offline' : ''}}"
                           wx:if="{{item2.originControlName === 'tem'}}"
                         >
-                          <view class="tem-number" wx:if="{{featureInfo[item2.controlName] !== '0'}}">
-                            {{featureInfo[item2.controlName]}}°
+                          <view class="offline" wx:if="{{featureInfo[item2.controlName] == undefined}}">离线</view>
+                          <view class="online" wx:else>
+                            <view class="fan-number" wx:if="{{featureInfo[item2.controlName] !== '0'}}">
+                              {{featureInfo[item2.controlName]}}°
+                            </view>
+                            <image src="/assets/images/power-off.png" wx:else/>
                           </view>
-                          <image src="/assets/images/power-off.png" wx:else/>
                         </view>
                       </view>
                     </view>
@@ -250,10 +256,14 @@ export default class Home extends wepy.page {
     },
     // 操作设备容器
     toActionDevice: (deviceInfo) => {
-      this.actionDeviceInfo = deviceInfo;
-      console.log(this.actionDeviceInfo);
-      this.$apply();
-      this.methods.toggleModal(true);
+      if (this.featureInfo[deviceInfo.controlName] !== undefined) {
+        this.actionDeviceInfo = deviceInfo;
+        console.log(this.actionDeviceInfo);
+        this.$apply();
+        this.methods.toggleModal(true);
+      } else {
+        console.log('设备已离线');
+      }
     },
     // 显示设备操作容器
     toggleModal: (visible) => {
@@ -400,6 +410,9 @@ export default class Home extends wepy.page {
                 background-color: #fff;
                 border-radius: 11px;
                 box-shadow: 0 0 10px rgba(0, 0, 0, .1);
+                &.offline {
+                  background-color: rgba(0, 0, 0, .1);
+                }
                 .name-room-name {
                   display: flex;
                   justify-content: space-between;
@@ -463,16 +476,28 @@ export default class Home extends wepy.page {
                     &.active {
                       background-color: #fff;
                     }
-                    .fan-number,
-                    .tem-number {
-                      white-space: nowrap;
-                      font-size: 15px;
-                      letter-spacing: 1px;
-                      color: #40a9ff;
+                    &.offline {
+                      background-color: transparent;
                     }
-                    image {
-                      width: 15px;
-                      height: 15px;
+                    .offline {
+                      overflow: hidden;
+                      white-space: nowrap;
+                      text-overflow: ellipsis;
+                      font-size: 12px;
+                      color: #888;
+                    }
+                    .online {
+                      .fan-number,
+                      .tem-number {
+                        white-space: nowrap;
+                        font-size: 15px;
+                        letter-spacing: 1px;
+                        color: #40a9ff;
+                      }
+                      image {
+                        width: 15px;
+                        height: 15px;
+                      }
                     }
                   }
                 }
