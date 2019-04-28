@@ -7,7 +7,7 @@ const featureSocket = {
     wx.connectSocket({
       url: config.WEB_SOCKET_ROOT,
       success: () => {
-        console.log('==webSocket server connect success');
+        console.info('==webSocket server connect success');
         featureSocket.initWebSocketEventHandler(updateFeatureInfo);
       },
       fail: (e) => {
@@ -20,7 +20,7 @@ const featureSocket = {
     // 接收数据
     wx.onSocketMessage(({ data }) => {
       data = data.toString();
-      console.log(`webSocket server receiver data: ${data}`);
+      console.info(`webSocket server receiver data: ${data}`);
 
       // 初始化
       if (data.substring(0, 'INIT'.length) === 'INIT') {
@@ -59,12 +59,12 @@ const featureSocket = {
 
     wx.onSocketClose((e) => {
       // 提示连接已关闭
-      console.log('==webSocket server connect close', e);
+      console.info('==webSocket server connect close', e);
     });
 
     wx.onSocketError((e) => {
       // 提示连接错误
-      console.log('==webSocket server connect error', e);
+      console.info('==webSocket server connect error', e);
     });
   },
   // 处理 webSocket 发送的数据
@@ -72,132 +72,102 @@ const featureSocket = {
     // 是否是警告通知
     if (data.substring(0, 'call1'.length) === 'call1') {
       if (data.split('-')[1] === '1') {
-        console.log('报警系统1已打开');
+        console.info('报警系统1已打开');
       }
       return;
     }
     if (data.substring(0, 'smoke1'.length) === 'smoke1') {
       if (data.split('-')[1] === '1') {
-        console.log('烟雾报警系统1已打开');
+        console.info('烟雾报警系统1已打开');
       }
       return;
     }
 
     // 将数据保存到 reudx 中
-    if (data.substring(0, 'LED1'.length) === 'LED1') {
-      if (isDispatch) {
-        updateFeatureInfo({ LED1: data.split('-')[1] === '1' });
-        return;
-      }
-      return { LED1: data.split('-')[1] === '1' };
-    }
-    if (data.substring(0, 'LED2'.length) === 'LED2') {
-      if (isDispatch) {
-        updateFeatureInfo({ LED2: data.split('-')[1] === '1' });
-        return;
-      }
-      return { LED2: data.split('-')[1] === '1' };
-    }
-    if (data.substring(0, 'LED3'.length) === 'LED3') {
-      if (isDispatch) {
-        updateFeatureInfo({ LED3: data.split('-')[1] === '1' });
-        return;
-      }
-      return { LED3: data.split('-')[1] === '1' };
-    }
-    if (data.substring(0, 'LED4'.length) === 'LED4') {
-      if (isDispatch) {
-        updateFeatureInfo({ LED4: data.split('-')[1] === '1' });
-        return;
-      }
-      return { LED4: data.split('-')[1] === '1' };
-    }
-    if (data.substring(0, 'LED5'.length) === 'LED5') {
-      if (isDispatch) {
-        updateFeatureInfo({ LED5: data.split('-')[1] === '1' });
-        return;
-      }
-      return { LED5: data.split('-')[1] === '1' };
-    }
-    if (data.substring(0, 'LED6'.length) === 'LED6') {
-      if (isDispatch) {
-        updateFeatureInfo({ LED6: data.split('-')[1] === '1' });
-        return;
-      }
-      return { LED6: data.split('-')[1] === '1' };
-    }
-    if (data.substring(0, 'LED7'.length) === 'LED7') {
-      if (isDispatch) {
-        updateFeatureInfo({ LED7: data.split('-')[1] === '1' });
-        return;
-      }
-      return { LED7: data.split('-')[1] === '1' };
-    }
-    if (data.substring(0, 'door1'.length) === 'door1') {
-      if (isDispatch) {
-        updateFeatureInfo({ door1: data.split('-')[1] === '1' });
-        return;
-      }
-      return { door1: data.split('-')[1] === '1' };
-    }
-    if (data.substring(0, 'cur1'.length) === 'cur1') {
-      if (isDispatch) {
-        updateFeatureInfo({ cur1: data.split('-')[1] === '1' });
-        return;
-      }
-      return { cur1: data.split('-')[1] === '1' };
-    }
-    if (data.substring(0, 'cur2'.length) === 'cur2') {
-      if (isDispatch) {
-        updateFeatureInfo({ cur2: data.split('-')[1] === '1' });
-        return;
-      }
-      return { cur2: data.split('-')[1] === '1' };
-    }
-    if (data.substring(0, 'fan1'.length) === 'fan1') {
-      if (isDispatch) {
-        updateFeatureInfo({ fan1: data.split('-')[1] });
-        return;
-      }
-      return { fan1: data.split('-')[1] };
-    }
-    if (data.substring(0, 'tem1'.length) === 'tem1') {
-      if (isDispatch) {
-        updateFeatureInfo({ tem1: data.split('-')[1] });
-        return;
-      }
-      return { tem1: data.split('-')[1] };
-    }
-    if (data.substring(0, 'tem2'.length) === 'tem2') {
-      if (isDispatch) {
-        updateFeatureInfo({ tem2: data.split('-')[1] });
-        return;
-      }
-      return { tem2: data.split('-')[1] };
-    }
-    if (data.substring(0, 'hood1'.length) === 'hood1') {
-      if (isDispatch) {
-        updateFeatureInfo({ hood1: data.split('-')[1] });
-        return;
-      }
-      return { hood1: data.split('-')[1] === '1' };
-    }
-    if (data.substring(0, 'tem-hum1'.length) === 'tem-hum1') {
-      if (isDispatch) {
-        updateFeatureInfo({
-          temHum1Tem: data.split('-')[2],
-          temHum1Hum: data.split('-')[3]
-        });
-        return;
-      }
-      return {
-        temHum1Tem: data.split('-')[2],
-        temHum1Hum: data.split('-')[3]
+    if (data.substring(0, 'LED'.length) === 'LED') {
+      const controlName = `LED${data.substr('LED'.length, 1)}`;
+      const controlValue = data.split('-')[1] === '1';
+      const featureInfo = {
+        [controlName]: controlValue
       };
+      if (isDispatch) {
+        updateFeatureInfo(featureInfo);
+        return;
+      }
+      return featureInfo;
+    } else if (data.substring(0, 'door'.length) === 'door') {
+      const controlName = `door${data.substr('door'.length, 1)}`;
+      const controlValue = data.split('-')[1] === '1';
+      const featureInfo = {
+        [controlName]: controlValue
+      };
+      if (isDispatch) {
+        updateFeatureInfo(featureInfo);
+        return;
+      }
+      return featureInfo;
+    } else if (data.substring(0, 'hood'.length) === 'hood') {
+      const controlName = `hood${data.substr('hood'.length, 1)}`;
+      const controlValue = data.split('-')[1] === '1';
+      const featureInfo = {
+        [controlName]: controlValue
+      };
+      if (isDispatch) {
+        updateFeatureInfo(featureInfo);
+        return;
+      }
+      return featureInfo;
+    } else if (data.substring(0, 'cur'.length) === 'cur') {
+      const controlName = `cur${data.substr('cur'.length, 1)}`;
+      const controlValue = data.split('-')[1] === '1';
+      const featureInfo = {
+        [controlName]: controlValue
+      };
+      if (isDispatch) {
+        updateFeatureInfo(featureInfo);
+        return;
+      }
+      return featureInfo;
+    } else if (data.substring(0, 'fan'.length) === 'fan') {
+      const controlName = `fan${data.substr('fan'.length, 1)}`;
+      const controlValue = data.split('-')[1];
+      const featureInfo = {
+        [controlName]: controlValue
+      };
+      if (isDispatch) {
+        updateFeatureInfo(featureInfo);
+        return;
+      }
+      return featureInfo;
+    } else if (data.substring(0, 'tem'.length) === 'tem' && data.substring(0, 'tem-hum'.length) !== 'tem-hum') {
+      const controlName = `tem${data.substr('tem'.length, 1)}`;
+      const controlValue = data.split('-')[1];
+      const featureInfo = {
+        [controlName]: controlValue
+      };
+      if (isDispatch) {
+        updateFeatureInfo(featureInfo);
+        return;
+      }
+      return featureInfo;
+    } else if (data.substring(0, 'tem-hum1'.length) === 'tem-hum1') {
+      const controlName = `temHum${data.substr('tem-hum'.length, 1)}Tem`;
+      const controlValue = data.split('-')[2];
+      const controlName2 = `temHum${data.substr('tem-hum'.length, 1)}Hum`;
+      const controlValue2 = data.split('-')[3];
+      const featureInfo = {
+        [controlName]: controlValue,
+        [controlName2]: controlValue2
+      };
+      if (isDispatch) {
+        updateFeatureInfo(featureInfo);
+        return;
+      }
+      return featureInfo;
     }
 
     // 提示返回的数据
-    console.log(`命令识别失败: ${data}`);
+    console.info(`命令识别失败: ${data}`);
   },
   // 发送 webSocket 数据
   sendWebSocketData: (data) => {
@@ -205,7 +175,7 @@ const featureSocket = {
     wx.sendSocketMessage({
       data,
       fail: (e) => {
-        console.log(`发送数据失败${e}`);
+        console.info(`发送数据失败${e}`);
       }
     });
   }

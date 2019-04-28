@@ -37,6 +37,7 @@
       visible="{{visible}}"
       actions="{{actions}}"
       @click="handlerAction"
+      @close="toggleModal({{false}})"
     >
       <view class="select-icon-container">
         <view class="room-icon-list-item">
@@ -220,7 +221,7 @@ export default class Home extends wepy.page {
     }
     .i-modal-room-icon {
       & > view:first-child {
-        width: 90%;
+        width: 100%;
         & > view:first-child {
           & > view:first-child {
             max-height: 90%;

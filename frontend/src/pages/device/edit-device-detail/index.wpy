@@ -47,6 +47,7 @@
       visible="{{visible}}"
       actions="{{actions}}"
       @click="handlerAction"
+      @close="toggleModal({{false}})"
     >
       <view class="room-list-container">
         <view wx:if="{{roomInfoList.length > 0}}">
@@ -86,6 +87,7 @@
       visible="{{ visible2 }}"
       @click="handlerAction2"
       actions="{{actions2}}"
+      @close="toggleModal2({{false}})"
     >
       <view>设备删除后, 现有家居状态不会被改变</view>
     </i-modal>
@@ -188,8 +190,9 @@ export default class Home extends wepy.page {
 
       const deviceInfo = {
         id: this.form.id,
-        name: this.form.name || this.form.originName,
         originName: this.form.originName,
+        name: this.form.name || this.form.originName,
+        originControlName: this.form.originControlName,
         controlName: this.form.controlName,
         icon: this.form.icon,
         roomId: this.form.roomId
@@ -255,8 +258,9 @@ export default class Home extends wepy.page {
     if (!options.name) {
       deviceInfo = {
         id: '2',
-        name: '灯5',
         originName: '科创暖白灯5',
+        name: '灯5',
+        originControlName: 'LED',
         controlName: 'LED5',
         icon: '/assets/images/LED.png',
         roomId: '2',
@@ -266,6 +270,7 @@ export default class Home extends wepy.page {
       deviceInfo.id = options.id;
       deviceInfo.name = options.name;
       deviceInfo.originName = options.originName;
+      deviceInfo.originControlName = options.originControlName;
       deviceInfo.controlName = options.controlName;
       deviceInfo.icon = options.icon;
       deviceInfo.roomId = options.roomId;
@@ -306,7 +311,7 @@ export default class Home extends wepy.page {
     }
     .i-modal-room {
       & > view:first-child {
-        width: 90%;
+        width: 100%;
         & > view:first-child {
           & > view:first-child {
             max-height: 90%;

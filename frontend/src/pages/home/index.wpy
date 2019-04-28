@@ -9,8 +9,7 @@
       <view
         class="to-add-deice"
         @tap="addFeature"
-      >+
-      </view>
+      >+</view>
     </view>
     <view class="room-device-container" wx:if="{{!loading}}">
       <!-- 房间信息 -->
@@ -30,7 +29,7 @@
             <swiper-item>
               <view class="device-info-list-container" wx:if="{{item.deviceInfoList.length > 0}}">
                 <repeat for="{{item.deviceInfoList}}" key="index2" index="index2" item="item2">
-                  <view class="device-info-list-item">
+                  <view class="device-info-list-item" @tap="toActionDevice({{item2}})">
                     <view class="device-info">
                       <view class="name-room-name">
                         <view class="name">{{item2.name}}</view>
@@ -40,8 +39,29 @@
                         <view class="image">
                           <image src="{{item2.icon}}"></image>
                         </view>
-                        <view class="action" wx:if="{{item2.originControlName === 'LED'}}">
-                          <image src="/assets/images/power-off.png"></image>
+                        <!-- 电灯 油烟机 窗帘 -->
+                        <view
+                          class="action-power {{featureInfo[item2.controlName] ? 'active' : ''}}"
+                          wx:if="{{item2.originControlName === 'LED' || item2.originControlName === 'door' || item2.originControlName === 'hood' || item2.originControlName === 'cur'}}"
+                        >
+                          <image src="/assets/images/power-on.png" wx:if="{{featureInfo[item2.controlName]}}"/>
+                          <image src="/assets/images/power-off.png" wx:else/>
+                        </view>
+                        <!-- 风扇 -->
+                        <view
+                          class="action-fan {{featureInfo[item2.controlName] !== '0' ? 'active' : ''}}"
+                          wx:if="{{item2.originControlName === 'fan'}}"
+                        >
+                          <view class="fan-number" wx:if="{{featureInfo[item2.controlName] !== '0'}}">{{featureInfo[item2.controlName]}}档</view>
+                          <image src="/assets/images/power-off.png" wx:else/>
+                        </view>
+                        <!-- 空调 -->
+                        <view
+                          class="action-tem {{featureInfo[item2.controlName] !== '0' ? 'active' : ''}}"
+                          wx:if="{{item2.originControlName === 'tem'}}"
+                        >
+                          <view class="tem-number" wx:if="{{featureInfo[item2.controlName] !== '0'}}">{{featureInfo[item2.controlName]}}°</view>
+                          <image src="/assets/images/power-off.png" wx:else/>
                         </view>
                       </view>
                     </view>
@@ -59,6 +79,29 @@
     <view class="loading-container" wx:else>
       <i-spin size="large" fix></i-spin>
     </view>
+
+    <!-- 弹出的模态框 -->
+    <i-modal
+      i-class="i-modal-device-control"
+      visible="{{visible}}"
+      show-ok="{{false}}"
+      show-cancel="{{false}}"
+      @close="toggleModal({{false}})"
+    >
+      <view class="device-name">{{actionDeviceInfo.name}}</view>
+      <view class="device-action-form">
+        <view wx:if="{{actionDeviceInfo.originControlName === 'LED'}}">
+          <i-cell-group>
+            <i-cell title="开关">
+              <i-switch
+                value="{{featureInfo[actionDeviceInfo.controlName]}}"
+                @change="changeFeatureInfo"
+                slot="footer"/>
+            </i-cell>
+          </i-cell-group>
+        </view>
+      </view>
+    </i-modal>
   </view>
   <i-message id="message"/>
 </template>
@@ -66,6 +109,7 @@
 <script>
 import wepy from 'wepy';
 import { connect } from 'wepy-redux';
+import featureSocket from '../../util/feature-socket';
 
 @connect({
   featureInfo: (state) => state.feature.featureInfo,
@@ -78,6 +122,8 @@ export default class Home extends wepy.page {
   };
 
   data = {
+    // 模态框显示/隐藏
+    visible: true,
     // 当前滑块的位置
     current: 0,
     // swiper 高度
@@ -85,7 +131,9 @@ export default class Home extends wepy.page {
     // 加载房间与设备对应的数据
     loading: true,
     // 房间与设备对应的数据
-    newRoomDeviceInfoList: []
+    newRoomDeviceInfoList: [],
+    // 当前操作的设备信息
+    actionDeviceInfo: {}
   };
 
   methods = {
@@ -97,18 +145,13 @@ export default class Home extends wepy.page {
     },
     // 刷新房间与设备对应的数据
     refreshNewRoomDeviceInfoList: () => {
+      console.log(12345);
       this.loading = true;
       this.$apply();
       setTimeout(() => {
         // 设置设备对应的房间名称, 以及控制前缀
         let newDeviceInfoList = this.deviceInfoList.map(deviceInfoItem => {
           deviceInfoItem.roomName = this.roomInfoList.find(roomInfoItem => roomInfoItem.id === deviceInfoItem.roomId).name;
-          if (deviceInfoItem.controlName.substring(0, 'LED'.length) === 'LED') deviceInfoItem.originControlName = 'LED';
-          if (deviceInfoItem.controlName.substring(0, 'cur'.length) === 'cur') deviceInfoItem.originControlName = 'cur';
-          if (deviceInfoItem.controlName.substring(0, 'hool'.length) === 'hool') deviceInfoItem.originControlName = 'hool';
-          if (deviceInfoItem.controlName.substring(0, 'tem'.length) === 'tem') deviceInfoItem.originControlName = 'tem';
-          // 设置硬件状态
-          deviceInfoItem.controlValue = this.featureInfo[deviceInfoItem.controlName];
           return deviceInfoItem;
         });
         // 将设备归类到对应的房间
@@ -142,6 +185,28 @@ export default class Home extends wepy.page {
     chaneScroll: (e) => {
       this.current = e.detail.current;
       this.$apply();
+    },
+    // 操作设备容器
+    toActionDevice: (deviceInfo) => {
+      this.actionDeviceInfo = deviceInfo;
+      console.log(this.actionDeviceInfo);
+      this.$apply();
+      this.methods.toggleModal(true);
+    },
+    // 显示设备操作容器
+    toggleModal: (visible) => {
+      this.visible = visible;
+      this.$apply();
+    },
+    // 改变设备状态
+    changeFeatureInfo: (e) => {
+      switch (this.actionDeviceInfo.originControlName) {
+        case 'LED':
+          featureSocket.sendWebSocketData(`${this.actionDeviceInfo.controlName}-${e.detail.value ? '1' : '0'}`);
+          break;
+        default:
+          console.log('未知 originControlName');
+      }
     }
   };
 
@@ -153,16 +218,24 @@ export default class Home extends wepy.page {
     deviceInfoList: () => {
       // 监听设备数据, 更新房间与设备对应的数据
       this.methods.refreshNewRoomDeviceInfoList();
-    },
-    featureInfo: () => {
-      // 监听硬件数据, 更新房间与设备对应的数据
-      this.methods.refreshNewRoomDeviceInfoList();
     }
   };
 
   onLoad() {
     // 刷新房间与设备对应的数据
     this.methods.refreshNewRoomDeviceInfoList();
+
+    this.actionDeviceInfo = {
+      controlName: 'LED2',
+      controlValue: true,
+      icon: '/assets/images/LED.png',
+      id: '6',
+      name: '科创暖白灯2',
+      originControlName: 'LED',
+      originName: '科创暖白灯2',
+      roomId: '2',
+      roomName: '主卧'
+    };
   }
 }
 </script>
@@ -281,7 +354,7 @@ export default class Home extends wepy.page {
                       height: 35px;
                     }
                   }
-                  .action {
+                  .action-power {
                     display: flex;
                     justify-content: center;
                     align-items: center;
@@ -289,6 +362,33 @@ export default class Home extends wepy.page {
                     height: 28px;
                     border-radius: 50%;
                     background-color: #eee;
+                    &.active {
+                      background-color: rgba(67, 162, 255, 0.25);
+                    }
+                    image {
+                      width: 15px;
+                      height: 15px;
+                    }
+                  }
+                  .action-fan,
+                  .action-tem {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    width: 28px;
+                    height: 28px;
+                    border-radius: 50%;
+                    background-color: #eee;
+                    &.active {
+                      background-color: #fff;
+                    }
+                    .fan-number,
+                    .tem-number {
+                      white-space: nowrap;
+                      font-size: 15px;
+                      letter-spacing: 1px;
+                      color: #40a9ff;
+                    }
                     image {
                       width: 15px;
                       height: 15px;
@@ -322,6 +422,30 @@ export default class Home extends wepy.page {
       left: 0;
       bottom: 0;
       background: #fff;
+    }
+  }
+
+  .i-modal-device-control {
+    & > view:first-child {
+      width: 100%;
+      & > view:first-child {
+        & > view:first-child {
+          max-height: 90%;
+          margin-bottom: 0;
+          padding-bottom: 10px;
+          padding-left: 10px;
+          padding-right: 10px;
+          .device-name {
+            font-size: 15px;
+            color: #555;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(0, 0, 0, .2);
+          }
+          .device-action-form {
+            text-align: left;
+          }
+        }
+      }
     }
   }
 </style>

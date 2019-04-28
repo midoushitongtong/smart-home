@@ -41,6 +41,7 @@
       visible="{{visible}}"
       actions="{{actions}}"
       @click="handlerAction"
+      @close="toggleModal({{false}})"
     >
       <view class="room-list-container">
         <view wx:if="{{roomInfoList.length > 0}}">
@@ -156,10 +157,11 @@ export default class Home extends wepy.page {
       this.$apply();
 
       const deviceInfo = {
+        originName: this.form.originName,
         name: this.form.name || this.form.originName,
+        originControlName: this.form.originControlName,
         controlName: this.form.controlName,
         icon: this.form.icon,
-        originName: this.form.originName,
         roomId: this.form.roomId
       };
 
@@ -214,11 +216,13 @@ export default class Home extends wepy.page {
     if (!options.originName) {
       deviceInfo = {
         originName: '科创暖白灯1',
+        originControlName: 'LED',
         controlName: 'LED1',
         icon: '/assets/images/LED.png'
       };
     } else {
       deviceInfo.originName = options.originName;
+      deviceInfo.originControlName = options.originControlName;
       deviceInfo.controlName = options.controlName;
       deviceInfo.icon = options.icon;
     }
@@ -255,7 +259,7 @@ export default class Home extends wepy.page {
     }
     .i-modal-room {
       & > view:first-child {
-        width: 90%;
+        width: 100%;
         & > view:first-child {
           & > view:first-child {
             max-height: 90%;

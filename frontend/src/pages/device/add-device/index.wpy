@@ -12,7 +12,7 @@
               <i-cell
                 i-class="i-cell-device-list-item"
                 is-link
-                url='/pages/device/add-device-detail/index?originName={{item.originName}}&controlName={{item.controlName}}&icon={{item.icon}}'
+                url='/pages/device/add-device-detail/index?originName={{item.originName}}&originControlName={{item.originControlName}}&controlName={{item.controlName}}&icon={{item.icon}}'
               >
                 <view class="device-base-info-container" slot="icon">
                   <image src="{{item.icon}}"/>
@@ -68,36 +68,42 @@ export default class Home extends wepy.page {
         if (controlName.substring(0, 'LED'.length) === 'LED') {
           data = {
             originName: `科创暖白灯${controlName.substr('LED'.length, 1)}`,
+            originControlName: 'LED',
             controlName,
             icon: '/assets/images/LED.png'
           };
         } else if (controlName.substring(0, 'door'.length) === 'door') {
           data = {
             originName: `科创智慧门${controlName.substr('door'.length, 1)}`,
+            originControlName: 'door',
             controlName,
             icon: '/assets/images/door.png'
           };
         } else if (controlName.substring(0, 'cur'.length) === 'cur') {
           data = {
             originName: `科创窗帘电机${controlName.substr('cur'.length, 1)}`,
+            originControlName: 'cur',
             controlName,
             icon: '/assets/images/cur.png'
           };
         } else if (controlName.substring(0, 'fan'.length) === 'fan') {
           data = {
             originName: `科创自然风扇${controlName.substr('fan'.length, 1)}`,
+            originControlName: 'fan',
             controlName,
             icon: '/assets/images/fan.png'
           };
         } else if (controlName.substring(0, 'tem'.length) === 'tem' && controlName.substring(0, 'temHum'.length) !== 'temHum') {
           data = {
             originName: `科创变频空调${controlName.substr('tem'.length, 1)}`,
+            originControlName: 'tem',
             controlName,
             icon: '/assets/images/tem.png'
           };
         } else if (controlName.substring(0, 'hood'.length) === 'hood') {
           data = {
             originName: `科创吸油烟机${controlName.substr('hood'.length, 1)}`,
+            originControlName: 'hood',
             controlName,
             icon: '/assets/images/hood.png'
           };
