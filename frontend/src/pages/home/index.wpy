@@ -326,6 +326,8 @@ export default class Home extends wepy.page {
     featureInfo: (newValue) => {
       // 如果当前操作的设备不存在, 隐藏模态框
       if (!newValue.hasOwnProperty(this.actionDeviceInfo.controlName)) {
+        console.log(newValue);
+        console.log(this.actionDeviceInfo);
         this.methods.toggleModal(false);
         Base.$Message({
           content: `当前操作的设备已离线`,
@@ -334,10 +336,12 @@ export default class Home extends wepy.page {
         });
       }
       // 更新温度和湿度
-      this.temHum1 = {
-        tem: newValue.temHum1.split('-')[0],
-        hum: newValue.temHum1.split('-')[1]
-      };
+      if (newValue.temHum1) {
+        this.temHum1 = {
+          tem: newValue.temHum1.split('-')[0],
+          hum: newValue.temHum1.split('-')[1]
+        };
+      }
     }
   };
 
@@ -395,6 +399,7 @@ export default class Home extends wepy.page {
           justify-content: center;
           width: 33px;
           height: 33px;
+          line-height: 33px;
           border-radius: 50%;
           font-size: 20px;
           font-weight: bold;
@@ -407,11 +412,11 @@ export default class Home extends wepy.page {
         .hum {
           display: flex;
           align-items: center;
-          font-size: 13px;
+          font-size: ~"30rpx";
           color: #40a9ff;
           opacity: .9;
           .number {
-            font-size: 15px;
+            font-size: ~"35rpx";
             margin-left: 5px;
             font-weight: bold;
           }
@@ -434,7 +439,7 @@ export default class Home extends wepy.page {
           view {
             display: inline-block;
             padding: 10px;
-            font-size: 14px;
+            font-size: ~"29rpx";
             color: #888;
             &.active {
               color: #40a9ff;
@@ -481,7 +486,7 @@ export default class Home extends wepy.page {
                     overflow: hidden;
                     white-space: nowrap;
                     text-overflow: ellipsis;
-                    font-size: 14px;
+                    font-size: ~"30rpx";
                   }
                   .room-name {
                     max-width: 35%;
@@ -529,6 +534,7 @@ export default class Home extends wepy.page {
                       }
                     }
                     .online {
+                      display: flex;
                       image {
                         width: 15px;
                         height: 15px;
@@ -558,6 +564,7 @@ export default class Home extends wepy.page {
                       }
                     }
                     .online {
+                      display: flex;
                       .fan-number,
                       .tem-number {
                         white-space: nowrap;

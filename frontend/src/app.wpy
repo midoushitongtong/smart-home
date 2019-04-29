@@ -55,19 +55,10 @@ export default class extends wepy.app {
       'i-cell': '../../../components/iview/cell/index',
       'i-cell-group': '../../../components/iview/cell-group/index',
       'i-modal': '../../../components/iview/modal/index',
-      'i-icon': '../../../components/iview/icon/index',
       'i-switch': '../../../components/iview/switch/index',
-      'i-toast': '../../../components/iview/toast/index',
       'i-message': '../../../components/iview/message/index',
-      'i-action-sheet': '../../components/iview/action-sheet/index',
       'i-input-number': '../../../components/iview/input-number/index',
-      'i-card': '../../../components/iview/card/index',
-      'i-spin': '../../../components/iview/spin/index',
-      'i-grid': '../../../components/iview/grid/index',
-      'i-grid-item': '../../../components/iview/grid-item/index',
-      'i-grid-icon': '../../../components/iview/grid-icon/index',
-      'i-grid-label': '../../../components/iview/grid-label/index',
-      'i-panel': '../../../components/iview/panel/index'
+      'i-spin': '../../../components/iview/spin/index'
     }
   };
 

@@ -6,6 +6,8 @@ const featureSocket = {
   updateFeatureInfo: null,
   // 发送未响应状态
   sendWebSocketDataNotReact: false,
+  // 发送未响应 timerout 对象
+  sendWebSocketDataNotReactTimeout: null,
   // 初始化 webSocket 连接
   initWebSocketClient: (successCallback) => {
     wx.connectSocket({
@@ -188,9 +190,10 @@ const featureSocket = {
   },
   // 发送 webSocket 数据
   sendWebSocketData: (data) => {
+    clearInterval(featureSocket.sendWebSocketDataNotReactTimeout);
     // 标记为服务器为响应数据
     featureSocket.sendWebSocketDataNotReact = true;
-    setTimeout(() => {
+    featureSocket.sendWebSocketDataNotReactTimeout = setTimeout(() => {
       // 服务器 3 秒未响应数据, 删除设备
       if (featureSocket.sendWebSocketDataNotReact) {
         featureSocket.updateFeatureInfo({
