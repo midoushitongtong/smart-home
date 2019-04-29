@@ -73,12 +73,10 @@
           <text>当前暂无房间</text>
         </view>
         <i-button
-          size="small"
           i-class="i-button-to-add-room"
           type="success"
           @tap="toAddRoom"
-        >添加新的房间
-        </i-button>
+        >添加新的房间</i-button>
       </view>
     </i-modal>
 

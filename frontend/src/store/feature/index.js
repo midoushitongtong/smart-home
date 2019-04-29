@@ -63,8 +63,8 @@ export default (state = initState, action) => {
         ...action.data
       };
     case actionType.UPDATE_FEATURE_INFO:
-      // 如果操作是清空数据, 则不保留已有的数据
       if (action.data.featureInfo.isCLOSE) {
+        // 如果操作是清空数据, 则不保留已有的数据
         // 构建数据
         let newFeatureInfo = {
           ...action.data.featureInfo

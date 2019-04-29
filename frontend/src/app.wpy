@@ -11,8 +11,7 @@ import { updateFeatureInfo, updateRoomInfoList, updateDeviceInfoList } from './s
 const store = configStore();
 setStore(store);
 
-@connect({
-}, {
+@connect({}, {
   updateFeatureInfo,
   updateRoomInfoList,
   updateDeviceInfoList
@@ -87,7 +86,12 @@ export default class extends wepy.app {
     // 更新设备列表数据
     this.methods.updateDeviceInfoList(deviceStorage.getDeviceInfoList());
     // 初始化 webSocket 链接
-    featureSocket.initWebSocketClient(this.methods.updateFeatureInfo);
+    featureSocket.initWebSocketClient(() => {
+      // 初始化 webSocket 事件
+      featureSocket.initWebSocketEventHandler(this.methods.updateFeatureInfo);
+      // 连接成功初始化数据
+      featureSocket.sendWebSocketData('INIT');
+    });
   }
 }
 </script>

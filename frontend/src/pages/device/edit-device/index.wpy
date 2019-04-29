@@ -26,7 +26,6 @@
     </view>
     <view class="action-container">
       <i-button
-        size="small"
         i-class="i-button-to-add-device"
         type="success"
         @tap="toAddDevice"

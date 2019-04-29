@@ -6,6 +6,8 @@ function connect() {
   const socket = new net.Socket();
   socket.connect(PORT, HOST, function () {
     console.log('socket server connect success');
+    // 初始化数据
+    socket.write('INIT-LED1-0,LED2-1,LED3-0,LED4-0,LED5-0,LED6-0,LED7-0,door1-1,door2-0,cur1-0,cur2-1,fan1-2,fan2-0,tem-hum1-23-33,tem1-15,hood1-1,hood2-0');
 
     socket.on('data', function (str) {
       str = str.toString();

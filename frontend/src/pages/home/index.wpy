@@ -42,11 +42,14 @@
                         </view>
                         <!-- 只有swiper的设备 -->
                         <view
-                          class="action-power {{featureInfo[item2.controlName] ? 'active' : ''}}"
+                          class="action-power {{featureInfo[item2.controlName] ? 'active' : ''}} {{featureInfo[item2.controlName] == undefined ? 'offline' : ''}}"
                           wx:if="{{item2.originControlName === 'LED' || item2.originControlName === 'door' || item2.originControlName === 'hood' || item2.originControlName === 'cur'}}"
                         >
-                          <image src="/assets/images/power-on.png" wx:if="{{featureInfo[item2.controlName]}}"/>
-                          <image src="/assets/images/power-off.png" wx:else/>
+                          <view class="offline" wx:if="{{featureInfo[item2.controlName] == undefined}}">离线</view>
+                          <view class="online" wx:else>
+                            <image src="/assets/images/power-on.png" wx:if="{{featureInfo[item2.controlName]}}"/>
+                            <image src="/assets/images/power-off.png" wx:else/>
+                          </view>
                         </view>
                         <!-- 风扇 -->
                         <view
@@ -102,72 +105,57 @@
       <view class="device-name">{{actionDeviceInfo.name}}</view>
       <view class="device-action-form">
         <!-- 只有swiper的设备 -->
-        <view
-          wx:if="{{actionDeviceInfo.originControlName === 'LED' || actionDeviceInfo.originControlName === 'door' || actionDeviceInfo.originControlName === 'cur' || actionDeviceInfo.originControlName === 'hood'}}">
-          <i-cell-group>
-            <i-cell title="开关">
-              <i-switch
-                value="{{featureInfo[actionDeviceInfo.controlName]}}"
-                @change="changeFeatureInfo"
-                slot="footer"
-              />
-            </i-cell>
-          </i-cell-group>
-        </view>
+        <i-cell-group
+          wx:if="{{actionDeviceInfo.originControlName === 'LED' || actionDeviceInfo.originControlName === 'door' || actionDeviceInfo.originControlName === 'cur' || actionDeviceInfo.originControlName === 'hood'}}"
+        >
+          <i-cell title="开关">
+            <i-switch
+              value="{{featureInfo[actionDeviceInfo.controlName]}}"
+              @change="changeFeatureInfo"
+              slot="footer"
+            />
+          </i-cell>
+        </i-cell-group>
         <!-- 风扇 -->
-        <view wx:if="{{actionDeviceInfo.originControlName === 'fan'}}">
-          <i-cell-group>
-            <i-cell title="开关">
-              <i-switch
-                value="{{true}}"
-                @change="changeFeatureInfo"
-                slot="footer"
-                wx:if="{{featureInfo[actionDeviceInfo.controlName] !== '0'}}"
-              />
-              <i-switch
-                value="{{false}}"
-                @change="changeFeatureInfo"
-                slot="footer"
-                wx:else
-              />
-            </i-cell>
-            <i-cell title="挡位" wx:if="{{featureInfo[actionDeviceInfo.controlName] !== '0'}}">
-              <i-input-number
-                value="{{(featureInfo[actionDeviceInfo.controlName])}}"
-                min="1" max="3"
-                bindchange="changeFeatureInfo"
-                slot="footer"
-              />
-            </i-cell>
-          </i-cell-group>
-        </view>
+        <i-cell-group
+          wx:if="{{actionDeviceInfo.originControlName === 'fan'}}"
+        >
+          <i-cell title="开关">
+            <i-switch
+              value="{{featureInfo[actionDeviceInfo.controlName] !== '0'}}"
+              slot="footer"
+              @change="changeFeatureInfo"
+            ></i-switch>
+          </i-cell>
+          <i-cell title="挡位" wx:if="{{featureInfo[actionDeviceInfo.controlName] !== '0'}}">
+            <i-input-number
+              value="{{(featureInfo[actionDeviceInfo.controlName])}}"
+              min="1" max="3"
+              bindchange="changeFeatureInfo"
+              slot="footer"
+            />
+          </i-cell>
+        </i-cell-group>
         <!-- 空调 -->
-        <view wx:if="{{actionDeviceInfo.originControlName === 'tem'}}">
-          <i-cell-group>
-            <i-cell title="开关">
-              <i-switch
-                value="{{true}}"
-                @change="changeFeatureInfo"
-                slot="footer"
-                wx:if="{{featureInfo[actionDeviceInfo.controlName] !== '0'}}"
-              />
-              <i-switch
-                value="{{false}}"
-                @change="changeFeatureInfo"
-                slot="footer"
-                wx:else
-              />
-            </i-cell>
-            <i-cell title="温度" wx:if="{{featureInfo[actionDeviceInfo.controlName] !== '0'}}">
-              <i-input-number
-                value="{{featureInfo[actionDeviceInfo.controlName]}}"
-                min="1" max="25"
-                bindchange="changeFeatureInfo"
-                slot="footer"
-              />
-            </i-cell>
-          </i-cell-group>
-        </view>
+        <i-cell-group
+          wx:if="{{actionDeviceInfo.originControlName === 'tem'}}"
+        >
+          <i-cell title="开关">
+            <i-switch
+              value="{{featureInfo[actionDeviceInfo.controlName] !== '0'}}"
+              @change="changeFeatureInfo"
+              slot="footer"
+            ></i-switch>
+          </i-cell>
+          <i-cell title="温度" wx:if="{{featureInfo[actionDeviceInfo.controlName] !== '0'}}">
+            <i-input-number
+              value="{{featureInfo[actionDeviceInfo.controlName]}}"
+              min="1" max="25"
+              bindchange="changeFeatureInfo"
+              slot="footer"
+            />
+          </i-cell>
+        </i-cell-group>
       </view>
     </i-modal>
   </view>
@@ -177,6 +165,7 @@
 <script>
 import wepy from 'wepy';
 import { connect } from 'wepy-redux';
+import Base from '../../components/iview/base/index';
 import featureSocket from '../../util/feature-socket';
 
 @connect({
@@ -213,7 +202,6 @@ export default class Home extends wepy.page {
     },
     // 刷新房间与设备对应的数据
     refreshNewRoomDeviceInfoList: () => {
-      console.log(12345);
       this.loading = true;
       this.$apply();
       setTimeout(() => {
@@ -260,9 +248,14 @@ export default class Home extends wepy.page {
         this.actionDeviceInfo = deviceInfo;
         console.log(this.actionDeviceInfo);
         this.$apply();
-        this.methods.toggleModal(true);
+        setTimeout(() => {
+          this.methods.toggleModal(true);
+        }, 150);
       } else {
-        console.log('设备已离线');
+        Base.$Message({
+          content: '当前操作设备已离线!',
+          type: 'warning'
+        });
       }
     },
     // 显示设备操作容器
@@ -459,9 +452,21 @@ export default class Home extends wepy.page {
                     &.active {
                       background-color: rgba(67, 162, 255, 0.25);
                     }
-                    image {
-                      width: 15px;
-                      height: 15px;
+                    &.offline {
+                      background-color: transparent;
+                      .offline {
+                        overflow: hidden;
+                        white-space: nowrap;
+                        text-overflow: ellipsis;
+                        font-size: 12px;
+                        color: #888;
+                      }
+                    }
+                    .online {
+                      image {
+                        width: 15px;
+                        height: 15px;
+                      }
                     }
                   }
                   .action-fan,
@@ -478,13 +483,13 @@ export default class Home extends wepy.page {
                     }
                     &.offline {
                       background-color: transparent;
-                    }
-                    .offline {
-                      overflow: hidden;
-                      white-space: nowrap;
-                      text-overflow: ellipsis;
-                      font-size: 12px;
-                      color: #888;
+                      .offline {
+                        overflow: hidden;
+                        white-space: nowrap;
+                        text-overflow: ellipsis;
+                        font-size: 12px;
+                        color: #888;
+                      }
                     }
                     .online {
                       .fan-number,

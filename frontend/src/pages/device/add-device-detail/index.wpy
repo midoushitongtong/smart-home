@@ -67,7 +67,6 @@
           <text>当前暂无房间</text>
         </view>
         <i-button
-          size="small"
           i-class="i-button-to-add-room"
           type="success"
           @tap="toAddRoom"

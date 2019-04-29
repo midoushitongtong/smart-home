@@ -3,16 +3,19 @@ import config from '../config';
 
 const featureSocket = {
   // 初始化 webSocket 连接
-  initWebSocketClient: (updateFeatureInfo) => {
+  initWebSocketClient: (successCallback) => {
     wx.connectSocket({
       url: config.WEB_SOCKET_ROOT,
       success: () => {
         console.info('==webSocket server connect success');
-        featureSocket.initWebSocketEventHandler(updateFeatureInfo);
       },
       fail: (e) => {
         console.error(`服务器连接失败: ${e}`);
       }
+    });
+
+    wx.onSocketOpen(() => {
+      successCallback();
     });
   },
   // 初始化 webSocket 事件
@@ -33,7 +36,6 @@ const featureSocket = {
           });
         });
         // 标记为已经初始化
-        initFeatureInfo.isINIT = true;
         updateFeatureInfo(initFeatureInfo);
         return;
       }
@@ -42,8 +44,7 @@ const featureSocket = {
       if (data.substring(0, 'CLOSE'.length) === 'CLOSE') {
         // 清空数据
         updateFeatureInfo({
-          isCLOSE: true,
-          isINIT: true
+          isCLOSE: true
         });
         return;
       }
@@ -52,14 +53,14 @@ const featureSocket = {
       featureSocket.handlerWebSocketData(updateFeatureInfo, data, true);
     });
 
-    wx.onSocketOpen(() => {
-      // 连接成功初始化数据
-      featureSocket.sendWebSocketData('INIT');
-    });
-
     wx.onSocketClose((e) => {
       // 提示连接已关闭
       console.info('==webSocket server connect close', e);
+      Base.$Message({
+        content: '服务端连接已关闭!',
+        type: 'error',
+        duration: 3
+      });
     });
 
     wx.onSocketError((e) => {
@@ -167,7 +168,10 @@ const featureSocket = {
     }
 
     // 提示返回的数据
-    console.info(`命令识别失败: ${data}`);
+    Base.$Message({
+      content: `命令识别失败: ${data}`,
+      type: 'error'
+    });
   },
   // 发送 webSocket 数据
   sendWebSocketData: (data) => {
@@ -175,7 +179,13 @@ const featureSocket = {
     wx.sendSocketMessage({
       data,
       fail: (e) => {
-        console.info(`发送数据失败${e}`);
+        Base.$Message({
+          content: `已断开连接, 重新连接中`
+        });
+        // 失败重连
+        featureSocket.initWebSocketClient(() => {
+          featureSocket.sendWebSocketData(data);
+        });
       }
     });
   }

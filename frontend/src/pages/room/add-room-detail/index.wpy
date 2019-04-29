@@ -22,6 +22,9 @@
           />
         </i-cell>
       </i-cell-group>
+    </view>
+
+    <view class="action-container">
       <i-button
         i-class="i-button-add-room"
         type="primary"
@@ -205,14 +208,16 @@ export default class Home extends wepy.page {
 
 <style lang="less">
   .add-room-detail-container {
-    padding-bottom: 15px;
-    background-color: #fff;
     .form-container {
+      padding-bottom: 15px;
+      background-color: #fff;
       .room-icon {
         width: 25px;
         height: 25px;
         margin-right: 5px;
       }
+    }
+    .action-container {
       .i-button-add-room {
         margin-left: 15px;
         margin-right: 15px;
