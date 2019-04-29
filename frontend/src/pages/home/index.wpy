@@ -1,15 +1,21 @@
 <template>
   <view class="home-container">
     <view class="home-info-container">
-      <view class="home-name">
-        <open-data type="userNickName"></open-data>
-        <text>的家</text>
+      <view class="top">
+        <view class="home-name">
+          <open-data type="userNickName"></open-data>
+          <text>的家</text>
+        </view>
+        <!-- 添加设备按钮 -->
+        <view
+          class="to-add-deice"
+          @tap="addFeature"
+        >+
+        </view>
       </view>
-      <!-- 添加设备按钮 -->
-      <view
-        class="to-add-deice"
-        @tap="addFeature"
-      >+
+      <view class="bottom" wx:if="{{!loading}}">
+        <view class="tem" wx:if="{{temHum1.tem}}">室内温度<view class="number">{{temHum1.tem}}°</view></view>
+        <view class="tem" wx:if="{{temHum1.hum}}">室内湿度<view class="number">{{temHum1.hum}}°</view></view>
       </view>
     </view>
     <view class="room-device-container" wx:if="{{!loading}}">
@@ -110,6 +116,7 @@
         >
           <i-cell title="开关">
             <i-switch
+              i-class="{{openLoading ? 'open-loading' : ''}}"
               value="{{featureInfo[actionDeviceInfo.controlName]}}"
               @change="changeFeatureInfo"
               slot="footer"
@@ -122,6 +129,7 @@
         >
           <i-cell title="开关">
             <i-switch
+              i-class="{{openLoading ? 'open-loading' : ''}}"
               value="{{featureInfo[actionDeviceInfo.controlName] !== '0'}}"
               slot="footer"
               @change="changeFeatureInfo"
@@ -142,6 +150,7 @@
         >
           <i-cell title="开关">
             <i-switch
+              i-class="{{openLoading ? 'open-loading' : ''}}"
               value="{{featureInfo[actionDeviceInfo.controlName] !== '0'}}"
               @change="changeFeatureInfo"
               slot="footer"
@@ -167,12 +176,19 @@ import wepy from 'wepy';
 import { connect } from 'wepy-redux';
 import Base from '../../components/iview/base/index';
 import featureSocket from '../../util/feature-socket';
+import roomStorage from '../../util/room-stoage';
+import deviceStorage from '../../util/device-stoage';
+import { updateFeatureInfo, updateRoomInfoList, updateDeviceInfoList } from '../../store/feature';
 
 @connect({
   featureInfo: (state) => state.feature.featureInfo,
   roomInfoList: (state) => state.feature.roomInfoList,
   deviceInfoList: (state) => state.feature.deviceInfoList
-}, {})
+}, {
+  updateFeatureInfo,
+  updateRoomInfoList,
+  updateDeviceInfoList
+})
 export default class Home extends wepy.page {
   config = {
     navigationBarTitleText: '我的设备'
@@ -190,7 +206,14 @@ export default class Home extends wepy.page {
     // 房间与设备对应的数据
     newRoomDeviceInfoList: [],
     // 当前操作的设备信息
-    actionDeviceInfo: {}
+    actionDeviceInfo: {},
+    // 模态框正在打开状态, 取消 switch 动画
+    openLoading: false,
+    // 温度信息
+    temHum1: {
+      tem: null,
+      hum: null
+    }
   };
 
   methods = {
@@ -203,7 +226,6 @@ export default class Home extends wepy.page {
     // 刷新房间与设备对应的数据
     refreshNewRoomDeviceInfoList: () => {
       this.loading = true;
-      this.$apply();
       setTimeout(() => {
         // 设置设备对应的房间名称, 以及控制前缀
         let newDeviceInfoList = this.deviceInfoList.map(deviceInfoItem => {
@@ -224,33 +246,32 @@ export default class Home extends wepy.page {
         // 更新数据
         this.newRoomDeviceInfoList = newRoomDeviceInfoList;
         this.loading = false;
+        this.$apply();
         if (newDeviceInfoList.length > 0) {
           this.swiperHeight = (Math.ceil(newDeviceInfoList.length / 2) * 115) + 'px';
         } else {
           this.swiperHeight = '115px';
         }
-        this.$apply();
-      }, 0);
+      }, 500);
     },
     // 改变轮播图当前的索引
     changeCurrent: (index) => {
       this.current = index;
-      this.$apply();
     },
     // 轮播图滚动触发
     chaneScroll: (e) => {
       this.current = e.detail.current;
-      this.$apply();
     },
     // 操作设备容器
     toActionDevice: (deviceInfo) => {
       if (this.featureInfo[deviceInfo.controlName] !== undefined) {
+        console.log(deviceInfo);
         this.actionDeviceInfo = deviceInfo;
-        console.log(this.actionDeviceInfo);
+        this.openLoading = true;
         this.$apply();
-        setTimeout(() => {
-          this.methods.toggleModal(true);
-        }, 150);
+        this.methods.toggleModal(true);
+        this.openLoading = false;
+        this.$apply();
       } else {
         Base.$Message({
           content: '当前操作设备已离线!',
@@ -300,15 +321,40 @@ export default class Home extends wepy.page {
       this.methods.refreshNewRoomDeviceInfoList();
     },
     deviceInfoList: () => {
-      // 监听设备数据, 更新房间与设备对应的数据
       this.methods.refreshNewRoomDeviceInfoList();
+    },
+    featureInfo: (newValue) => {
+      // 如果当前操作的设备不存在, 隐藏模态框
+      if (!newValue.hasOwnProperty(this.actionDeviceInfo.controlName)) {
+        this.methods.toggleModal(false);
+        Base.$Message({
+          content: `当前操作的设备已离线`,
+          type: 'warning',
+          duration: 3
+        });
+      }
+      // 更新温度和湿度
+      this.temHum1 = {
+        tem: newValue.temHum1.split('-')[0],
+        hum: newValue.temHum1.split('-')[1]
+      };
     }
   };
 
   onLoad() {
-    // 刷新房间与设备对应的数据
-    this.methods.refreshNewRoomDeviceInfoList();
+    // 更新房间列表数据
+    this.methods.updateRoomInfoList(roomStorage.getRoomList());
+    // 更新设备列表数据
+    this.methods.updateDeviceInfoList(deviceStorage.getDeviceInfoList());
+    // 初始化 webSocket 链接
+    featureSocket.initWebSocketClient(() => {
+      // 初始化 webSocket 事件
+      featureSocket.initWebSocketEventHandler(this.methods.updateFeatureInfo);
+      // 连接成功初始化数据
+      featureSocket.sendWebSocketData('INIT');
+    });
 
+    // 开发调试数据
     this.actionDeviceInfo = {
       controlName: 'LED2',
       controlValue: true,
@@ -327,32 +373,52 @@ export default class Home extends wepy.page {
 <style lang="less">
   .home-container {
     .home-info-container {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      height: 65px;
       padding-left: 20px;
       padding-right: 20px;
       background-color: #fff;
       box-shadow: 0 1px 10px rgba(0, 0, 0, .1);
-      .home-name {
-        font-size: ~"35rpx";
-        font-weight: bold;
-        letter-spacing: 1px;
-        color: #40a9ff;
-      }
-      // 添加设备按钮
-      .to-add-deice {
+      .top {
+        height: 65px;
         display: flex;
         align-items: center;
-        justify-content: center;
-        width: 33px;
-        height: 33px;
-        border-radius: 50%;
-        font-size: 20px;
-        font-weight: bold;
-        background-color: #40a9ff;
-        color: #fff;
+        justify-content: space-between;
+        .home-name {
+          font-size: ~"35rpx";
+          font-weight: bold;
+          letter-spacing: 1px;
+          color: #40a9ff;
+        }
+        // 添加设备按钮
+        .to-add-deice {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 33px;
+          height: 33px;
+          border-radius: 50%;
+          font-size: 20px;
+          font-weight: bold;
+          background-color: #40a9ff;
+          color: #fff;
+        }
+      }
+      .bottom {
+        .tem,
+        .hum {
+          display: flex;
+          align-items: center;
+          font-size: 13px;
+          color: #40a9ff;
+          opacity: .9;
+          .number {
+            font-size: 15px;
+            margin-left: 5px;
+            font-weight: bold;
+          }
+        }
+        .tem {
+          padding-bottom: 10px;
+        }
       }
     }
     .room-device-container {
@@ -554,8 +620,22 @@ export default class Home extends wepy.page {
           }
           .device-action-form {
             text-align: left;
+            .open-loading {
+              transition: 0s;
+              &:after {
+                transition: 0s;
+              }
+            }
           }
         }
+        & > view:nth-child(2) {
+          padding-left: 10px;
+          padding-right: 10px;
+        }
+      }
+      & > view:nth-child(2) {
+        padding-left: 10px;
+        padding-right: 10px;
       }
     }
   }

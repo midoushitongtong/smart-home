@@ -1,24 +1,31 @@
 <template>
   <view class="edit-device-container">
     <view class="device-list-container">
-      <view wx:if="{{newDeviceInfoList.length > 0}}">
-        <i-cell-group>
-          <repeat for="{{newDeviceInfoList}}" key="index" index="index" item="item">
-            <i-cell
-              i-class="i-cell-device-list-item"
-              is-link
-              url='/pages/device/edit-device-detail/index?id={{item.id}}&name={{item.name}}&originName={{item.originName}}&originControlName={{item.originControlName}}&controlName={{item.controlName}}&icon={{item.icon}}&roomId={{item.roomId}}'
-            >
-              <view class="device-base-info-container" slot="icon">
-                <image src="{{item.icon}}"/>
-                <view class="name-room-name">
-                  <text>{{item.name}}</text>
-                  <text>{{item.roomName}}</text>
-                </view>
-              </view>
-            </i-cell>
-          </repeat>
-        </i-cell-group>
+      <view wx:if="{{newRoomDeviceInfoList.length > 0}}">
+        <repeat for="{{newRoomDeviceInfoList}}" key="index" index="index" item="item">
+          <view class="room-device-container">
+            <view class="room-info">
+              <image src="{{item.icon}}"></image>
+              <view>{{item.name}}</view>
+            </view>
+            <i-cell-group>
+              <repeat for="{{item.deviceInfoList}}" key="index2" index="index2" item="item2">
+                <i-cell
+                  i-class="i-cell-device-list-item"
+                  is-link
+                  url='/pages/device/edit-device-detail/index?id={{item2.id}}&name={{item2.name}}&originName={{item2.originName}}&originControlName={{item2.originControlName}}&controlName={{item2.controlName}}&icon={{item2.icon}}&roomId={{item2.roomId}}'
+                >
+                  <view class="device-base-info-container" slot="icon">
+                    <image src="{{item2.icon}}"/>
+                    <view class="name">
+                      <text>{{item2.name}}</text>
+                    </view>
+                  </view>
+                </i-cell>
+              </repeat>
+            </i-cell-group>
+          </view>
+        </repeat>
       </view>
       <view class="not-device-container" wx:else>
         <text>当前暂无已添加的设备</text>
@@ -29,26 +36,60 @@
         i-class="i-button-to-add-device"
         type="success"
         @tap="toAddDevice"
-      >添加新的设备</i-button>
+      >添加新的设备
+      </i-button>
+      <i-button
+        i-class="i-button-to-delete-device"
+        type="error"
+        @tap="toggleModal({{true}})"
+      >删除所有设备
+      </i-button>
     </view>
+
+    <i-modal
+      i-class="i-modal-delete-all-device"
+      title="删除所有设备确认"
+      visible="{{ visible }}"
+      @click="handlerAction"
+      actions="{{actions}}"
+      @close="toggleModal({{false}})"
+    >
+      <view>将删除所有已添加的设备, 设备现有状态不会被改变</view>
+    </i-modal>
   </view>
 </template>
 
 <script>
 import wepy from 'wepy';
 import { connect } from 'wepy-redux';
+import deviceStorage from '../../../util/device-stoage';
+import { updateDeviceInfoList } from '../../../store/feature';
 
 @connect({
   roomInfoList: (state) => state.feature.roomInfoList,
   deviceInfoList: (state) => state.feature.deviceInfoList
-}, {})
+}, {
+  updateDeviceInfoList
+})
 export default class Home extends wepy.page {
   config = {
     navigationBarTitleText: '设备管理'
   };
 
   data = {
-    newDeviceInfoList: []
+    newRoomDeviceInfoList: [],
+    visible: false,
+    // 模态框按钮
+    actions: [
+      {
+        name: '取消'
+      },
+      {
+        loading: false,
+        name: '确定',
+        color: '#f02517'
+      }
+    ]
   };
 
   methods = {
@@ -58,30 +99,56 @@ export default class Home extends wepy.page {
         url: '/pages/device/add-device/index'
       });
     },
-    refreshNewDeviceInfoList: () => {
-      this.newDeviceInfoList = this.deviceInfoList.map(deviceInfoItem => {
-        const newDeviceInfoItem = {
-          ...deviceInfoItem
-        };
-        newDeviceInfoItem.roomName = this.roomInfoList.find((roomInfoItem) => roomInfoItem.id === deviceInfoItem.roomId).name;
-        return newDeviceInfoItem;
-      });
+    refreshNewRoomDeviceInfoList: () => {
+      // 将设备归类到对应的房间
+      if (this.deviceInfoList.length > 0) {
+        this.newRoomDeviceInfoList = this.roomInfoList.filter((roomInfoItem) => {
+          roomInfoItem.deviceInfoList = this.deviceInfoList.filter(deviceInfoItem => deviceInfoItem.roomId === roomInfoItem.id);
+          // 保留有设备的房间信息
+          return roomInfoItem.deviceInfoList.length > 0;
+        });
+      } else {
+        this.newRoomDeviceInfoList = [];
+      }
+    },
+    // 显示/隐藏 删除所有房间确认容器
+    toggleModal: (flag) => {
+      this.visible = flag;
+      this.$apply();
+    },
+    // 模态框按钮点击事件
+    handlerAction: (e) => {
+      if (e.detail.index === 1) {
+        this.actions[1].loading = true;
+        setTimeout(() => {
+          this.roomInfoList.forEach(roomInfoItem => {
+            // 删除设备数据
+            deviceStorage.deleteDeviceInfoByRoomId(roomInfoItem.id);
+          });
+          // 更新设备列表数据
+          this.methods.updateDeviceInfoList(deviceStorage.getDeviceInfoList());
+          this.actions[1].loading = false;
+          this.methods.toggleModal(false);
+        }, 1000);
+      } else {
+        this.methods.toggleModal(false);
+      }
     }
   };
 
   watch = {
     // 监听房间数据, 更新房间数据
     roomInfoList: () => {
-      this.methods.refreshNewDeviceInfoList();
+      this.methods.refreshNewRoomDeviceInfoList();
     },
     // 监听设备数据, 更新新房间数据
     deviceInfoList: () => {
-      this.methods.refreshNewDeviceInfoList();
+      this.methods.refreshNewRoomDeviceInfoList();
     }
   };
 
   onLoad() {
-    this.methods.refreshNewDeviceInfoList();
+    this.methods.refreshNewRoomDeviceInfoList();
   }
 }
 </script>
@@ -97,13 +164,12 @@ export default class Home extends wepy.page {
         padding-top: 10px;
         padding-bottom: 10px;
       }
-      .i-cell-device-list-item {
-        &:active {
-          background-color: rgba(0, 0, 0, .05);
-        }
-        .device-base-info-container {
+      .room-device-container {
+        .room-info {
           display: flex;
           align-items: center;
+          padding: 12px 15px;
+          border-bottom: 1px solid rgba(0, 0, 0, .3);
           image {
             width: 25px;
             height: 25px;
@@ -111,23 +177,58 @@ export default class Home extends wepy.page {
             padding: 9px;
             border: ~"1rpx" solid #e9eaec;
           }
-          .name-room-name {
+          view {
+            font-size: 13px;
+          }
+        }
+        .i-cell-device-list-item {
+          margin-left: 20px;
+          &:active {
+            background-color: rgba(0, 0, 0, .05);
+          }
+          .device-base-info-container {
             display: flex;
-            flex-direction: column;
-            text:last-child {
-              margin-top: 3px;
-              font-size: 11px;
-              color: #999;
+            align-items: center;
+            image {
+              width: 25px;
+              height: 25px;
+              margin-right: 10px;
+              padding: 9px;
+              border: ~"1rpx" solid #e9eaec;
+            }
+            .name {
+              display: flex;
+              flex-direction: column;
             }
           }
         }
       }
     }
     .action-container {
-      .i-button-to-add-device {
+      padding-bottom: 10px;
+      .i-button-to-add-device,
+      .i-button-to-delete-device {
         margin-left: 15px;
         margin-right: 15px;
-        margin-bottom: 15px;
+        margin-bottom: 0;
+      }
+    }
+
+    .i-modal-delete-all-device {
+      & > view:first-child {
+        width: 100%;
+        & > view:first-child {
+          & > view:first-child {
+            max-height: 90%;
+            margin-bottom: 0;
+            padding-left: 10px;
+            padding-right: 10px;
+          }
+          & > view:nth-child(2) {
+            padding-left: 10px;
+            padding-right: 10px;
+          }
+        }
       }
     }
   }

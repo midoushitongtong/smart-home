@@ -2,6 +2,10 @@ import Base from '../components/iview/base';
 import config from '../config';
 
 const featureSocket = {
+  // 修改 store 对象
+  updateFeatureInfo: null,
+  // 发送未响应状态
+  sendWebSocketDataNotReact: false,
   // 初始化 webSocket 连接
   initWebSocketClient: (successCallback) => {
     wx.connectSocket({
@@ -20,9 +24,12 @@ const featureSocket = {
   },
   // 初始化 webSocket 事件
   initWebSocketEventHandler: (updateFeatureInfo) => {
+    featureSocket.updateFeatureInfo = updateFeatureInfo;
     // 接收数据
     wx.onSocketMessage(({ data }) => {
       data = data.toString();
+      // 标记为服务端以响应数据
+      featureSocket.sendWebSocketDataNotReact = false;
       console.info(`webSocket server receiver data: ${data}`);
 
       // 初始化
@@ -31,10 +38,13 @@ const featureSocket = {
         const initFeatureInfo = {};
         data.substring('INIT'.length + 1).split(',').forEach(dataItem => {
           const featureInfo = featureSocket.handlerWebSocketData(updateFeatureInfo, dataItem, false);
-          Object.keys(featureInfo).forEach(key => {
-            initFeatureInfo[key] = featureInfo[key];
-          });
+          if (featureInfo) {
+            Object.keys(featureInfo).forEach(key => {
+              initFeatureInfo[key] = featureInfo[key];
+            });
+          }
         });
+        initFeatureInfo.isInit = true;
         // 标记为已经初始化
         updateFeatureInfo(initFeatureInfo);
         return;
@@ -42,9 +52,14 @@ const featureSocket = {
 
       // 关闭连接
       if (data.substring(0, 'CLOSE'.length) === 'CLOSE') {
+        Base.$Message({
+          content: '硬件连接已关闭!',
+          type: 'error',
+          duration: 3
+        });
         // 清空数据
         updateFeatureInfo({
-          isCLOSE: true
+          isInit: true
         });
         return;
       }
@@ -86,7 +101,7 @@ const featureSocket = {
 
     // 将数据保存到 reudx 中
     if (data.substring(0, 'LED'.length) === 'LED') {
-      const controlName = `LED${data.substr('LED'.length, 1)}`;
+      const controlName = featureSocket.getControlName(data);
       const controlValue = data.split('-')[1] === '1';
       const featureInfo = {
         [controlName]: controlValue
@@ -97,7 +112,7 @@ const featureSocket = {
       }
       return featureInfo;
     } else if (data.substring(0, 'door'.length) === 'door') {
-      const controlName = `door${data.substr('door'.length, 1)}`;
+      const controlName = featureSocket.getControlName(data);
       const controlValue = data.split('-')[1] === '1';
       const featureInfo = {
         [controlName]: controlValue
@@ -108,7 +123,7 @@ const featureSocket = {
       }
       return featureInfo;
     } else if (data.substring(0, 'hood'.length) === 'hood') {
-      const controlName = `hood${data.substr('hood'.length, 1)}`;
+      const controlName = featureSocket.getControlName(data);
       const controlValue = data.split('-')[1] === '1';
       const featureInfo = {
         [controlName]: controlValue
@@ -119,7 +134,7 @@ const featureSocket = {
       }
       return featureInfo;
     } else if (data.substring(0, 'cur'.length) === 'cur') {
-      const controlName = `cur${data.substr('cur'.length, 1)}`;
+      const controlName = featureSocket.getControlName(data);
       const controlValue = data.split('-')[1] === '1';
       const featureInfo = {
         [controlName]: controlValue
@@ -130,7 +145,7 @@ const featureSocket = {
       }
       return featureInfo;
     } else if (data.substring(0, 'fan'.length) === 'fan') {
-      const controlName = `fan${data.substr('fan'.length, 1)}`;
+      const controlName = featureSocket.getControlName(data);
       const controlValue = data.split('-')[1];
       const featureInfo = {
         [controlName]: controlValue
@@ -141,7 +156,7 @@ const featureSocket = {
       }
       return featureInfo;
     } else if (data.substring(0, 'tem'.length) === 'tem' && data.substring(0, 'tem-hum'.length) !== 'tem-hum') {
-      const controlName = `tem${data.substr('tem'.length, 1)}`;
+      const controlName = featureSocket.getControlName(data);
       const controlValue = data.split('-')[1];
       const featureInfo = {
         [controlName]: controlValue
@@ -151,14 +166,11 @@ const featureSocket = {
         return;
       }
       return featureInfo;
-    } else if (data.substring(0, 'tem-hum1'.length) === 'tem-hum1') {
-      const controlName = `temHum${data.substr('tem-hum'.length, 1)}Tem`;
-      const controlValue = data.split('-')[2];
-      const controlName2 = `temHum${data.substr('tem-hum'.length, 1)}Hum`;
-      const controlValue2 = data.split('-')[3];
+    } else if (data.substring(0, 'tem-hum'.length) === 'tem-hum') {
+      const controlName = featureSocket.getControlName(data);
+      const controlValue = data.split('-')[2] + '-' + data.split('-')[3];
       const featureInfo = {
-        [controlName]: controlValue,
-        [controlName2]: controlValue2
+        [controlName]: controlValue
       };
       if (isDispatch) {
         updateFeatureInfo(featureInfo);
@@ -172,9 +184,21 @@ const featureSocket = {
       content: `命令识别失败: ${data}`,
       type: 'error'
     });
+    return null;
   },
   // 发送 webSocket 数据
   sendWebSocketData: (data) => {
+    // 标记为服务器为响应数据
+    featureSocket.sendWebSocketDataNotReact = true;
+    setTimeout(() => {
+      // 服务器 3 秒未响应数据, 删除设备
+      if (featureSocket.sendWebSocketDataNotReact) {
+        featureSocket.updateFeatureInfo({
+          deleteControlName: true,
+          controlName: featureSocket.getControlName(data)
+        });
+      }
+    }, 3000);
     // 发送数据
     wx.sendSocketMessage({
       data,
@@ -188,6 +212,23 @@ const featureSocket = {
         });
       }
     });
+  },
+  getControlName: (data) => {
+    if (data.substring(0, 'LED'.length) === 'LED') {
+      return `LED${data.substr('LED'.length, 1)}`;
+    } else if (data.substring(0, 'door'.length) === 'door') {
+      return `door${data.substr('door'.length, 1)}`;
+    } else if (data.substring(0, 'hood'.length) === 'hood') {
+      return `hood${data.substr('hood'.length, 1)}`;
+    } else if (data.substring(0, 'cur'.length) === 'cur') {
+      return `cur${data.substr('cur'.length, 1)}`;
+    } else if (data.substring(0, 'fan'.length) === 'fan') {
+      return `fan${data.substr('fan'.length, 1)}`;
+    } else if (data.substring(0, 'tem'.length) === 'tem' && data.substring(0, 'tem-hum'.length) !== 'tem-hum') {
+      return `tem${data.substr('tem'.length, 1)}`;
+    } else if (data.substring(0, 'tem-hum'.length) === 'tem-hum') {
+      return `temHum${data.substr('tem-hum'.length, 1)}`;
+    }
   }
 };
 

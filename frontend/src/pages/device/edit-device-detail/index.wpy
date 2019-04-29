@@ -73,6 +73,7 @@
           <text>当前暂无房间</text>
         </view>
         <i-button
+          size="small"
           i-class="i-button-to-add-room"
           type="success"
           @tap="toAddRoom"
@@ -253,7 +254,8 @@ export default class Home extends wepy.page {
   onLoad(options) {
     // 调试
     let deviceInfo = {};
-    if (!options.name) {
+    if (!options.originName) {
+      // 开发调试数据
       deviceInfo = {
         id: '2',
         originName: '科创暖白灯5',
@@ -300,6 +302,7 @@ export default class Home extends wepy.page {
       }
     }
     .action-container {
+      padding-bottom: 10px;
       .i-button-edit-device,
       .i-button-delete-device {
         margin-left: 15px;

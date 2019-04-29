@@ -63,8 +63,19 @@ export default (state = initState, action) => {
         ...action.data
       };
     case actionType.UPDATE_FEATURE_INFO:
-      if (action.data.featureInfo.isCLOSE) {
-        // 如果操作是清空数据, 则不保留已有的数据
+      if (action.data.featureInfo.deleteControlName) {
+        // 如果是删除数据, 将数据删除
+        // 构建数据
+        let newFeatureInfo = {
+          ...state.featureInfo
+        };
+        delete newFeatureInfo[action.data.featureInfo.controlName];
+        return {
+          ...state,
+          featureInfo: newFeatureInfo
+        };
+      } else if (action.data.featureInfo.isInit) {
+        // 如果操作是初始化数据, 则不保留已有的数据
         // 构建数据
         let newFeatureInfo = {
           ...action.data.featureInfo

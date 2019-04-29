@@ -33,6 +33,17 @@ const obj = {
     });
 
     socket.on('error', () => {
+      // 连接错误时，将其移出连接池
+      obj.validSocketList = obj.validSocketList.filter((validSocketItem) => {
+        if (validSocketItem === socket) {
+          // 告诉小程序客户端硬件已经断开链接
+          obj.validWebSocketList.forEach(validWebSocketItem => {
+            validWebSocketItem.send('CLOSE');
+          });
+          return false;
+        }
+        return true;
+      });
       console.log(`=socket client connect error: ${socket.remoteAddress}`);
     });
   },

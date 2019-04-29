@@ -100,6 +100,7 @@
     </i-modal>
 
     <i-modal
+      i-class="i-modal-delete-room"
       title="删除房间确认"
       visible="{{ visible2 }}"
       @click="handlerAction2"
@@ -208,11 +209,6 @@ export default class Home extends wepy.page {
       this.visible = flag;
       this.$apply();
     },
-    // 显示/隐藏 删除房间确认容器
-    toggleModal2: (flag) => {
-      this.visible2 = flag;
-      this.$apply();
-    },
     // 改变房间图标
     changeRoomIcon: (icon) => {
       this.form.iconBuf = icon;
@@ -298,6 +294,11 @@ export default class Home extends wepy.page {
         });
       }, 1000);
     },
+    // 显示/隐藏 删除房间确认容器
+    toggleModal2: (flag) => {
+      this.visible2 = flag;
+      this.$apply();
+    },
     // 删除房间
     toDeleteRoom: () => {
       // 是否为默认房间
@@ -347,6 +348,7 @@ export default class Home extends wepy.page {
     // 调试
     let roomInfo = {};
     if (!options.name) {
+      // 开发调试数据
       roomInfo = {
         id: '1',
         name: '客厅',
@@ -383,6 +385,45 @@ export default class Home extends wepy.page {
         margin-right: 5px;
       }
     }
+    .form-container-room-device-list {
+      margin-top: 10px;
+      background-color: #fff;
+      .not-device-info-list {
+        padding-top: 10px;
+        padding-bottom: 10px;
+        font-size: 14px;
+        text-align: center;
+      }
+      .i-cell-device-list-item {
+        &:active {
+          background-color: rgba(0, 0, 0, .05);
+        }
+        .device-base-info-container {
+          display: flex;
+          align-items: center;
+          image {
+            width: 25px;
+            height: 25px;
+            margin-right: 10px;
+            padding: 5px;
+          }
+          .nam {
+            display: flex;
+            flex-direction: column;
+          }
+        }
+      }
+    }
+    .action-container {
+      padding-bottom: 10px;
+      .i-button-edit-room,
+      .i-button-delete-room {
+        margin-left: 15px;
+        margin-right: 15px;
+        margin-bottom: 0;
+      }
+    }
+
     .i-modal-room-icon {
       & > view:first-child {
         width: 100%;
@@ -433,41 +474,22 @@ export default class Home extends wepy.page {
         }
       }
     }
-    .form-container-room-device-list {
-      margin-top: 10px;
-      background-color: #fff;
-      .not-device-info-list {
-        padding-top: 10px;
-        padding-bottom: 10px;
-        font-size: 14px;
-        text-align: center;
-      }
-      .i-cell-device-list-item {
-        &:active {
-          background-color: rgba(0, 0, 0, .05);
-        }
-        .device-base-info-container {
-          display: flex;
-          align-items: center;
-          image {
-            width: 25px;
-            height: 25px;
-            margin-right: 10px;
-            padding: 5px;
+
+    .i-modal-delete-room {
+      & > view:first-child {
+        width: 100%;
+        & > view:first-child {
+          & > view:first-child {
+            max-height: 90%;
+            margin-bottom: 0;
+            padding-left: 10px;
+            padding-right: 10px;
           }
-          .nam {
-            display: flex;
-            flex-direction: column;
+          & > view:nth-child(2) {
+            padding-left: 10px;
+            padding-right: 10px;
           }
         }
-      }
-    }
-    .action-container {
-      .i-button-edit-room,
-      .i-button-delete-room {
-        margin-left: 15px;
-        margin-right: 15px;
-        margin-bottom: 0;
       }
     }
   }

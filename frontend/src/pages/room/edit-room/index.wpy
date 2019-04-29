@@ -26,29 +26,68 @@
     </view>
     <view class="action-container">
       <i-button
+        size="small"
         i-class="i-button-to-add-room"
         type="success"
         @tap="toAddRoom"
-      >添加新的房间</i-button>
+      >添加新的房间
+      </i-button>
+      <i-button
+        size="small"
+        i-class="i-button-to-delete-all-room"
+        type="error"
+        @tap="toggleModal({{true}})"
+      >删除所有房间
+      </i-button>
     </view>
+
+    <i-modal
+      i-class="i-modal-delete-all-room"
+      title="删除所有房间确认"
+      visible="{{ visible }}"
+      @click="handlerAction"
+      actions="{{actions}}"
+      @close="toggleModal({{false}})"
+    >
+      <view>除了默认房间的信息, 其余房间信息与对应的设备将会被删除</view>
+    </i-modal>
   </view>
 </template>
 
 <script>
 import wepy from 'wepy';
 import { connect } from 'wepy-redux';
+import roomStorage from '../../../util/room-stoage';
+import deviceStorage from '../../../util/device-stoage';
+import { updateRoomInfoList, updateDeviceInfoList } from '../../../store/feature';
 
 @connect({
   roomInfoList: (state) => state.feature.roomInfoList,
   deviceInfoList: (state) => state.feature.deviceInfoList
-}, {})
+}, {
+  updateRoomInfoList,
+  updateDeviceInfoList
+})
 export default class Home extends wepy.page {
   config = {
     navigationBarTitleText: '房间管理'
   };
 
   data = {
-    newRoomInfoList: []
+    newRoomInfoList: [],
+    // 控制 显示/隐藏 删除所有房间确认容器
+    visible: false,
+    // 模态框按钮
+    actions: [
+      {
+        name: '取消'
+      },
+      {
+        loading: false,
+        name: '确定',
+        color: '#f02517'
+      }
+    ]
   };
 
   methods = {
@@ -69,6 +108,39 @@ export default class Home extends wepy.page {
         }, 0);
         return newRoomInfoItem;
       });
+    },
+    // 显示/隐藏 删除所有房间确认容器
+    toggleModal: (flag) => {
+      this.visible = flag;
+      this.$apply();
+    },
+    // 模态框按钮点击事件
+    handlerAction: (e) => {
+      if (e.detail.index === 1) {
+        this.actions[1].loading = true;
+        setTimeout(() => {
+          this.newRoomInfoList.forEach(roomInfoItem => {
+            // 默认房间只删除设备
+            if (roomInfoItem.id === '1') {
+              // 删除房间设备数据
+              deviceStorage.deleteDeviceInfoByRoomId(roomInfoItem.id);
+            } else {
+              // 删除房间数据
+              roomStorage.deleteRoomInfo(roomInfoItem.id);
+              // 删除房间设备数据
+              deviceStorage.deleteDeviceInfoByRoomId(roomInfoItem.id);
+            }
+          });
+          // 更新房间列表数据
+          this.methods.updateRoomInfoList(roomStorage.getRoomList());
+          // 更新设备列表数据
+          this.methods.updateDeviceInfoList(deviceStorage.getDeviceInfoList());
+          this.actions[1].loading = false;
+          this.methods.toggleModal(false);
+        }, 1000);
+      } else {
+        this.methods.toggleModal(false);
+      }
     }
   };
 
@@ -127,10 +199,30 @@ export default class Home extends wepy.page {
       }
     }
     .action-container {
-      .i-button-to-add-room {
+      padding-bottom: 10px;
+      .i-button-to-add-room,
+      .i-button-to-delete-all-room {
         margin-left: 15px;
         margin-right: 15px;
         margin-bottom: 15px;
+      }
+    }
+
+    .i-modal-delete-all-room {
+      & > view:first-child {
+        width: 100%;
+        & > view:first-child {
+          & > view:first-child {
+            max-height: 90%;
+            margin-bottom: 0;
+            padding-left: 10px;
+            padding-right: 10px;
+          }
+          & > view:nth-child(2) {
+            padding-left: 10px;
+            padding-right: 10px;
+          }
+        }
       }
     }
   }

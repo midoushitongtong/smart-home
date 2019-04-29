@@ -5,51 +5,125 @@
       <i-spin size="large" fix></i-spin>
     </view>
     <view wx:else>
-      <view class="nearby-device-list-container">
+      <view class="nearby-device-list">
         <view wx:if="{{nearbyDeviceList.length > 0}}">
-          <i-cell-group>
-            <repeat for="{{nearbyDeviceList}}" key="index" index="index" item="item">
-              <i-cell
-                i-class="i-cell-device-list-item"
-                is-link
-                url='/pages/device/add-device-detail/index?originName={{item.originName}}&originControlName={{item.originControlName}}&controlName={{item.controlName}}&icon={{item.icon}}'
-              >
-                <view class="device-base-info-container" slot="icon">
-                  <image src="{{item.icon}}"/>
-                  <view class="name-device">
-                    <text>{{item.originName}}</text>
+          <view class="nearby-device-list-container">
+            <i-cell-group>
+              <repeat for="{{nearbyDeviceList}}" key="index" index="index" item="item">
+                <i-cell
+                  i-class="i-cell-device-list-item"
+                  is-link
+                  url='/pages/device/add-device-detail/index?originName={{item.originName}}&originControlName={{item.originControlName}}&controlName={{item.controlName}}&icon={{item.icon}}'
+                >
+                  <view class="device-base-info-container" slot="icon">
+                    <image src="{{item.icon}}"/>
+                    <view class="name-device">
+                      <text>{{item.originName}}</text>
+                    </view>
                   </view>
-                </view>
-              </i-cell>
-            </repeat>
-          </i-cell-group>
+                </i-cell>
+              </repeat>
+            </i-cell-group>
+            <view class="action-container">
+              <i-button
+                i-class="i-button-add-all-device"
+                type="success"
+                @tap="toggleModal({{true}})"
+              >一键添加所有设备
+              </i-button>
+            </view>
+          </view>
         </view>
-        <view class="not-nearby-device-container" wx:else>附近暂无设备可用~</view>
+        <view class="not-nearby-device-list-container" wx:else>暂无设备可用~</view>
       </view>
     </view>
-  </view>
-</template>
 
+    <i-modal
+      i-class="i-modal-room"
+      action-mode="vertical"
+      visible="{{visible}}"
+      actions="{{actions}}"
+      @click="handlerAction"
+      @close="toggleModal({{false}})"
+    >
+      <view class="room-list-container">
+        <view wx:if="{{roomInfoList.length > 0}}">
+          <view class="tooltip-room">
+            <text>请选择设备所属房间</text>
+          </view>
+          <i-cell-group>
+            <radio-group class="radio-group" bindchange="changeRoomBuf">
+              <repeat for="{{roomInfoList}}" key="index" index="index" item="item">
+                <label class="room-list-item">
+                  <i-cell i-class="i-cell-room-list-item">
+                    <view class="room-base-info-container" slot="icon">
+                      <image src="{{item.icon}}"/>
+                      <text>{{item.name}}</text>
+                    </view>
+                    <view slot="footer">
+                      <radio color="#40a9ff" value="{{item.id}}" checked="{{item.id === form.roomId}}"/>
+                    </view>
+                  </i-cell>
+                </label>
+              </repeat>
+            </radio-group>
+          </i-cell-group>
+        </view>
+        <view class="not-room-container" wx:else>
+          <text>当前暂无房间</text>
+        </view>
+        <i-button
+          size="small"
+          i-class="i-button-to-add-room"
+          type="success"
+          @tap="toAddRoom"
+        >添加新的房间
+        </i-button>
+      </view>
+    </i-modal>
+  </view>
+  <i-message id="message"/>
+</template>
 <script>
 import wepy from 'wepy';
 import { connect } from 'wepy-redux';
+import Base from '../../../components/iview/base/index';
 import deviceStorage from '../../../util/device-stoage';
+import { updateDeviceInfoList } from '../../../store/feature';
 
 @connect({
-  featureInfo: (state) => {
-    return state.feature.featureInfo;
-  }
-}, {})
+  roomInfoList: (state) => state.feature.roomInfoList,
+  deviceInfoList: (state) => state.feature.deviceInfoList,
+  featureInfo: (state) => state.feature.featureInfo
+}, {
+  updateDeviceInfoList
+})
 export default class Home extends wepy.page {
   config = {
     navigationBarTitleText: '添加设备'
   };
 
   data = {
+    form: {
+      roomId: ''
+    },
     // 加载设备列表状态
     isLoading: true,
     // 附近的设备列表
-    nearbyDeviceList: []
+    nearbyDeviceList: [],
+    // 控制 显示/隐藏 选中房间容器
+    visible: false,
+    // 模态框按钮
+    actions: [
+      {
+        name: '一键添加',
+        color: '#40a9ff',
+        loading: false
+      },
+      {
+        name: '取消'
+      }
+    ]
   };
 
   methods = {
@@ -67,42 +141,42 @@ export default class Home extends wepy.page {
         let data = null;
         if (controlName.substring(0, 'LED'.length) === 'LED') {
           data = {
-            originName: `科创暖白灯${controlName.substr('LED'.length, 1)}`,
+            originName: `暖白灯${controlName.substr('LED'.length, 1)}`,
             originControlName: 'LED',
             controlName,
             icon: '/assets/images/LED.png'
           };
         } else if (controlName.substring(0, 'door'.length) === 'door') {
           data = {
-            originName: `科创智慧门${controlName.substr('door'.length, 1)}`,
+            originName: `智慧门${controlName.substr('door'.length, 1)}`,
             originControlName: 'door',
             controlName,
             icon: '/assets/images/door.png'
           };
         } else if (controlName.substring(0, 'cur'.length) === 'cur') {
           data = {
-            originName: `科创窗帘电机${controlName.substr('cur'.length, 1)}`,
+            originName: `窗帘电机${controlName.substr('cur'.length, 1)}`,
             originControlName: 'cur',
             controlName,
             icon: '/assets/images/cur.png'
           };
         } else if (controlName.substring(0, 'fan'.length) === 'fan') {
           data = {
-            originName: `科创自然风扇${controlName.substr('fan'.length, 1)}`,
+            originName: `自然风扇${controlName.substr('fan'.length, 1)}`,
             originControlName: 'fan',
             controlName,
             icon: '/assets/images/fan.png'
           };
         } else if (controlName.substring(0, 'tem'.length) === 'tem' && controlName.substring(0, 'temHum'.length) !== 'temHum') {
           data = {
-            originName: `科创变频空调${controlName.substr('tem'.length, 1)}`,
+            originName: `变频空调${controlName.substr('tem'.length, 1)}`,
             originControlName: 'tem',
             controlName,
             icon: '/assets/images/tem.png'
           };
         } else if (controlName.substring(0, 'hood'.length) === 'hood') {
           data = {
-            originName: `科创吸油烟机${controlName.substr('hood'.length, 1)}`,
+            originName: `吸油烟机${controlName.substr('hood'.length, 1)}`,
             originControlName: 'hood',
             controlName,
             icon: '/assets/images/hood.png'
@@ -121,13 +195,60 @@ export default class Home extends wepy.page {
           this.$apply();
         }, 10);
       }, 1000);
-    }
-  };
+    },
+    // 显示/隐藏 选择房间列表容器
+    toggleModal: (flag) => {
+      this.visible = flag;
+      this.$apply();
+    },
+    // 改变当前选中的房间
+    changeRoomBuf: (e) => {
+      this.form.roomId = e.detail.value;
+      this.$apply();
+    },
+    // 模态框按钮点击事件
+    handlerAction: (e) => {
+      if (e.detail.index === 0) {
+        // 在加载直接 return
+        if (this.actions[0].loading) return;
 
-  watch = {
-    // 监听设备信息, 更新附近的设备列表
-    featureInfo: (newData) => {
-      this.methods.refreshNearbyDeviceList(newData);
+        // 保存所有设备
+        if (!this.form.roomId) {
+          Base.$Message({
+            content: '请选择设备所属房间',
+            type: 'error'
+          });
+          return;
+        }
+
+        this.actions[0].loading = true;
+        this.$apply();
+
+        setTimeout(() => {
+          this.nearbyDeviceList.forEach((nearbyDeviceListItem) => {
+            nearbyDeviceListItem.roomId = this.form.roomId;
+            nearbyDeviceListItem.name = nearbyDeviceListItem.originName;
+            // 添加设备
+            deviceStorage.addDeviceInfo(nearbyDeviceListItem);
+          });
+
+          this.actions[0].loading = false;
+          this.$apply();
+
+          this.methods.updateDeviceInfoList(deviceStorage.getDeviceInfoList());
+
+          // 返回上一页
+          wx.navigateBack({
+            delta: 1
+          });
+        }, 1111);
+      }
+    },
+    // 前往添加房间页面
+    toAddRoom: () => {
+      wx.navigateTo({
+        url: '/pages/room/add-room-detail/index'
+      });
     }
   };
 
@@ -156,31 +277,96 @@ export default class Home extends wepy.page {
       bottom: 0;
       background: #fff;
     }
-    .nearby-device-list-container {
+    .nearby-device-list {
       margin-top: 10px;
-      .not-nearby-device-container {
+      .nearby-device-list-container {
+        .i-cell-device-list-item {
+          &:active {
+            background-color: rgba(0, 0, 0, .05);
+          }
+          .device-base-info-container {
+            display: flex;
+            align-items: center;
+            image {
+              width: 25px;
+              height: 25px;
+              margin-right: 10px;
+              padding: 9px;
+              border: ~"1rpx" solid #e9eaec;
+            }
+            .name {
+              display: flex;
+              flex-direction: column;
+            }
+          }
+        }
+        .action-container {
+          padding-bottom: 15px;
+          .i-button-add-all-device {
+            margin-left: 15px;
+            margin-right: 15px;
+            margin-bottom: 0;
+          }
+        }
+      }
+      .not-nearby-device-list-container {
+        padding-top: 10px;
+        padding-bottom: 10px;
         font-size: 12px;
         text-align: center;
+        background: #fff;
       }
-      .i-cell-device-list-item {
-        &:active {
-          background-color: rgba(0, 0, 0, .05);
-        }
-        .device-base-info-container {
-          display: flex;
-          align-items: center;
-          image {
-            width: 25px;
-            height: 25px;
-            margin-right: 10px;
-            padding: 9px;
-            border: ~"1rpx" solid #e9eaec;
+    }
+
+    .i-modal-room {
+      & > view:first-child {
+        width: 100%;
+        & > view:first-child {
+          & > view:first-child {
+            max-height: 90%;
+            margin-bottom: 0;
+            padding-left: 10px;
+            padding-right: 10px;
+            .room-list-container {
+              overflow-y: auto;
+              max-height: 300px;
+              .tooltip-room {
+                padding-bottom: 10px;
+                font-size: 14px;
+                text-align: center;
+                background: #fff;
+                border-bottom: 1px solid rgba(0, 0, 0, .1);
+              }
+              .room-list-item {
+                .i-cell-room-list-item {
+                  &:active {
+                    background-color: rgba(0, 0, 0, .05);
+                  }
+                }
+                .room-base-info-container {
+                  display: flex;
+                  align-items: center;
+                  image {
+                    width: 25px;
+                    height: 25px;
+                    margin-right: 10px;
+                    padding: 9px;
+                    border: ~"1rpx" solid #e9eaec;
+                  }
+                }
+              }
+              .i-button-to-add-room {
+                margin-left: 15px;
+                margin-right: 15px;
+                margin-bottom: 15px;
+              }
+            }
           }
-          .name {
-            display: flex;
-            flex-direction: column;
-          }
         }
+      }
+      & > view:nth-child(2) {
+        padding-left: 10px;
+        padding-right: 10px;
       }
     }
   }

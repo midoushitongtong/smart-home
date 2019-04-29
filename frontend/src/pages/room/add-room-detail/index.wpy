@@ -218,6 +218,7 @@ export default class Home extends wepy.page {
       }
     }
     .action-container {
+      padding-bottom: 10px;
       .i-button-add-room {
         margin-left: 15px;
         margin-right: 15px;
