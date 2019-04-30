@@ -3,7 +3,10 @@ module.exports = {
   globals: { wx: true },
   parser: 'babel-eslint',
   parserOptions: {
-    sourceType: 'module'
+    sourceType: 'module',
+    ecmaFeatures: {
+      legacyDecorators: true
+    }
   },
   env: {
     browser: true
