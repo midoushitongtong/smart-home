@@ -1,18 +1,12 @@
 <script>
 import wepy from 'wepy';
 import 'wepy-async-function';
-import { setStore, connect } from 'wepy-redux';
+import { setStore } from 'wepy-redux';
 import configStore from './store';
-// import { updateFeatureInfo, updateRoomInfoList, updateDeviceInfoList } from './store/feature';
 
 const store = configStore();
 setStore(store);
 
-@connect({}, {
-  // updateFeatureInfo,
-  // updateRoomInfoList,
-  // updateDeviceInfoList
-})
 export default class extends wepy.app {
   config = {
     pages: [
@@ -69,17 +63,22 @@ export default class extends wepy.app {
   }
 
   onLaunch() {
-    // // 更新房间列表数据
-    // this.methods.updateRoomInfoList(roomStorage.getRoomList());
-    // // 更新设备列表数据
-    // this.methods.updateDeviceInfoList(deviceStorage.getDeviceInfoList());
-    // // 初始化 webSocket 链接
-    // featureSocket.initWebSocketClient(() => {
-    //   // 初始化 webSocket 事件
-    //   featureSocket.initWebSocketEventHandler(this.methods.updateFeatureInfo);
-    //   // 连接成功初始化数据
-    //   featureSocket.sendWebSocketData('INIT');
-    // });
+    // 小程序更新检测
+    const updateManager = wx.getUpdateManager();
+    updateManager.onUpdateReady(function () {
+      wx.showModal({
+        title: '更新提示',
+        content: '新版本已经准备好，即将重启应用！',
+        confirmColor: '#40a9ff',
+        showCancel: false,
+        success(res) {
+          if (res.confirm) {
+            // 新的版本已经下载好，调用 applyUpdate 应用新版本并重启
+            updateManager.applyUpdate();
+          }
+        }
+      });
+    });
   }
 }
 </script>

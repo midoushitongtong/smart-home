@@ -15,5 +15,33 @@
 	"miniprogramRoot": "dist/",
 	"simulatorType": "wechat",
 	"simulatorPluginLibVersion": {},
-	"condition": {}
+	"condition": {
+		"search": {
+			"current": -1,
+			"list": []
+		},
+		"conversation": {
+			"current": -1,
+			"list": []
+		},
+		"plugin": {
+			"current": -1,
+			"list": []
+		},
+		"game": {
+			"list": []
+		},
+		"miniprogram": {
+			"current": 0,
+			"list": [
+				{
+					"id": 0,
+					"name": "更新检测",
+					"pathName": "pages/home/index",
+					"query": "",
+					"scene": 1005
+				}
+			]
+		}
+	}
 }

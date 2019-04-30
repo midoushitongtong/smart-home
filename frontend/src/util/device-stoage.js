@@ -20,12 +20,8 @@ const deviceStorage = {
   editDeviceInfo: (deviceInfo) => {
     // 获取以有的设备
     const currentDeviceInfoList = deviceStorage.getDeviceInfoList();
-    const newDeviceInfoList = currentDeviceInfoList.map(deviceInfoItem => {
-      if (deviceInfoItem.id === deviceInfo.id) {
-        return deviceInfo;
-      }
-      return deviceInfoItem;
-    });
+    const newDeviceInfoList = currentDeviceInfoList.filter(deviceInfoItem => deviceInfoItem.id !== deviceInfo.id);
+    newDeviceInfoList.push(deviceInfo);
     wx.setStorageSync('deviceInfoList', newDeviceInfoList);
   },
   // 删除设备
