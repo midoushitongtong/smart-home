@@ -8,18 +8,18 @@ import './App.less';
 
 // 当前组件的类型声明
 interface ConnectState {
-  userInfo: object
+  userInfo: object;
 }
 
 interface ConnectDispatch {
-  asyncUpdateUserInfo: () => {}
+  asyncUpdateUserInfo: () => object;
 }
 
 interface Props extends ConnectState, ConnectDispatch {
 }
 
 interface State {
-  isRender: boolean
+  isRender: boolean;
 }
 
 // 当前组件类
@@ -34,9 +34,14 @@ export default compose<React.ComponentClass>(
   )
 )(
   class App extends React.Component<Props, State> {
-    public state: State = {
-      isRender: false
-    };
+    public constructor(props: Props) {
+      super(props);
+      this.state = {
+        // 控制是否可以渲染
+        isRender: false
+      };
+    }
+
 
     public componentDidMount = async () => {
       // const { props } = this;

@@ -11,15 +11,15 @@ interface Props extends FormComponentProps {
 
 interface State {
   // 表格的适配信息
-  columns: any,
+  columns: any;
   // 表格的数据
-  dataSource: any,
+  dataSource: any;
   // 表格的分页
-  pagination: any,
+  pagination: any;
   // 获取表格数据的条件
-  searchCondition: any,
+  searchCondition: any;
   // 表格加载状态
-  loading: boolean
+  loading: boolean;
 }
 
 // 当前组件类
@@ -27,37 +27,40 @@ export default compose<React.ComponentClass>(
   Form.create()
 )(
   class LayoutMasterSystemUserPersonList extends React.Component<Props, State> {
-    public state: State = {
-      columns: [
-        { title: '用户名', dataIndex: 'username' },
-        {
-          title: '性别', dataIndex: 'gender', render: (text: any, record: any) => (
-            <span>{text === 1 ? '男' : '女'}</span>
-          )
+    public constructor(props: Props) {
+      super(props);
+      this.state = {
+        columns: [
+          { title: '用户名', dataIndex: 'username' },
+          {
+            title: '性别', dataIndex: 'gender', render: (text: any, record: any) => (
+              <span>{text === 1 ? '男' : '女'}</span>
+            )
+          },
+          { title: '创建日期', dataIndex: 'createdAt' },
+          { title: '最后修改日期', dataIndex: 'updatedAt' },
+          {
+            title: '操作', dataIndex: 'action', render: (text: any, record: any) => (
+              <div className="table-data-action-container">
+                <Link to={`/system/user/person/operator/${record.id}`}>编辑</Link>
+                <Divider type="vertical"/>
+                <span onClick={() => this.deleteData(record)}>删除</span>
+              </div>
+            )
+          }
+        ],
+        dataSource: [],
+        pagination: {
+          total: 0,
+          current: 1,
+          pageSize: 10,
+          showSizeChanger: true,
+          pageSizeOptions: ['10', '20', '100']
         },
-        { title: '创建日期', dataIndex: 'createdAt' },
-        { title: '最后修改日期', dataIndex: 'updatedAt' },
-        {
-          title: '操作', dataIndex: 'action', render: (text: any, record: any) => (
-            <div className="table-data-action-container">
-              <Link to={`/system/user/person/operator/${record.id}`}>编辑</Link>
-              <Divider type="vertical"/>
-              <span onClick={() => this.deleteData(record)}>删除</span>
-            </div>
-          )
-        }
-      ],
-      dataSource: [],
-      pagination: {
-        total: 0,
-        current: 1,
-        pageSize: 10,
-        showSizeChanger: true,
-        pageSizeOptions: ['10', '20', '100']
-      },
-      searchCondition: {},
-      loading: false
-    };
+        searchCondition: {},
+        loading: false
+      };
+    }
 
     public componentDidMount = (): void => {
       this.refreshData();
@@ -69,7 +72,6 @@ export default compose<React.ComponentClass>(
      */
     public refreshData = async () => {
       const { state } = this;
-
       this.setState({
         loading: true
       });
@@ -83,9 +85,9 @@ export default compose<React.ComponentClass>(
 
       // 获取成功, 刷新数据
       const pagination = {
-        ...state.pagination
+        ...state.pagination,
+        total: result.data.total
       };
-      pagination.total = result.data.total;
       this.setState({
         loading: false,
         dataSource: result.data.records,
@@ -127,8 +129,13 @@ export default compose<React.ComponentClass>(
       props.form.validateFields(async (error, valueList) => {
         if (!error) {
           // 保存搜索条件
-          state.pagination.current = 1;
-          state.searchCondition = valueList;
+          this.setState({
+            pagination: {
+              ...state.pagination,
+              current: 1
+            },
+            searchCondition: valueList
+          });
           // 刷新表格数据
           this.refreshData();
         }
@@ -142,8 +149,13 @@ export default compose<React.ComponentClass>(
     public handleReset = (): void => {
       const { state, props } = this;
       // 保存搜索条件
-      state.pagination.current = 1;
-      state.searchCondition = {};
+      this.setState({
+        pagination: {
+          ...state.pagination,
+          current: 1
+        },
+        searchCondition: {}
+      });
       props.form.resetFields();
       // 刷新表格数据
       this.refreshData();
@@ -154,10 +166,10 @@ export default compose<React.ComponentClass>(
      *
      */
     public handleTableChange = (currentPagination: any): void => {
-      const { state } = this;
       // 刷新分页数据
-      state.pagination = currentPagination;
-
+      this.setState({
+        pagination: currentPagination
+      });
       // 获取表格数据
       this.refreshData();
     };

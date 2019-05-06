@@ -14,21 +14,21 @@ import './index.less';
 // 当前组件的类型声明
 interface ConnectState {
   // 当前登陆的用户信息
-  userInfo: any
+  userInfo: any;
 }
 
 interface ConnectDispatch {
-  toggleSystemSidebarIsCollapse: () => {},
-  clearAccountState: () => {}
+  toggleSystemSidebarIsCollapse: () => object;
+  clearAccountState: () => object;
 }
 
 interface Props extends ConnectState, ConnectDispatch, RouteConfigComponentProps {
   // 当前路由信息
-  routeMatchList: MatchedRoute<{}>[]
+  routeMatchList: MatchedRoute<{}>[];
 }
 
 interface State {
-  isRender: boolean
+  isRender: boolean;
 }
 
 // 当前组件类

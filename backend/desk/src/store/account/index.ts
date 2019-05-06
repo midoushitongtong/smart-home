@@ -3,7 +3,7 @@ import api from '../../api';
 // 当前模块的类型声明
 export interface State {
   // 当前登陆的用户信息
-  userInfo: object
+  userInfo: object;
 }
 
 // 操作类型

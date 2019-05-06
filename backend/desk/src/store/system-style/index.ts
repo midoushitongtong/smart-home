@@ -1,7 +1,7 @@
 // 当前模块的类型声明
 export interface State {
   // 侧边栏折叠状态
-  systemSidebarIsCollapse: boolean
+  systemSidebarIsCollapse: boolean;
 }
 
 // 操作类型

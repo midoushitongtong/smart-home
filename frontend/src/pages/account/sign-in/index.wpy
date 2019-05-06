@@ -1,0 +1,73 @@
+<template>
+  <view class="sign-in-container">
+    <view class="logo">
+      <image src="/assets/images/tidc_logo.png"></image>
+    </view>
+    <view class="action-container">
+      <i-button
+        i-class="i-button-wechat-sign-in"
+        type="success"
+        @getuserinfo="wechatSignIn"
+        open-type="getUserInfo"
+      >微信账号登陆
+      </i-button>
+    </view>
+  </view>
+</template>
+
+<script>
+import wepy from 'wepy';
+import { updateUserInfo } from '../../../store/account';
+import { connect } from 'wepy-redux';
+
+@connect({}, {
+  updateUserInfo
+})
+export default class Person extends wepy.page {
+  config = {
+    navigationBarTitleText: '登陆账号'
+  };
+
+  methods = {
+    // 微信登陆
+    wechatSignIn: (e) => {
+      if (e.detail.userInfo !== undefined) {
+        // 保存用户信息到 redux
+        this.methods.updateUserInfo(e.detail);
+        // 回退上一页
+        wx.navigateBack({
+          delta: 1
+        });
+      }
+    }
+  };
+}
+</script>
+
+<style lang="less">
+  .sign-in-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    .logo {
+      display: flex;
+      justify-content: center;
+      padding-top: ~"100rpx";
+      padding-bottom: ~"35rpx";
+      image {
+        width: 100px;
+        height: 100px;
+      }
+    }
+    .action-container {
+      width: 100%;
+      padding-bottom: 15px;
+      .i-button-wechat-sign-in {
+        margin-left: 15px;
+        margin-right: 15px;
+        margin-bottom: 0;
+      }
+    }
+  }
+</style>

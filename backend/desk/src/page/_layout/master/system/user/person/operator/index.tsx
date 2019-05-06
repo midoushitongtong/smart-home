@@ -12,11 +12,11 @@ interface Props extends FormComponentProps, RouteConfigComponentProps {
 
 interface State {
   // 按钮的加载
-  submitButtonLoading: boolean,
+  submitButtonLoading: boolean;
   // 操作类型[添加, 修改]
-  actionType: string,
+  actionType: string;
   // 表单默认值[操作类型为修改异步获取]
-  formInitialValue: any
+  formInitialValue: any;
 }
 
 // 当前组件类
@@ -24,29 +24,29 @@ export default compose<React.ComponentClass>(
   Form.create()
 )(
   class LayoutMasterSystemUserPersonOperator extends React.Component<Props, State> {
-    public state: State = {
-      submitButtonLoading: false,
-      actionType: '',
-      formInitialValue: {
-        // 只有修改操作才有的 id
-        id: '',
-        // 用户名
-        username: '',
-        // 性别
-        gender: ''
-      }
-    };
+    public constructor(props: Props) {
+      super(props);
+      this.state =  {
+        submitButtonLoading: false,
+        actionType: '',
+        formInitialValue: {
+          // 只有修改操作才有的 id
+          id: '',
+          // 用户名
+          username: '',
+          // 性别
+          gender: ''
+        }
+      };
+    }
 
-    public componentDidMount = (): void => {
-      this.initPage();
-    };
 
     /**
      * 初始化页面数据
      *
      */
     public initPage = async () => {
-      const { state, props } = this;
+      const { props } = this;
       const id = (props.match.params as any).id;
       if (id) {
         // 修改操作
@@ -60,7 +60,9 @@ export default compose<React.ComponentClass>(
         });
       } else {
         // 新增操作
-        state.actionType = 'insert';
+        this.setState({
+          actionType: 'insert'
+        });
       }
     };
 

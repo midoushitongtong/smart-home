@@ -12,11 +12,11 @@ import './index.less';
 
 // 当前组件的类型声明
 interface ConnectState {
-  userInfo: object
+  userInfo: object;
 }
 
 interface ConnectDispatch {
-  updateUserInfo: (data: any) => {}
+  updateUserInfo: (data: any) => object;
 }
 
 interface Props extends ConnectState, ConnectDispatch, RouteConfigComponentProps, FormComponentProps {

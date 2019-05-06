@@ -40,100 +40,104 @@ const LayoutMasterSystemUser = Loadable({
 // 当前组件的类型声明
 export interface MyRouteConfig extends RouteConfig {
   // 面包屑提示文字
-  breadcrumb?: string,
+  breadcrumb?: string;
   // 约束子路由
-  routes?: MyRouteConfig[]
+  routes?: MyRouteConfig[];
 }
 
 interface Props {
 }
 
 interface State {
-  routeList: MyRouteConfig[]
+  routeList: MyRouteConfig[];
 }
 
 // 当前组件类
 export default class Router extends React.Component<Props, State> {
-  public state: State = {
-    routeList: [
-      {
-        // 根模块
-        path: '/',
-        component: LayoutMaster,
-        routes: [
-          // 账户登陆模块
-          {
-            path: '/account',
-            component: LayoutMasterAccount,
-            routes: [
-              {
-                path: '/account/signIn',
-                component: LayoutMasterAccountSignIn
-              }
-            ]
-          },
-          {
-            // 系统模块
-            path: '/system',
-            component: LayoutMasterSystem,
-            routes: [
-              // 仪表盘模块
-              {
-                path: '/system/home',
-                component: LayoutMasterSystemHome,
-                breadcrumb: '仪表盘',
-                routes: [
-                  {
-                    path: '/system/home/welcome',
-                    component: LayoutMasterSystemHomeWelcome,
-                    breadcrumb: '工作台'
-                  },
-                  {
-                    path: '',
-                    component: ErrorNotFound
-                  }
-                ]
-              },
-              // 用户模块
-              {
-                path: '/system/user',
-                component: LayoutMasterSystemUser,
-                breadcrumb: '用户',
-                routes: [
-                  {
-                    path: '/system/user/person',
-                    component: LayoutMasterSystemUserPerson,
-                    breadcrumb: '个人用户',
-                    routes: [
-                      {
-                        path: '/system/user/person/list',
-                        component: LayoutMasterSystemUserPersonList,
-                        breadcrumb: '列表'
-                      },
-                      {
-                        path: '/system/user/person/operator/:id',
-                        component: LayoutMasterSystemUserPersonOperator,
-                        breadcrumb: '编辑'
-                      },
-                      {
-                        path: '/system/user/person/operator',
-                        component: LayoutMasterSystemUserPersonOperator,
-                        breadcrumb: '添加'
-                      }
-                    ]
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            path: '',
-            component: () => <Redirect to='/system/home/welcome'/>
-          }
-        ]
-      }
-    ]
-  };
+  public constructor(props: Props) {
+    super(props);
+    this.state = {
+      routeList: [
+        {
+          // 根模块
+          path: '/',
+          component: LayoutMaster,
+          routes: [
+            // 账户登陆模块
+            {
+              path: '/account',
+              component: LayoutMasterAccount,
+              routes: [
+                {
+                  path: '/account/signIn',
+                  component: LayoutMasterAccountSignIn
+                }
+              ]
+            },
+            {
+              // 系统模块
+              path: '/system',
+              component: LayoutMasterSystem,
+              routes: [
+                // 仪表盘模块
+                {
+                  path: '/system/home',
+                  component: LayoutMasterSystemHome,
+                  breadcrumb: '仪表盘',
+                  routes: [
+                    {
+                      path: '/system/home/welcome',
+                      component: LayoutMasterSystemHomeWelcome,
+                      breadcrumb: '工作台'
+                    },
+                    {
+                      path: '',
+                      component: ErrorNotFound
+                    }
+                  ]
+                },
+                // 用户模块
+                {
+                  path: '/system/user',
+                  component: LayoutMasterSystemUser,
+                  breadcrumb: '用户',
+                  routes: [
+                    {
+                      path: '/system/user/person',
+                      component: LayoutMasterSystemUserPerson,
+                      breadcrumb: '个人用户',
+                      routes: [
+                        {
+                          path: '/system/user/person/list',
+                          component: LayoutMasterSystemUserPersonList,
+                          breadcrumb: '列表'
+                        },
+                        {
+                          path: '/system/user/person/operator/:id',
+                          component: LayoutMasterSystemUserPersonOperator,
+                          breadcrumb: '编辑'
+                        },
+                        {
+                          path: '/system/user/person/operator',
+                          component: LayoutMasterSystemUserPersonOperator,
+                          breadcrumb: '添加'
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              path: '',
+              component: () => <Redirect to='/system/home/welcome'/>
+            }
+          ]
+        }
+      ]
+    };
+  }
+
 
   public render = (): JSX.Element => {
     const { state } = this;

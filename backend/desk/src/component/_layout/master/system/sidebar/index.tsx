@@ -10,7 +10,7 @@ import './index.less';
 
 // 当前组件的类型声明
 interface ConnectState {
-  systemSidebarIsCollapse: boolean
+  systemSidebarIsCollapse: boolean;
 }
 
 interface ConnectDispatch {
@@ -21,22 +21,22 @@ interface Props extends ConnectState, ConnectDispatch, RouteConfigComponentProps
 
 interface SidebarMenu {
   // 菜单 key
-  key: string,
+  key: string;
   // 菜单名称
-  name: string,
+  name: string;
   // 菜单图片
-  icon?: string,
+  icon?: string;
   // 菜单跳转的路径
-  path?: string,
+  path?: string;
   // 菜单子菜单
-  children?: SidebarMenu[]
+  children?: SidebarMenu[];
 }
 
 interface State {
   // 侧边栏折叠状态
-  systemSidebarIsCollapse: boolean,
+  systemSidebarIsCollapse: boolean;
   // 菜单
-  sideBarMenuList: SidebarMenu[]
+  sideBarMenuList: SidebarMenu[];
 }
 
 // 当前组件类
@@ -50,35 +50,39 @@ export default compose<React.ComponentClass>(
   )
 )(
   class LayoutMasterSystemSidebar extends React.Component<Props, State> {
-    public state: State = {
-      systemSidebarIsCollapse: false,
-      sideBarMenuList: [
-        {
-          key: '1',
-          icon: 'pie-chart',
-          name: '仪表盘',
-          children: [
-            {
-              key: '1-1',
-              name: '工作台',
-              path: '/system/home/welcome'
-            }
-          ]
-        },
-        {
-          key: '2',
-          icon: 'user',
-          name: '用户',
-          children: [
-            {
-              key: '2-1',
-              name: '个人用户',
-              path: '/system/user/person/list'
-            },
-          ]
-        }
-      ]
-    };
+    public constructor(props: Props) {
+      super(props);
+      this.state = {
+        systemSidebarIsCollapse: false,
+        sideBarMenuList: [
+          {
+            key: '1',
+            icon: 'pie-chart',
+            name: '仪表盘',
+            children: [
+              {
+                key: '1-1',
+                name: '工作台',
+                path: '/system/home/welcome'
+              }
+            ]
+          },
+          {
+            key: '2',
+            icon: 'user',
+            name: '用户',
+            children: [
+              {
+                key: '2-1',
+                name: '个人用户',
+                path: '/system/user/person/list'
+              },
+            ]
+          }
+        ]
+      };
+    }
+
 
     public componentDidMount = (): void => {
       const { props } = this;

@@ -7,15 +7,15 @@ import config from '../../config';
  */
 interface Api {
   // 获取多条记录
-  selectPersonList: (data: any) => {},
+  selectPersonList: (data: any) => object,
   // 获取单条记录
-  selectPersonById: (id: any) => {},
+  selectPersonById: (id: any) => object;
   // 新增
-  insertPerson: (data: any) => {},
+  insertPerson: (data: any) => object;
   // 修改
-  updatePersonById: (id: any, data: any) => {}
+  updatePersonById: (id: any, data: any) => object;
   // 删除
-  deletePersonById: (id: any) => {}
+  deletePersonById: (id: any) => object;
 }
 
 /**

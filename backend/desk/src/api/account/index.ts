@@ -7,11 +7,11 @@ import config from '../../config';
  */
 interface Api {
   // 登陆
-  signIn: (data: any) => {},
+  signIn: (data: any) => object;
   // 退出
-  signOut: () => {},
+  signOut: () => object;
   // 获取当前登陆的用户信息
-  selectUserInfo: () => {}
+  selectUserInfo: () => object;
 }
 
 /**
