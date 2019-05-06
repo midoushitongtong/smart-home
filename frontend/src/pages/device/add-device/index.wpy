@@ -70,7 +70,7 @@
           </i-cell-group>
         </view>
         <view class="not-room-container" wx:else>
-          <text>当前暂无房间</text>
+          <text>当前暂无房间!</text>
         </view>
         <i-button
           size="small"

@@ -51,7 +51,7 @@
           </i-cell-group>
         </view>
         <view class="not-device-info-list" wx:else>
-          <text>当前房间暂无设备</text>
+          <text>当前房间暂无设备!</text>
         </view>
       </view>
     </view>

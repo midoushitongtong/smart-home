@@ -1,0 +1,59 @@
+{
+  "name": "back-desk",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "react-app-rewired start",
+    "build": "react-app-rewired build",
+    "test": "react-app-rewired test",
+    "eject": "react-scripts eject"
+  },
+  "dependencies": {
+    "@babel/polyfill": "^7.4.4",
+    "@fortawesome/fontawesome-free": "^5.8.1",
+    "@tinymce/tinymce-react": "^3.0.1",
+    "antd": "^3.16.6",
+    "axios": "^0.18.0",
+    "less": "^3.9.0",
+    "normalize.css": "^8.0.1",
+    "nprogress": "^0.2.0",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "react-lazyload": "^2.5.0",
+    "react-loadable": "^5.5.0",
+    "react-redux": "^7.0.3",
+    "react-router-config": "^5.0.0",
+    "react-router-dom": "^5.0.0",
+    "react-scripts": "3.0.0",
+    "react-transition-group": "^4.0.0",
+    "redux": "^4.0.1",
+    "redux-thunk": "^2.3.0",
+    "typescript": "3.4.5"
+  },
+  "devDependencies": {
+    "@types/jest": "24.0.12",
+    "@types/node": "12.0.0",
+    "@types/nprogress": "0.0.29",
+    "@types/react": "16.8.16",
+    "@types/react-dom": "16.8.4",
+    "@types/react-loadable": "^5.5.1",
+    "@types/react-redux": "^7.0.8",
+    "@types/react-router-config": "^1.1.3",
+    "@types/react-router-dom": "^4.3.2",
+    "@types/react-transition-group": "^2.9.1",
+    "babel-plugin-import": "^1.11.0",
+    "customize-cra": "^0.2.12",
+    "less-loader": "^5.0.0",
+    "react-app-rewire-less-modules": "^1.3.0",
+    "react-app-rewired": "^2.1.3",
+    "redux-devtools-extension": "^2.13.8"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
+}

@@ -1,6 +1,6 @@
 const net = require('net');
 const webSocket = require('ws');
-const smartHomeSocketService = require('../service');
+const smartHomeSocketService = require('../service/index');
 
 module.exports = {
   createSocketServer: () => {
