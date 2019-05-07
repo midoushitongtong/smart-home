@@ -49,7 +49,15 @@ export default class Wechat extends Service {
       });
     } else {
       // 用户不存在就插入
-      return await app.model.PersonUser.create(data);
+      // 插入用户数据
+      const result = await app.model.PersonUser.create(data);
+      // 插入默认房间
+      await app.model.Room.create({
+        openid: data.openid,
+        name: '客厅',
+        icon: '/assets/images/living.png'
+      });
+      return result;
     }
   }
 }

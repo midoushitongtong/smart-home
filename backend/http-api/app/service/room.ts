@@ -74,7 +74,7 @@ export default class Room extends Service {
   public async deleteRoomById(data: RoomModel) {
     const { app } = this;
     // 删除房间
-    await app.model.Room.destroy({
+    const result = await app.model.Room.destroy({
       where: {
         id: {
           [Op.eq]: data.id
@@ -92,5 +92,6 @@ export default class Room extends Service {
         }
       }
     });
+    return result;
   }
 }

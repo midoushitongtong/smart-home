@@ -191,14 +191,7 @@ export default class Home extends wepy.page {
         const result2 = await api.device.selectDeviceList({
           openid: this.personUserInfo.openid
         });
-        if (result2.code === '0') {
-          this.methods.updateDeviceInfoList(result2.data);
-        } else {
-          Base.$Message({
-            content: result2.message,
-            type: 'error'
-          });
-        }
+        this.methods.updateDeviceInfoList(result2.data);
 
         // 返回首页
         setTimeout(() => {

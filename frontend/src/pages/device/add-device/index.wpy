@@ -209,10 +209,10 @@ export default class Home extends wepy.page {
     },
     // 模态框按钮点击事件
     handlerAction: async (e) => {
-      if (e.detail.index === 0) {
-        // 在加载直接 return
-        if (this.actions[0].loading) return;
+      // 在加载直接 return
+      if (this.actions[0].loading) return;
 
+      if (e.detail.index === 0) {
         // 保存所有设备
         if (!this.form.roomId) {
           Base.$Message({

@@ -20,6 +20,7 @@
 <script>
 import wepy from 'wepy';
 import { updatePersonUserInfo } from '../../../store/person-user';
+import { updateRoomInfoList, updateDeviceInfoList } from '../../../store/feature';
 import Base from '../../../components/iview/base/index';
 import { connect } from 'wepy-redux';
 import api from '../../../api';
@@ -27,7 +28,9 @@ import api from '../../../api';
 @connect({
   personUserInfo: (state) => state.personUser.personUserInfo
 }, {
-  updatePersonUserInfo
+  updatePersonUserInfo,
+  updateRoomInfoList,
+  updateDeviceInfoList
 })
 export default class Person extends wepy.page {
   config = {
@@ -48,12 +51,28 @@ export default class Person extends wepy.page {
         this.$apply();
         // 保存用户信息到 redux
         this.methods.updatePersonUserInfo(e.detail);
+
         // 将用户信息保存到数据库
         const result = await api.personUser.savePersonUserInfo({
           openid: this.personUserInfo.openid,
           nickName: this.personUserInfo.userInfo.nickName,
           avatarUrl: this.personUserInfo.userInfo.avatarUrl
         });
+
+        // 初始化用户数据
+        let result1 = api.room.selectRoomList({
+          openid: this.personUserInfo.openid
+        });
+        let result2 = api.device.selectDeviceList({
+          openid: this.personUserInfo.openid
+        });
+        result1 = await result1;
+        result2 = await result2;
+        // 更新房间数据
+        this.methods.updateRoomInfoList(result1.data);
+        // 更新设备数据
+        this.methods.updateDeviceInfoList(result2.data);
+
         this.loading = false;
         this.$apply();
         if (result.code === '0') {

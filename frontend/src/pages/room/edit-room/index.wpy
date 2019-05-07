@@ -131,16 +131,6 @@ export default class Home extends wepy.page {
           });
         }));
 
-        let result1 = api.room.selectRoomList({
-          openid: this.personUserInfo.openid
-        });
-        let result2 = api.device.selectDeviceList({
-          openid: this.personUserInfo.openid
-        });
-
-        await result1;
-        await result2;
-
         // 清空设备数据
         this.methods.updateDeviceInfoList([]);
         // 清空房间数据

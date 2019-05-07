@@ -1,5 +1,6 @@
 import { Controller } from 'egg';
 import { Prefix, Get, Post } from 'egg-shell-decorators';
+import StringUtil from '../util/string';
 
 @Prefix('/person-user')
 export default class AccountController extends Controller {
@@ -20,7 +21,7 @@ export default class AccountController extends Controller {
     const { body } = ctx.request;
     const data = {
       openid: body.openid,
-      nickName: body.nickName,
+      nickName: StringUtil.toUnicode(body.nickName),
       avatarUrl: body.avatarUrl
     };
     const personUserInfo = await ctx.service.wechat.savePersonUserInfo(data);

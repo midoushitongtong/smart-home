@@ -188,14 +188,7 @@ export default class Home extends wepy.page {
         const result2 = await api.room.selectRoomList({
           openid: this.personUserInfo.openid
         });
-        if (result2.code === '0') {
-          this.methods.updateRoomInfoList(result2.data);
-        } else {
-          Base.$Message({
-            content: result2.message,
-            type: 'error'
-          });
-        }
+        this.methods.updateRoomInfoList(result2.data);
 
         setTimeout(() => {
           this.loading = false;

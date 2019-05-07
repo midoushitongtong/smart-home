@@ -63,5 +63,25 @@ export default {
         }
       });
     });
+  },
+  // 修改设备
+  updateDevice: (id, data) => {
+    return new Promise((resolve, reject) => {
+      wx.request({
+        method: 'PUT',
+        url: `${config.API_HTTP_ROOT}/device/${id}`,
+        data,
+        success: (res) => {
+          if (res && res.statusCode === 200) {
+            resolve(res.data);
+          } else {
+            reject(res);
+          }
+        },
+        fail: (err) => {
+          reject(err);
+        }
+      });
+    });
   }
 };

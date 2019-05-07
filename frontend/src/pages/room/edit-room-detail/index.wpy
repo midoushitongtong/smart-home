@@ -367,6 +367,7 @@ export default class Home extends wepy.page {
 
         setTimeout(() => {
           this.loading2 = false;
+          this.$apply();
 
           // 返回上一页
           wx.navigateBack({

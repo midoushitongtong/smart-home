@@ -31,3 +31,6 @@ $ npm start
 
 - Node.js 8.x
 - Typescript 2.8+
+
+### PM2
+pm2 start npm -- start --name "api-http"
