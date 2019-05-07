@@ -40,7 +40,7 @@ export default class Wechat extends Service {
     });
     if (userList.length > 0) {
       // 用户已存在就更新
-      await app.model.PersonUser.update(data, {
+      return await app.model.PersonUser.update(data, {
         where: {
           openid: {
             [Op.eq]: data.openid
@@ -49,7 +49,7 @@ export default class Wechat extends Service {
       });
     } else {
       // 用户不存在就插入
-      await app.model.PersonUser.create(data);
+      return await app.model.PersonUser.create(data);
     }
   }
 }

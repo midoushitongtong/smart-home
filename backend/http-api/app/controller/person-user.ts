@@ -23,9 +23,10 @@ export default class AccountController extends Controller {
       nickName: body.nickName,
       avatarUrl: body.avatarUrl
     };
-    await ctx.service.wechat.savePersonUserInfo(data);
+    const personUserInfo = await ctx.service.wechat.savePersonUserInfo(data);
     ctx.body = {
-      code: '0'
+      code: '0',
+      data: personUserInfo
     };
   };
 }

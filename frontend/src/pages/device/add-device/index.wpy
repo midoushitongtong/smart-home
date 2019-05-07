@@ -88,10 +88,11 @@
 import wepy from 'wepy';
 import { connect } from 'wepy-redux';
 import Base from '../../../components/iview/base/index';
-import deviceStorage from '../../../util/device-stoage';
 import { updateDeviceInfoList } from '../../../store/feature';
+import api from '../../../api';
 
 @connect({
+  personUserInfo: (state) => state.personUser.personUserInfo,
   roomInfoList: (state) => state.feature.roomInfoList,
   deviceInfoList: (state) => state.feature.deviceInfoList,
   featureInfo: (state) => state.feature.featureInfo
@@ -135,7 +136,7 @@ export default class Home extends wepy.page {
       const newNearbyDeviceList = [];
       Object.keys(currentData).forEach(controlName => {
         // 设备已存在加则不显示
-        if (deviceStorage.existDeviceInfo(controlName)) {
+        if (this.deviceInfoList.find(deviceInfoItem => deviceInfoItem.controlName === controlName)) {
           return;
         }
         let data = null;
@@ -203,11 +204,11 @@ export default class Home extends wepy.page {
     },
     // 改变当前选中的房间
     changeRoomBuf: (e) => {
-      this.form.roomId = e.detail.value;
+      this.form.roomId = parseInt(e.detail.value);
       this.$apply();
     },
     // 模态框按钮点击事件
-    handlerAction: (e) => {
+    handlerAction: async (e) => {
       if (e.detail.index === 0) {
         // 在加载直接 return
         if (this.actions[0].loading) return;
@@ -224,24 +225,31 @@ export default class Home extends wepy.page {
         this.actions[0].loading = true;
         this.$apply();
 
-        setTimeout(() => {
-          this.nearbyDeviceList.forEach((nearbyDeviceListItem) => {
-            nearbyDeviceListItem.roomId = this.form.roomId;
-            nearbyDeviceListItem.name = nearbyDeviceListItem.originName;
-            // 添加设备
-            deviceStorage.addDeviceInfo(nearbyDeviceListItem);
-          });
+        await Promise.all(this.nearbyDeviceList.map(async (nearbyDeviceListItem) => {
+          nearbyDeviceListItem.openid = this.personUserInfo.openid;
+          nearbyDeviceListItem.roomId = this.form.roomId;
+          nearbyDeviceListItem.name = nearbyDeviceListItem.originName;
+          // 添加设备
+          await api.device.insertDevice(nearbyDeviceListItem);
+        }));
 
+        // 刷新列表数据
+        const result = await api.device.selectDeviceList({
+          openid: this.personUserInfo.openid
+        });
+        this.methods.updateDeviceInfoList(result.data);
+
+        setTimeout(() => {
           this.actions[0].loading = false;
           this.$apply();
-
-          this.methods.updateDeviceInfoList(deviceStorage.getDeviceInfoList());
 
           // 返回上一页
           wx.navigateBack({
             delta: 1
           });
-        }, 1111);
+        }, 500);
+      } else {
+        this.methods.toggleModal(false);
       }
     },
     // 前往添加房间页面
@@ -253,6 +261,7 @@ export default class Home extends wepy.page {
   };
 
   onLoad() {
+    console.log(this.roomInfoList);
     // 初始化附近设备列表
     this.methods.refreshNearbyDeviceList(this.featureInfo);
   }

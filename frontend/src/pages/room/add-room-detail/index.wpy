@@ -67,10 +67,12 @@
 import wepy from 'wepy';
 import { connect } from 'wepy-redux';
 import Base from '../../../components/iview/base/index';
-import roomStorage from '../../../util/room-stoage';
 import { updateRoomInfoList } from '../../../store/feature';
+import api from '../../../api';
 
-@connect({}, {
+@connect({
+  personUserInfo: (state) => state.personUser.personUserInfo
+}, {
   updateRoomInfoList
 })
 export default class Home extends wepy.page {
@@ -156,11 +158,12 @@ export default class Home extends wepy.page {
       this.methods.toggleModal(false);
     },
     // 添加房间
-    addRoom: () => {
+    addRoom: async () => {
       this.loading = true;
       this.$apply();
 
       const roomInfo = {
+        openid: this.personUserInfo.openid,
         name: this.form.name,
         icon: this.form.icon
       };
@@ -177,29 +180,40 @@ export default class Home extends wepy.page {
         return;
       }
 
-      // 判断房间是否存在
-      if (!roomStorage.existRoomInfo(roomInfo.name)) {
-        setTimeout(() => {
-          roomStorage.addRoomInfo(roomInfo);
+      // 插入数据库
+      const result1 = await api.room.insertRoom(roomInfo);
 
-          // 更新房间列表数据
-          this.methods.updateRoomInfoList(roomStorage.getRoomList());
+      if (result1.code === '0') {
+        // 更新房间列表数据
+        const result2 = await api.room.selectRoomList({
+          openid: this.personUserInfo.openid
+        });
+        if (result2.code === '0') {
+          this.methods.updateRoomInfoList(result2.data);
+        } else {
+          Base.$Message({
+            content: result2.message,
+            type: 'error'
+          });
+        }
+
+        setTimeout(() => {
+          this.loading = false;
+          this.$apply();
 
           // 返回上一页
           wx.navigateBack({
             delta: 1
           });
-        }, 1000);
+        }, 500);
       } else {
-        setTimeout(() => {
-          Base.$Message({
-            content: '房间名称已存在',
-            type: 'error'
-          });
+        Base.$Message({
+          content: result1.message,
+          type: 'error'
+        });
 
-          this.loading = false;
-          this.$apply();
-        }, 1000);
+        this.loading = false;
+        this.$apply();
       }
     }
   };
@@ -209,7 +223,6 @@ export default class Home extends wepy.page {
 <style lang="less">
   .add-room-detail-container {
     .form-container {
-      padding-bottom: 15px;
       background-color: #fff;
       .room-icon {
         width: 25px;

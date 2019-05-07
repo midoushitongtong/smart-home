@@ -186,9 +186,8 @@ import wepy from 'wepy';
 import { connect } from 'wepy-redux';
 import Base from '../../components/iview/base/index';
 import featureSocket from '../../util/feature-socket';
-import roomStorage from '../../util/room-stoage';
-import deviceStorage from '../../util/device-stoage';
 import { updateFeatureInfo, updateRoomInfoList, updateDeviceInfoList } from '../../store/feature';
+import api from '../../api';
 
 @connect({
   personUserInfo: (state) => state.personUser.personUserInfo,
@@ -241,34 +240,32 @@ export default class Home extends wepy.page {
     },
     // 刷新房间与设备对应的数据
     refreshNewRoomDeviceInfoList: () => {
-      this.loading = true;
-      setTimeout(() => {
-        // 设置设备对应的房间名称, 以及控制前缀
-        let newDeviceInfoList = this.deviceInfoList.map(deviceInfoItem => {
-          deviceInfoItem.roomName = this.roomInfoList.find(roomInfoItem => roomInfoItem.id === deviceInfoItem.roomId).name;
-          return deviceInfoItem;
-        });
-        // 将设备归类到对应的房间
-        const newRoomDeviceInfoList = this.roomInfoList.map((roomInfoItem) => {
-          roomInfoItem.deviceInfoList = newDeviceInfoList.filter(deviceInfoItem => deviceInfoItem.roomId === roomInfoItem.id);
-          return roomInfoItem;
-        });
-        // 我的设备显示全部设备
-        newRoomDeviceInfoList.unshift({
-          name: '我的设备',
-          deviceInfoList: newDeviceInfoList
-        });
+      // 设置设备对应的房间名称, 以及控制前缀
+      let newDeviceInfoList = this.deviceInfoList.map(deviceInfoItem => {
+        deviceInfoItem.roomName = this.roomInfoList.find(roomInfoItem => roomInfoItem.id === deviceInfoItem.roomId).name;
+        return deviceInfoItem;
+      });
+      // 将设备归类到对应的房间
+      const newRoomDeviceInfoList = this.roomInfoList.map((roomInfoItem) => {
+        roomInfoItem.deviceInfoList = newDeviceInfoList.filter(deviceInfoItem => deviceInfoItem.roomId === roomInfoItem.id);
+        return roomInfoItem;
+      });
+      // 我的设备显示全部设备
+      newRoomDeviceInfoList.unshift({
+        name: '我的设备',
+        deviceInfoList: newDeviceInfoList
+      });
 
-        // 更新数据
+      // 更新数据
+      setTimeout(() => {
         this.newRoomDeviceInfoList = newRoomDeviceInfoList;
-        this.loading = false;
         this.$apply();
-        if (newDeviceInfoList.length > 0) {
-          this.swiperHeight = (Math.ceil(newDeviceInfoList.length / 2) * 115) + 'px';
-        } else {
-          this.swiperHeight = '115px';
-        }
-      }, 50);
+      }, 100);
+      if (newDeviceInfoList.length > 0) {
+        this.swiperHeight = (Math.ceil(newDeviceInfoList.length / 2) * 115) + 'px';
+      } else {
+        this.swiperHeight = '115px';
+      }
     },
     // 改变轮播图当前的索引
     changeCurrent: (index) => {
@@ -334,28 +331,57 @@ export default class Home extends wepy.page {
       wx.navigateTo({
         url: '/pages/account/sign-in/index'
       });
+    },
+    // 更新房间, 设备列表数据
+    updateRoomDeviceInfoList: async () => {
+      this.loading = true;
+      this.$apply();
+      let result1 = api.room.selectRoomList({
+        openid: this.personUserInfo.openid
+      });
+      let result2 = api.device.selectDeviceList({
+        openid: this.personUserInfo.openid
+      });
+      result1 = await result1;
+      result2 = await result2;
+      // 更新房间数据
+      this.methods.updateRoomInfoList(result1.data);
+      // 更新设备数据
+      this.methods.updateDeviceInfoList(result2.data);
+      setTimeout(() => {
+        this.loading = false;
+        this.$apply();
+      }, 100);
     }
   };
 
   watch = {
+    personUserInfo: async () => {
+      // 监听用户信息, 初始化房间与设备数据
+      if (this.personUserInfo.openid && this.deviceInfoList.length === 0 && this.roomInfoList.length === 0) {
+        this.methods.updateRoomDeviceInfoList();
+      }
+    },
     roomInfoList: () => {
       // 监听房间数据, 更新房间与设备对应的数据
       this.methods.refreshNewRoomDeviceInfoList();
     },
     deviceInfoList: () => {
+      // 监听设备数据, 更新房间与设备对应的数据
       this.methods.refreshNewRoomDeviceInfoList();
     },
     featureInfo: (newValue) => {
-      // 如果当前操作的设备不存在, 隐藏模态框
-      if (!newValue.hasOwnProperty(this.actionDeviceInfo.controlName)) {
-        console.log(newValue);
-        console.log(this.actionDeviceInfo);
-        this.methods.toggleModal(false);
-        Base.$Message({
-          content: `当前操作的设备已离线`,
-          type: 'warning',
-          duration: 3
-        });
+      if (this.actionDeviceInfo.controlName) {
+        // 如果当前操作的设备不存在, 隐藏模态框
+        if (!newValue.hasOwnProperty(this.actionDeviceInfo.controlName)) {
+          console.log(this.actionDeviceInfo);
+          this.methods.toggleModal(false);
+          Base.$Message({
+            content: `当前操作的设备已离线`,
+            type: 'warning',
+            duration: 3
+          });
+        }
       }
       // 更新温度和湿度
       if (newValue.temHum1) {
@@ -368,30 +394,28 @@ export default class Home extends wepy.page {
   };
 
   onLoad() {
-    // 更新房间列表数据
-    this.methods.updateRoomInfoList(roomStorage.getRoomList());
-    // 更新设备列表数据
-    this.methods.updateDeviceInfoList(deviceStorage.getDeviceInfoList());
-    // 初始化 webSocket 链接
-    featureSocket.initWebSocketClient(() => {
-      // 初始化 webSocket 事件
-      featureSocket.initWebSocketEventHandler(this.methods.updateFeatureInfo);
-      // 连接成功初始化数据
-      featureSocket.sendWebSocketData('INIT');
-    });
+    // 只有当数据为空才初始化 webSocket
+    if (JSON.stringify(this.featureInfo) === '{}') {
+      // 初始化 webSocket 链接
+      featureSocket.initWebSocketClient(() => {
+        // 初始化 webSocket 事件
+        featureSocket.initWebSocketEventHandler(this.methods.updateFeatureInfo);
+        // 连接成功初始化数据
+        featureSocket.sendWebSocketData('INIT');
+      });
+    }
 
-    // 开发调试数据
-    this.actionDeviceInfo = {
-      controlName: 'LED2',
-      controlValue: true,
-      icon: '/assets/images/LED.png',
-      id: '6',
-      name: '科创暖白灯2',
-      originControlName: 'LED',
-      originName: '科创暖白灯2',
-      roomId: '2',
-      roomName: '主卧'
-    };
+    // 如果有用户信息说明已经初始化, 直接取消 loading
+    if (this.personUserInfo.openid) {
+      this.loading = false;
+      this.$apply();
+    }
+    if (this.personUserInfo.openid && this.deviceInfoList.length === 0 && this.roomInfoList.length === 0) {
+      this.methods.updateRoomDeviceInfoList();
+    }
+
+    // 初始化数据
+    this.methods.refreshNewRoomDeviceInfoList();
   }
 }
 </script>
@@ -647,7 +671,7 @@ export default class Home extends wepy.page {
     }
     .loading-container {
       position: absolute;
-      top: 65px;
+      top: 0;
       right: 0;
       left: 0;
       bottom: 0;

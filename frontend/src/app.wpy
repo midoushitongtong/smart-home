@@ -16,13 +16,13 @@ export default class extends wepy.app {
   config = {
     pages: [
       'pages/home/index',
+      'pages/device/add-device-detail/index',
+      'pages/room/add-room-detail/index',
       'pages/account/person/index',
       'pages/account/sign-in/index',
       'pages/device/edit-device/index',
       'pages/device/add-device/index',
-      'pages/device/add-device-detail/index',
       'pages/device/edit-device-detail/index',
-      'pages/room/add-room-detail/index',
       'pages/room/edit-room/index',
       'pages/room/edit-room-detail/index'
     ],
@@ -73,7 +73,7 @@ export default class extends wepy.app {
     wx.login({
       success: async res => {
         // 发送 res.code 到后台换取 openId, sessionKey, unionId
-        const result = await api.account.selectSnapPersonUserInfo({
+        const result = await api.personUser.selectSnapPersonUserInfo({
           code: res.code
         });
         // 保存临时用户信息

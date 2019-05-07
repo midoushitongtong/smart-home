@@ -32,7 +32,8 @@
         type="primary"
         loading="{{loading}}"
         @tap="addDevice"
-      >保存并添加</i-button>
+      >保存并添加
+      </i-button>
     </view>
 
     <i-modal
@@ -71,7 +72,8 @@
           i-class="i-button-to-add-room"
           type="success"
           @tap="toAddRoom"
-        >添加新的房间</i-button>
+        >添加新的房间
+        </i-button>
       </view>
     </i-modal>
   </view>
@@ -82,10 +84,11 @@
 import wepy from 'wepy';
 import { connect } from 'wepy-redux';
 import Base from '../../../components/iview/base/index';
-import deviceStorage from '../../../util/device-stoage';
 import { updateDeviceInfoList } from '../../../store/feature';
+import api from '../../../api';
 
 @connect({
+  personUserInfo: (state) => state.personUser.personUserInfo,
   roomInfoList: (state) => state.feature.roomInfoList
 }, {
   updateDeviceInfoList
@@ -138,7 +141,7 @@ export default class Home extends wepy.page {
     },
     // 改变当前选中的房间
     changeRoomBuf: (e) => {
-      this.form.roomIdBuf = e.detail.value;
+      this.form.roomIdBuf = parseInt(e.detail.value);
       this.$apply();
     },
     // 模态框按钮点击事件
@@ -152,11 +155,14 @@ export default class Home extends wepy.page {
       this.methods.toggleModal(false);
     },
     // 添加设备
-    addDevice: () => {
+    addDevice: async () => {
+      if (this.loading) return;
+
       this.loading = true;
       this.$apply();
 
       const deviceInfo = {
+        openid: this.personUserInfo.openid,
         originName: this.form.originName,
         name: this.form.name || this.form.originName,
         originControlName: this.form.originControlName,
@@ -178,28 +184,40 @@ export default class Home extends wepy.page {
       }
 
       // 判断设备是否存在
-      if (!deviceStorage.existDeviceInfo(deviceInfo.controlName)) {
-        setTimeout(() => {
-          deviceStorage.addDeviceInfo(deviceInfo);
-          this.methods.updateDeviceInfoList(deviceStorage.getDeviceInfoList());
+      const result1 = await api.device.insertDevice(deviceInfo);
 
-          // 返回首页
-          setTimeout(() => {
-            wx.reLaunch({
-              url: '/pages/home/index'
-            });
-          }, 500);
-        }, 500);
-      } else {
-        setTimeout(() => {
+      if (result1.code === '0') {
+        // 更新房间列表数据
+        const result2 = await api.device.selectDeviceList({
+          openid: this.personUserInfo.openid
+        });
+        if (result2.code === '0') {
+          this.methods.updateDeviceInfoList(result2.data);
+        } else {
           Base.$Message({
-            content: '当前添加设备已存在',
+            content: result2.message,
             type: 'error'
           });
+        }
 
+        // 返回首页
+        setTimeout(() => {
           this.loading = false;
           this.$apply();
+
+          // 返回首页
+          wx.reLaunch({
+            url: '/pages/home/index'
+          });
         }, 500);
+      } else {
+        Base.$Message({
+          content: result1.message,
+          type: 'error'
+        });
+
+        this.loading = false;
+        this.$apply();
       }
     },
     // 前往添加房间页面

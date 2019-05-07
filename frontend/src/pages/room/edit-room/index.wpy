@@ -36,6 +36,7 @@
         size="small"
         i-class="i-button-to-delete-all-room"
         type="error"
+        loading="{{loading}}"
         @tap="toggleModal({{true}})"
       >删除所有房间
       </i-button>
@@ -57,11 +58,11 @@
 <script>
 import wepy from 'wepy';
 import { connect } from 'wepy-redux';
-import roomStorage from '../../../util/room-stoage';
-import deviceStorage from '../../../util/device-stoage';
 import { updateRoomInfoList, updateDeviceInfoList } from '../../../store/feature';
+import api from '../../../api';
 
 @connect({
+  personUserInfo: (state) => state.personUser.personUserInfo,
   roomInfoList: (state) => state.feature.roomInfoList,
   deviceInfoList: (state) => state.feature.deviceInfoList
 }, {
@@ -77,13 +78,14 @@ export default class Home extends wepy.page {
     newRoomInfoList: [],
     // 控制 显示/隐藏 删除所有房间确认容器
     visible: false,
+    // 删除按钮加载
+    loading: false,
     // 模态框按钮
     actions: [
       {
         name: '取消'
       },
       {
-        loading: false,
         name: '确定',
         color: '#f02517'
       }
@@ -115,31 +117,37 @@ export default class Home extends wepy.page {
       this.$apply();
     },
     // 模态框按钮点击事件
-    handlerAction: (e) => {
+    handlerAction: async (e) => {
+      if (this.loading) return;
+      this.methods.toggleModal(false);
       if (e.detail.index === 1) {
-        this.actions[1].loading = true;
-        setTimeout(() => {
-          this.newRoomInfoList.forEach(roomInfoItem => {
-            // 默认房间只删除设备
-            if (roomInfoItem.id === '1') {
-              // 删除房间设备数据
-              deviceStorage.deleteDeviceInfoByRoomId(roomInfoItem.id);
-            } else {
-              // 删除房间数据
-              roomStorage.deleteRoomInfo(roomInfoItem.id);
-              // 删除房间设备数据
-              deviceStorage.deleteDeviceInfoByRoomId(roomInfoItem.id);
-            }
+        this.loading = true;
+        this.$apply();
+
+        await Promise.all(this.newRoomInfoList.map(async (roomInfoItem) => {
+          // 删除房间
+          await api.room.deleteRoom(roomInfoItem.id, {
+            openid: this.personUserInfo.openid
           });
-          // 更新房间列表数据
-          this.methods.updateRoomInfoList(roomStorage.getRoomList());
-          // 更新设备列表数据
-          this.methods.updateDeviceInfoList(deviceStorage.getDeviceInfoList());
-          this.actions[1].loading = false;
-          this.methods.toggleModal(false);
-        }, 1000);
-      } else {
-        this.methods.toggleModal(false);
+        }));
+
+        let result1 = api.room.selectRoomList({
+          openid: this.personUserInfo.openid
+        });
+        let result2 = api.device.selectDeviceList({
+          openid: this.personUserInfo.openid
+        });
+
+        await result1;
+        await result2;
+
+        // 清空设备数据
+        this.methods.updateDeviceInfoList([]);
+        // 清空房间数据
+        this.methods.updateRoomInfoList([]);
+
+        this.loading = false;
+        this.$apply();
       }
     }
   };
@@ -204,7 +212,6 @@ export default class Home extends wepy.page {
       .i-button-to-delete-all-room {
         margin-left: 15px;
         margin-right: 15px;
-        margin-bottom: 15px;
       }
     }
 

@@ -117,11 +117,11 @@
 import wepy from 'wepy';
 import { connect } from 'wepy-redux';
 import Base from '../../../components/iview/base/index';
-import roomStorage from '../../../util/room-stoage';
-import deviceStorage from '../../../util/device-stoage';
 import { updateRoomInfoList, updateDeviceInfoList } from '../../../store/feature';
+import api from '../../../api';
 
 @connect({
+  personUserInfo: (state) => state.personUser.personUserInfo,
   deviceInfoList: (state) => state.feature.deviceInfoList
 }, {
   updateRoomInfoList,
@@ -251,11 +251,13 @@ export default class Home extends wepy.page {
       this.$apply();
     },
     // 修改房间
-    editRoom: () => {
+    editRoom: async () => {
+      if (this.loading) return;
       this.loading = true;
       this.$apply();
 
       const roomInfo = {
+        openid: this.personUserInfo.openid,
         id: this.form.id,
         name: this.form.name,
         icon: this.form.icon
@@ -273,26 +275,50 @@ export default class Home extends wepy.page {
         return;
       }
 
-      // 判断房间是否存在
-      setTimeout(() => {
-        roomStorage.editRoomInfo(roomInfo);
+      // 更新房间数据
+      await api.room.updateRoom(roomInfo.id, roomInfo);
 
-        // 更新房间列表数据
-        this.methods.updateRoomInfoList(roomStorage.getRoomList());
+      // 是否需要更新设备列表数据, 改动了才更新
+      let updateDeviceFlag = false;
+      // 更新设备列表数据
+      await Promise.all(this.newRoomDeviceInfoList.map(async (roomDeviceInfoItem) => {
+        if (!roomDeviceInfoItem.checked) {
+          updateDeviceFlag = true;
+          await api.device.deleteDevice(roomDeviceInfoItem.id, {
+            openid: this.personUserInfo.openid
+          });
+        }
+      }));
 
-        // 更新设备列表数据
-        this.newRoomDeviceInfoList.forEach(roomDeviceInfoItem => {
-          if (!roomDeviceInfoItem.checked) {
-            deviceStorage.deleteDeviceInfo(roomDeviceInfoItem.id);
-          }
+      let result1 = api.room.selectRoomList({
+        openid: this.personUserInfo.openid
+      });
+      let result2 = null;
+      if (updateDeviceFlag) {
+        result2 = api.device.selectDeviceList({
+          openid: this.personUserInfo.openid
         });
-        this.methods.updateDeviceInfoList(deviceStorage.getDeviceInfoList());
+      }
+      result1 = await result1;
+      if (updateDeviceFlag) {
+        result2 = await result2;
+      }
+      // 更新房间数据
+      this.methods.updateRoomInfoList(result1.data);
+      if (updateDeviceFlag) {
+        // 更新设备数据
+        this.methods.updateDeviceInfoList(result2.data);
+      }
+
+      setTimeout(() => {
+        this.loading = false;
+        this.$apply();
 
         // 返回上一页
         wx.navigateBack({
           delta: 1
         });
-      }, 1000);
+      }, 500);
     },
     // 显示/隐藏 删除房间确认容器
     toggleModal2: (flag) => {
@@ -314,26 +340,40 @@ export default class Home extends wepy.page {
       }
     },
     // 模态框按钮点击事件
-    handlerAction2: (e) => {
+    handlerAction2: async (e) => {
+      this.methods.toggleModal2(false);
+      if (this.loading2) return;
       if (e.detail.index === 1) {
         this.loading2 = true;
         this.$apply();
+
+        // 删除房间数据(会删除对应房间设备数据)
+        await api.room.deleteRoom(this.form.id, {
+          openid: this.personUserInfo.openid
+        });
+
+        let result1 = api.room.selectRoomList({
+          openid: this.personUserInfo.openid
+        });
+        let result2 = api.device.selectDeviceList({
+          openid: this.personUserInfo.openid
+        });
+        result1 = await result1;
+        result2 = await result2;
+        // 更新设备数据
+        this.methods.updateDeviceInfoList(result2.data);
+        // 更新房间数据
+        this.methods.updateRoomInfoList(result1.data);
+
         setTimeout(() => {
-          // 删除房间列表数据
-          roomStorage.deleteRoomInfo(this.form.id);
-          // 删除房间设备数据
-          deviceStorage.deleteDeviceInfoByRoomId(this.form.id);
-          // 更新房间列表数据
-          this.methods.updateRoomInfoList(roomStorage.getRoomList());
-          // 更新设备列表数据
-          this.methods.updateDeviceInfoList(deviceStorage.getDeviceInfoList());
+          this.loading2 = false;
+
           // 返回上一页
           wx.navigateBack({
             delta: 1
           });
-        }, 1000);
+        }, 500);
       }
-      this.methods.toggleModal2(false);
     }
   };
 
@@ -350,14 +390,14 @@ export default class Home extends wepy.page {
     if (!options.name) {
       // 开发调试数据
       roomInfo = {
-        id: '1',
+        id: 1,
         name: '客厅',
         icon: '/assets/images/living.png',
         iconBuf: '/assets/images/living.png'
       };
     } else {
       roomInfo = {
-        id: options.id,
+        id: parseInt(options.id),
         name: options.name,
         icon: options.icon,
         iconBuf: options.icon

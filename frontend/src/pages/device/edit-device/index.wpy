@@ -41,6 +41,7 @@
       <i-button
         i-class="i-button-to-delete-device"
         type="error"
+        loading="{{loading}}"
         @tap="toggleModal({{true}})"
       >删除所有设备
       </i-button>
@@ -62,10 +63,11 @@
 <script>
 import wepy from 'wepy';
 import { connect } from 'wepy-redux';
-import deviceStorage from '../../../util/device-stoage';
 import { updateDeviceInfoList } from '../../../store/feature';
+import api from '../../../api';
 
 @connect({
+  personUserInfo: (state) => state.personUser.personUserInfo,
   roomInfoList: (state) => state.feature.roomInfoList,
   deviceInfoList: (state) => state.feature.deviceInfoList
 }, {
@@ -78,14 +80,16 @@ export default class Home extends wepy.page {
 
   data = {
     newRoomDeviceInfoList: [],
+    // 控制 显示/隐藏 删除所有房间确认容器
     visible: false,
+    // 删除按钮加载
+    loading: false,
     // 模态框按钮
     actions: [
       {
         name: '取消'
       },
       {
-        loading: false,
         name: '确定',
         color: '#f02517'
       }
@@ -117,21 +121,27 @@ export default class Home extends wepy.page {
       this.$apply();
     },
     // 模态框按钮点击事件
-    handlerAction: (e) => {
+    handlerAction: async (e) => {
+      this.methods.toggleModal(false);
+      if (this.loading) return;
       if (e.detail.index === 1) {
-        this.actions[1].loading = true;
-        setTimeout(() => {
-          this.roomInfoList.forEach(roomInfoItem => {
-            // 删除设备数据
-            deviceStorage.deleteDeviceInfoByRoomId(roomInfoItem.id);
+        this.loading = true;
+        this.$apply();
+
+        await Promise.all(this.deviceInfoList.map(async (deviceInfoItem) => {
+          // 删除设备
+          await api.device.deleteDevice(deviceInfoItem.id, {
+            openid: this.personUserInfo.openid
           });
-          // 更新设备列表数据
-          this.methods.updateDeviceInfoList(deviceStorage.getDeviceInfoList());
-          this.actions[1].loading = false;
-          this.methods.toggleModal(false);
-        }, 1000);
-      } else {
-        this.methods.toggleModal(false);
+        }));
+
+        // 更新设备列表数据
+        let result = await api.device.selectDeviceList({
+          openid: this.personUserInfo.openid
+        });
+        this.methods.updateDeviceInfoList(result.data);
+        this.loading = false;
+        this.$apply();
       }
     }
   };
