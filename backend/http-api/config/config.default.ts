@@ -6,9 +6,27 @@ export default (appInfo: EggAppInfo) => {
   // override config from framework / plugin
   // use for cookie sign key, should change to your own and keep security
   config.keys = appInfo.name + '_1557112063357_5149';
+  config.security = {
+    csrf: {
+      enable: false
+    },
+  };
 
   // add your egg config in here
-  config.middleware = [];
+  config.middleware = [
+    'errorHandler'
+  ];
+
+  // sequelize config in here
+  config.sequelize = {
+    dialect: 'mysql',
+    host: '127.0.0.1',
+    port: 3306,
+    database: 'smart_home',
+    username: 'root',
+    password: '123456',
+    timezone: '+08:00'
+  };
 
   // add your special config in here
   const bizConfig = {

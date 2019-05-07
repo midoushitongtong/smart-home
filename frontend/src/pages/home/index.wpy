@@ -3,8 +3,7 @@
     <view class="home-info-container">
       <view class="top">
         <view class="home-name">
-          <open-data type="userNickName"></open-data>
-          <text>的家</text>
+          <text wx:if="{{personUserInfo.userInfo !== undefined}}">{{personUserInfo.userInfo.nickName}}的家</text>
         </view>
         <!-- 添加设备按钮 -->
         <view
@@ -13,24 +12,31 @@
         >+
         </view>
       </view>
-      <view class="bottom" wx:if="{{!loading}}">
-        <view class="tem" wx:if="{{temHum1.tem}}">室内温度<view class="number">{{temHum1.tem}}°</view></view>
-        <view class="tem" wx:if="{{temHum1.hum}}">室内湿度<view class="number">{{temHum1.hum}}°</view></view>
+      <view class="bottom" wx:if="{{!loading && personUserInfo.userInfo !== undefined}}">
+        <view class="tem" wx:if="{{temHum1.tem}}">室内温度
+          <view class="number">{{temHum1.tem}}°</view>
+        </view>
+        <view class="tem" wx:if="{{temHum1.hum}}">室内湿度
+          <view class="number">{{temHum1.hum}}°</view>
+        </view>
       </view>
     </view>
     <view class="room-device-container" wx:if="{{!loading}}">
       <!-- 房间信息 -->
       <view class="room-info-list-container">
-        <scroll-view class="scroll-view" scroll-x>
+        <scroll-view class="scroll-view" scroll-x wx:if="{{personUserInfo.userInfo !== undefined}}">
           <repeat for="{{newRoomDeviceInfoList}}" key="index" index="index" item="item">
             <view class="room-name {{index === current ? 'active' : ''}}" @tap="changeCurrent({{index}})">
               {{item.name}}
             </view>
           </repeat>
         </scroll-view>
+        <scroll-view class="scroll-view" scroll-x wx:else>
+          <view class="room-name active">我的设备</view>
+        </scroll-view>
       </view>
       <!-- 房间对应的设备信息 -->
-      <view class="device-info-list">
+      <view class="device-info-list" wx:if="{{personUserInfo.userInfo !== undefined}}">
         <swiper style="height: {{swiperHeight}}" current="{{current}}" bindchange="chaneScroll">
           <repeat for="{{newRoomDeviceInfoList}}" key="index" index="index" item="item">
             <swiper-item>
@@ -94,6 +100,10 @@
             </swiper-item>
           </repeat>
         </swiper>
+      </view>
+      <view class="to-sign-in-tooltip" @tap="toSignIn" wx:else>
+        <view class="bold">立即登陆</view>
+        <view>开启您的智能生活</view>
       </view>
     </view>
     <view class="loading-container" wx:else>
@@ -181,6 +191,7 @@ import deviceStorage from '../../util/device-stoage';
 import { updateFeatureInfo, updateRoomInfoList, updateDeviceInfoList } from '../../store/feature';
 
 @connect({
+  personUserInfo: (state) => state.personUser.personUserInfo,
   featureInfo: (state) => state.feature.featureInfo,
   roomInfoList: (state) => state.feature.roomInfoList,
   deviceInfoList: (state) => state.feature.deviceInfoList
@@ -219,9 +230,14 @@ export default class Home extends wepy.page {
   methods = {
     // 前往签加设备页面
     addFeature: () => {
-      wx.navigateTo({
-        url: '/pages/device/add-device/index'
-      });
+      if (this.personUserInfo.userInfo !== undefined) {
+        wx.navigateTo({
+          url: '/pages/device/add-device/index'
+        });
+      } else {
+        // 未登录, 跳转登陆
+        this.methods.toSignIn();
+      }
     },
     // 刷新房间与设备对应的数据
     refreshNewRoomDeviceInfoList: () => {
@@ -237,9 +253,9 @@ export default class Home extends wepy.page {
           roomInfoItem.deviceInfoList = newDeviceInfoList.filter(deviceInfoItem => deviceInfoItem.roomId === roomInfoItem.id);
           return roomInfoItem;
         });
-        // 全部设备显示全部设备
+        // 我的设备显示全部设备
         newRoomDeviceInfoList.unshift({
-          name: '全部设备',
+          name: '我的设备',
           deviceInfoList: newDeviceInfoList
         });
 
@@ -252,7 +268,7 @@ export default class Home extends wepy.page {
         } else {
           this.swiperHeight = '115px';
         }
-      }, 500);
+      }, 50);
     },
     // 改变轮播图当前的索引
     changeCurrent: (index) => {
@@ -312,6 +328,12 @@ export default class Home extends wepy.page {
         default:
           console.log('未知 originControlName');
       }
+    },
+    // 前往登陆页面
+    toSignIn: () => {
+      wx.navigateTo({
+        url: '/pages/account/sign-in/index'
+      });
     }
   };
 
@@ -382,12 +404,12 @@ export default class Home extends wepy.page {
       background-color: #fff;
       box-shadow: 0 1px 10px rgba(0, 0, 0, .1);
       .top {
-        height: 65px;
+        height: 55px;
         display: flex;
         align-items: center;
         justify-content: space-between;
         .home-name {
-          font-size: ~"35rpx";
+          font-size: 19px;
           font-weight: bold;
           letter-spacing: 1px;
           color: #40a9ff;
@@ -412,11 +434,11 @@ export default class Home extends wepy.page {
         .hum {
           display: flex;
           align-items: center;
-          font-size: ~"30rpx";
+          font-size: 13px;
           color: #40a9ff;
           opacity: .9;
           .number {
-            font-size: ~"35rpx";
+            font-size: 15px;
             margin-left: 5px;
             font-weight: bold;
           }
@@ -439,7 +461,7 @@ export default class Home extends wepy.page {
           view {
             display: inline-block;
             padding: 10px;
-            font-size: ~"29rpx";
+            font-size: 13px;
             color: #888;
             &.active {
               color: #40a9ff;
@@ -480,13 +502,15 @@ export default class Home extends wepy.page {
                 .name-room-name {
                   display: flex;
                   justify-content: space-between;
+                  height: 50px;
+                  box-sizing: border-box;
                   padding: 15px;
                   .name {
                     max-width: 65%;
                     overflow: hidden;
                     white-space: nowrap;
                     text-overflow: ellipsis;
-                    font-size: ~"30rpx";
+                    font-size: 13px;
                   }
                   .room-name {
                     max-width: 35%;
@@ -505,6 +529,8 @@ export default class Home extends wepy.page {
                   display: flex;
                   justify-content: space-between;
                   align-items: center;
+                  height: 65px;
+                  box-sizing: border-box;
                   padding: 5px 15px 15px;
                   .image {
                     image {
@@ -599,9 +625,29 @@ export default class Home extends wepy.page {
         }
       }
     }
+    .to-sign-in-tooltip {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 105px;
+      margin-top: 10px;
+      margin-right: 10px;
+      margin-left: 10px;
+      border-radius: 10px;
+      font-size: 13px;
+      color: #999;
+      background-color: #fff;
+      .bold {
+        margin-bottom: 5px;
+        font-weight: bold;
+        font-size: 14px;
+        color: #333;
+      }
+    }
     .loading-container {
       position: absolute;
-      top: 75px;
+      top: 65px;
       right: 0;
       left: 0;
       bottom: 0;

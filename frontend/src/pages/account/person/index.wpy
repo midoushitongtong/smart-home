@@ -1,13 +1,13 @@
 <template>
   <view class="person-container">
-    <view class="user-info-container" wx:if="{{userInfo !== null}}">
+    <view class="user-info-container" wx:if="{{personUserInfo.userInfo !== undefined}}">
       <view class="user-info-avatar">
-        <image src="{{userInfo.userInfo.avatarUrl}}"></image>
+        <image src="{{personUserInfo.userInfo.avatarUrl}}"></image>
       </view>
-      <view class="user-info-nickname">{{userInfo.userInfo.nickName}}</view>
+      <view class="user-info-nickname">{{personUserInfo.userInfo.nickName}}</view>
     </view>
     <view class="sign-tooltip-container" wx:else>
-      <view class="tooltip-text" @tap="toSignIn">马上登陆, 开启生活</view>
+      <view class="tooltip-text" @tap="toSignIn">立即登陆, 开启您的智能生活</view>
       <button class="tooltip-button" @tap="toSignIn">登陆/注册</button>
     </view>
     <view class="function-list">
@@ -36,7 +36,7 @@ import wepy from 'wepy';
 import { connect } from 'wepy-redux';
 
 @connect({
-  userInfo: (state) => state.account.userInfo
+  personUserInfo: (state) => state.personUser.personUserInfo
 }, {})
 export default class Person extends wepy.page {
   config = {
@@ -46,7 +46,7 @@ export default class Person extends wepy.page {
   methods = {
     // 功能项点击
     handlerFunctionItemClick: (e) => {
-      if (this.userInfo !== null) {
+      if (this.personUserInfo.userInfo !== undefined) {
         wx.navigateTo({
           url: e.target.dataset.url
         });
@@ -72,15 +72,15 @@ export default class Person extends wepy.page {
       display: flex;
       align-items: center;
       justify-content: center;
-      padding-top: ~"25rpx";
-      padding-bottom: ~"115rpx";
+      padding-top: 15px;
+      padding-bottom: 95px;
       height: 75px;
       background: linear-gradient(#40a9ff, 80%, #f3f3f3);
       .user-info-avatar {
         overflow: hidden;
         display: flex;
-        width: ~"115rpx";
-        height: ~"115rpx";
+        width: 65px;
+        height: 65px;
         margin-right: 10px;
         border-radius: 50%;
         image {
@@ -98,14 +98,14 @@ export default class Person extends wepy.page {
       justify-content: center;
       flex-direction: column;
       height: 75px;
-      padding-top: ~"25rpx";
-      padding-bottom: ~"115rpx";
+      padding-top: 15px;
+      padding-bottom: 95px;
       background: linear-gradient(#40a9ff, 80%, #f3f3f3);
       .tooltip-text {
         text-align: center;
         color: #fff;
-        font-size: 16px;
-        margin-bottom: ~"35rpx";
+        font-size: 14px;
+        margin-bottom: 15px;
       }
       .tooltip-button {
         border-radius: 50px;

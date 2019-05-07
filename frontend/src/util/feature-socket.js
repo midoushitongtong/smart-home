@@ -11,7 +11,7 @@ const featureSocket = {
   // 初始化 webSocket 连接
   initWebSocketClient: (successCallback) => {
     wx.connectSocket({
-      url: config.WEB_SOCKET_ROOT,
+      url: config.API_WEB_SOCKET_ROOT,
       success: () => {
         console.info('==webSocket server connect success');
       },

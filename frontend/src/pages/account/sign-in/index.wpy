@@ -5,6 +5,7 @@
     </view>
     <view class="action-container">
       <i-button
+        loading="{{loading}}"
         i-class="i-button-wechat-sign-in"
         type="success"
         @getuserinfo="wechatSignIn"
@@ -13,31 +14,59 @@
       </i-button>
     </view>
   </view>
+  <i-message id="message"/>
 </template>
 
 <script>
 import wepy from 'wepy';
-import { updateUserInfo } from '../../../store/account';
+import { updatePersonUserInfo } from '../../../store/person-user';
+import Base from '../../../components/iview/base/index';
 import { connect } from 'wepy-redux';
+import api from '../../../api';
 
-@connect({}, {
-  updateUserInfo
+@connect({
+  personUserInfo: (state) => state.personUser.personUserInfo
+}, {
+  updatePersonUserInfo
 })
 export default class Person extends wepy.page {
   config = {
     navigationBarTitleText: '登陆账号'
   };
 
+  data = {
+    // 登陆加载状态
+    loading: false
+  };
+
   methods = {
     // 微信登陆
-    wechatSignIn: (e) => {
+    wechatSignIn: async (e) => {
       if (e.detail.userInfo !== undefined) {
+        if (this.loading) return;
+        this.loading = true;
+        this.$apply();
         // 保存用户信息到 redux
-        this.methods.updateUserInfo(e.detail);
-        // 回退上一页
-        wx.navigateBack({
-          delta: 1
+        this.methods.updatePersonUserInfo(e.detail);
+        // 将用户信息保存到数据库
+        const result = await api.account.savePersonUserInfo({
+          openid: this.personUserInfo.openid,
+          nickName: this.personUserInfo.userInfo.nickName,
+          avatarUrl: this.personUserInfo.userInfo.avatarUrl
         });
+        this.loading = false;
+        this.$apply();
+        if (result.code === '0') {
+          // 回退上一页
+          wx.navigateBack({
+            delta: 1
+          });
+        } else {
+          Base.$Message({
+            content: '登陆失败!',
+            type: 'error'
+          });
+        }
       }
     }
   };

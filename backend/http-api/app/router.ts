@@ -1,7 +1,10 @@
 import { Application } from 'egg';
+import { EggShell } from 'egg-shell-decorators';
 
 export default (app: Application) => {
-  const { controller, router } = app;
-
-  router.get('/', controller.home.index);
+  // option 详细配置参考下一节
+  EggShell(app, {
+    prefix: '/',
+    quickStart: false
+  });
 };

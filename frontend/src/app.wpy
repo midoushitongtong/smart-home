@@ -3,27 +3,28 @@ import wepy from 'wepy';
 import 'wepy-async-function';
 import { setStore, connect } from 'wepy-redux';
 import configStore from './store';
-import { updateUserInfo } from './store/account';
+import { updatePersonUserInfo } from './store/person-user';
+import api from './api';
 
 const store = configStore();
 setStore(store);
 
 @connect({}, {
-  updateUserInfo
+  updatePersonUserInfo
 })
 export default class extends wepy.app {
   config = {
     pages: [
-      'pages/account/person/index',
       'pages/home/index',
+      'pages/account/person/index',
+      'pages/account/sign-in/index',
       'pages/device/edit-device/index',
       'pages/device/add-device/index',
       'pages/device/add-device-detail/index',
       'pages/device/edit-device-detail/index',
       'pages/room/add-room-detail/index',
       'pages/room/edit-room/index',
-      'pages/room/edit-room-detail/index',
-      'pages/account/sign-in/index'
+      'pages/room/edit-room-detail/index'
     ],
     window: {
       backgroundTextStyle: 'light',
@@ -70,9 +71,17 @@ export default class extends wepy.app {
   onLaunch() {
     // 登录
     wx.login({
-      success: res => {
-        console.log(res);
+      success: async res => {
         // 发送 res.code 到后台换取 openId, sessionKey, unionId
+        const result = await api.account.selectSnapPersonUserInfo({
+          code: res.code
+        });
+        // 保存临时用户信息
+        if (result.code === '0') {
+          this.methods.updatePersonUserInfo(result.data);
+        } else {
+          console.error('获取临时用户信息失败');
+        }
       }
     });
     wx.getSetting({
@@ -81,9 +90,8 @@ export default class extends wepy.app {
           // 已经授权，可以直接调用 getUserInfo 获取头像昵称，不会弹框
           wx.getUserInfo({
             success: res => {
-              console.log(res);
               // 保存用户信息
-              this.methods.updateUserInfo(res);
+              this.methods.updatePersonUserInfo(res);
               // 可以将 res 发送给后台解码出 unionId
               // 由于 getUserInfo 是网络请求，可能会在 Page.onLoad 之后才返回
               // 所以此处加入 callback 以防止这种情况
