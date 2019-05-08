@@ -61,10 +61,16 @@ export default class PersonUser extends Service {
     }
   }
 
+  /**
+   * 查询分页列表
+   *
+   * @param data
+   */
   public async selectPersonUserList(data: any) {
     const { app } = this;
     // 计算分页偏移量
-    data.offset = (data.offset - 1) * data.limit;
+    const offset = (data.page - 1) * data.pageSize;
+    const limit = data.pageSize;
 
     // 生成查询条件
     const condition: any = {};
@@ -75,10 +81,40 @@ export default class PersonUser extends Service {
         }
       };
     }
-    condition.offset = data.offset;
-    condition.limit = data.limit;
+    condition.offset = offset;
+    condition.limit = limit;
 
     // 返回查询数据
-    return await app.model.PersonUser.findAndCountAll(condition);
+    const result: any = await app.model.PersonUser.findAndCountAll(condition);
+    result.page = data.page;
+    result.pageSize = data.pageSize;
+    return result;
+  }
+
+  /**
+   * 查询用户房价与设备信息
+   *
+   * @param openid
+   */
+  public async selectPersonUserRoomAndDeviceList(openid: string) {
+    const { app } = this;
+    let roomList: any = await app.model.Room.findAll({
+      where: {
+        openid: {
+          [Op.eq]: openid
+        }
+      }
+    });
+    roomList= await Promise.all(roomList.map(async (roomItem: any) => {
+      roomItem.dataValues.deviceList = await app.model.Device.findAll({
+        where: {
+          roomId: {
+            [Op.eq]: roomItem.id
+          }
+        }
+      });
+      return roomItem;
+    }));
+    return roomList;
   }
 }

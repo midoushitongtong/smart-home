@@ -42,7 +42,7 @@ export default class ManageUserController extends Controller {
     // 获取登陆的管理员信息
     const { ctx } = this;
     const id = ctx.session.manageUserId;
-    if (id !== undefined) {
+    if (id) {
       console.log(id);
       const manageUser = await ctx.service.manageUser.selectManagerUserById(id);
       ctx.body = {
@@ -52,7 +52,7 @@ export default class ManageUserController extends Controller {
     } else {
       ctx.body = {
         code: '1001',
-        message: '管理员用户未登录'
+        message: '登陆凭证已失效'
       };
     }
   }

@@ -1,7 +1,7 @@
 import account from './account';
-import person from './person';
+import personUser from './person-user';
 
 export default {
   account,
-  person
+  personUser
 };

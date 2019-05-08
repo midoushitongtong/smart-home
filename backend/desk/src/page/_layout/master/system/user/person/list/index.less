@@ -1,0 +1,51 @@
+.person-list-container {
+
+}
+
+.person-user-room-device-modal {
+  .user-base-info {
+    display: flex;
+    align-items: center;
+    img {
+      max-width: 55px;
+      margin-right: 10px;
+    }
+    span {
+      font-size: 14px;
+      color: #555;
+    }
+  }
+  .room-list-container {
+    .room-base-info {
+      border-bottom: 1px solid #e1e1e1;
+      padding: 5px 0 5px;
+    }
+    .device-list-container {
+      padding-left: 41px;
+      & > .device-item:last-child {
+        .device-base-info {
+          border-bottom: 0;
+        }
+      }
+      .device-base-info {
+        padding: 5px 0 5px;
+        border-bottom: 1px solid #e1e1e1;
+      }
+    }
+    img {
+      max-width: 35px;
+      padding: 5px;
+      margin-right: 10px;
+      border: 1px solid #e1e1e1;
+    }
+    span {
+      font-size: 13px;
+      color: #555;
+    }
+  }
+  .modal-loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}

@@ -54,7 +54,7 @@ export default class DeviceController extends Controller {
   }
 
   @Delete('/:id')
-  public async deleteDevice({params: {id}}) {
+  public async deleteDevice({ params: { id } }) {
     const { ctx } = this;
     const { body } = ctx.request;
     const data = {

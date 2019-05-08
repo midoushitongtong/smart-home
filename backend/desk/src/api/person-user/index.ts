@@ -7,9 +7,9 @@ import config from '../../config';
  */
 interface Api {
   // 获取多条记录
-  selectPersonList: (data: any) => object,
+  selectPersonUserList: (data: any) => object,
   // 获取单条记录
-  selectPersonById: (id: any) => object;
+  selectPersonUserRoomDeviceList: (id: any) => object;
 }
 
 /**
@@ -17,17 +17,18 @@ interface Api {
  *
  */
 const api: Api = {
-  selectPersonList(data: any): object {
+  selectPersonUserList(data: any): object {
     return ajax(
       'GET',
-      `${config.API_ROOT}/person-user/list`,
+      `${config.API_ROOT}/back-desk/person-user`,
       data
     );
   },
-  selectPersonById(id: any): object {
+  selectPersonUserRoomDeviceList(data): object {
     return ajax(
       'GET',
-      `${config.API_ROOT}/person-user/${id}`
+      `${config.API_ROOT}/back-desk/person-user/room-device`,
+      data
     );
   }
 };

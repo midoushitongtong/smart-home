@@ -46,7 +46,7 @@ export default class RoomController extends Controller {
   }
 
   @Delete('/:id')
-  public async deleteRoom({params: {id}}) {
+  public async deleteRoom({ params: { id } }) {
     const { ctx } = this;
     const { body } = ctx.request;
     const data = {
