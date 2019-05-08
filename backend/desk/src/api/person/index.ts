@@ -10,12 +10,6 @@ interface Api {
   selectPersonList: (data: any) => object,
   // 获取单条记录
   selectPersonById: (id: any) => object;
-  // 新增
-  insertPerson: (data: any) => object;
-  // 修改
-  updatePersonById: (id: any, data: any) => object;
-  // 删除
-  deletePersonById: (id: any) => object;
 }
 
 /**
@@ -26,34 +20,14 @@ const api: Api = {
   selectPersonList(data: any): object {
     return ajax(
       'GET',
-      `${config.API_ROOT}/person`,
+      `${config.API_ROOT}/person-user/list`,
       data
     );
   },
   selectPersonById(id: any): object {
     return ajax(
       'GET',
-      `${config.API_ROOT}/person/${id}`
-    );
-  },
-  insertPerson(data: any): object {
-    return ajax(
-      'POST',
-      `${config.API_ROOT}/person`,
-      data
-    );
-  },
-  updatePersonById(id: any, data: any): object {
-    return ajax(
-      'PUT',
-      `${config.API_ROOT}/person/${id}`,
-      data
-    );
-  },
-  deletePersonById(id: any): object {
-    return ajax(
-      'DELETE',
-      `${config.API_ROOT}/person/${id}`
+      `${config.API_ROOT}/person-user/${id}`
     );
   }
 };

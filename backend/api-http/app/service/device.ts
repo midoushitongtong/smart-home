@@ -16,7 +16,9 @@ export default class Device extends Service {
     const { app } = this;
     return await app.model.Device.findAll({
       where: {
-        openid: openid
+        openid: {
+          [Op.eq]: openid
+        }
       }
     });
   }

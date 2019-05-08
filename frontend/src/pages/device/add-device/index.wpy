@@ -92,7 +92,7 @@ import { updateDeviceInfoList } from '../../../store/feature';
 import api from '../../../api';
 
 @connect({
-  personUserInfo: (state) => state.personUser.personUserInfo,
+  userInfo: (state) => state.account.userInfo,
   roomInfoList: (state) => state.feature.roomInfoList,
   deviceInfoList: (state) => state.feature.deviceInfoList,
   featureInfo: (state) => state.feature.featureInfo
@@ -226,7 +226,7 @@ export default class Home extends wepy.page {
         this.$apply();
 
         await Promise.all(this.nearbyDeviceList.map(async (nearbyDeviceListItem) => {
-          nearbyDeviceListItem.openid = this.personUserInfo.openid;
+          nearbyDeviceListItem.openid = this.userInfo.openid;
           nearbyDeviceListItem.roomId = this.form.roomId;
           nearbyDeviceListItem.name = nearbyDeviceListItem.originName;
           // 添加设备
@@ -235,7 +235,7 @@ export default class Home extends wepy.page {
 
         // 刷新列表数据
         const result = await api.device.selectDeviceList({
-          openid: this.personUserInfo.openid
+          openid: this.userInfo.openid
         });
         this.methods.updateDeviceInfoList(result.data);
 
@@ -254,6 +254,8 @@ export default class Home extends wepy.page {
     },
     // 前往添加房间页面
     toAddRoom: () => {
+      // 在加载直接 return
+      if (this.actions[0].loading) return;
       wx.navigateTo({
         url: '/pages/room/add-room-detail/index'
       });

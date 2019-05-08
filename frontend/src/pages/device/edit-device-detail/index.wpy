@@ -105,7 +105,7 @@ import { updateDeviceInfoList } from '../../../store/feature/index';
 import api from '../../../api';
 
 @connect({
-  personUserInfo: (state) => state.personUser.personUserInfo,
+  userInfo: (state) => state.account.userInfo,
   roomInfoList: (state) => state.feature.roomInfoList
 }, {
   updateDeviceInfoList
@@ -192,7 +192,7 @@ export default class Home extends wepy.page {
       this.$apply();
 
       const deviceInfo = {
-        openid: this.personUserInfo.openid,
+        openid: this.userInfo.openid,
         id: this.form.id,
         originName: this.form.originName,
         name: this.form.name || this.form.originName,
@@ -219,7 +219,7 @@ export default class Home extends wepy.page {
 
       // 更新设备列表数据
       const result = await api.device.selectDeviceList({
-        openid: this.personUserInfo.openid
+        openid: this.userInfo.openid
       });
       this.methods.updateDeviceInfoList(result.data);
 
@@ -250,11 +250,11 @@ export default class Home extends wepy.page {
         this.$apply();
         // 删除设备数据
         await api.device.deleteDevice(this.form.id, {
-          openid: this.personUserInfo.openid
+          openid: this.userInfo.openid
         });
         // 更新设备列表数据
         const result = await api.device.selectDeviceList({
-          openid: this.personUserInfo.openid
+          openid: this.userInfo.openid
         });
         this.methods.updateDeviceInfoList(result.data);
         // 返回上一页
@@ -290,7 +290,7 @@ export default class Home extends wepy.page {
       deviceInfo.controlName = options.controlName;
       deviceInfo.icon = options.icon;
       deviceInfo.roomId = parseInt(options.roomId);
-      deviceInfo.roomIdBuf = options.roomId;
+      deviceInfo.roomIdBuf = parseInt(options.roomId);
     }
     deviceInfo.roomName = this.roomInfoList.find(roomInfoItem => roomInfoItem.id === deviceInfo.roomId).name;
     // 动态设置标题

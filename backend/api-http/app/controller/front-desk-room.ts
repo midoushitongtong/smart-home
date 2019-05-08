@@ -1,7 +1,7 @@
 import { Controller } from 'egg';
 import { Prefix, Get, Post, Put, Delete } from 'egg-shell-decorators';
 
-@Prefix('/room')
+@Prefix('/front-desk/room')
 export default class RoomController extends Controller {
   @Get('/')
   public async selectRoomList() {

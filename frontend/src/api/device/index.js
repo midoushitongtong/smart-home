@@ -9,7 +9,7 @@ export default {
     return new Promise((resolve, reject) => {
       wx.request({
         method: 'GET',
-        url: `${config.API_HTTP_ROOT}/device`,
+        url: `${config.API_HTTP_ROOT}/front-desk/device`,
         data,
         success: (res) => {
           if (res && res.statusCode === 200) {
@@ -29,7 +29,7 @@ export default {
     return new Promise((resolve, reject) => {
       wx.request({
         method: 'POST',
-        url: `${config.API_HTTP_ROOT}/device`,
+        url: `${config.API_HTTP_ROOT}/front-desk/device`,
         data,
         success: (res) => {
           if (res && res.statusCode === 200) {
@@ -49,7 +49,7 @@ export default {
     return new Promise((resolve, reject) => {
       wx.request({
         method: 'DELETE',
-        url: `${config.API_HTTP_ROOT}/device/${id}`,
+        url: `${config.API_HTTP_ROOT}/front-desk/device/${id}`,
         data,
         success: (res) => {
           if (res && res.statusCode === 200) {
@@ -69,7 +69,7 @@ export default {
     return new Promise((resolve, reject) => {
       wx.request({
         method: 'PUT',
-        url: `${config.API_HTTP_ROOT}/device/${id}`,
+        url: `${config.API_HTTP_ROOT}/front-desk/device/${id}`,
         data,
         success: (res) => {
           if (res && res.statusCode === 200) {

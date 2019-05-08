@@ -7,7 +7,7 @@ import { FormComponentProps } from 'antd/lib/form';
 import NProgress from 'nprogress';
 import { AppState } from '../../../../../store';
 import { updateUserInfo } from '../../../../../store/account';
-// import api from '../../../../../api';
+import api from '../../../../../api';
 import './index.less';
 
 // 当前组件的类型声明
@@ -23,6 +23,8 @@ interface Props extends ConnectState, ConnectDispatch, RouteConfigComponentProps
 }
 
 interface State {
+  // 表单默认值
+  formInitialValue: any;
 }
 
 // 当前组件类
@@ -38,6 +40,16 @@ export default compose<React.ComponentClass>(
   )
 )(
   class LayoutMasterAccountSignIn extends React.Component<Props, State> {
+    constructor(props: Props) {
+      super(props);
+      this.state = {
+        formInitialValue: {
+          userName: 'tidc',
+          password: '123456'
+        }
+      }
+    }
+
     public componentDidMount = (): void => {
       // 鼠标移动效果
       new (window as any).Parallax(document.querySelector('.parallax-container'));
@@ -54,10 +66,9 @@ export default compose<React.ComponentClass>(
       props.form.validateFields(async (error, valueList) => {
         if (!error) {
           NProgress.start();
-          // const result = await api.account.signIn(valueList);
+          const result: any = await api.account.signIn(valueList);
           // 写死结果集
-          const result: any = { "code": "0", "data": { "id": 1, "username": "admin", "password": "123456" } };
-          if (parseInt(result.code) === 0) {
+          if (result.code === '0') {
             // 保存用户信息
             props.updateUserInfo(result.data);
             // 跳转
@@ -78,7 +89,7 @@ export default compose<React.ComponentClass>(
     };
 
     public render = (): JSX.Element => {
-      const { props } = this;
+      const { props, state } = this;
       return (
         <section className="account-sign-in-container">
           {/* 视察容器 */}
@@ -95,8 +106,8 @@ export default compose<React.ComponentClass>(
               </section>
               <Form onSubmit={this.handleSubmit}>
                 <Form.Item>
-                  {props.form.getFieldDecorator('username', {
-                    initialValue: 'admin',
+                  {props.form.getFieldDecorator('userName', {
+                    initialValue: state.formInitialValue.userName,
                     rules: [
                       { required: true, message: '请输入用户名!' }
                     ]
@@ -109,7 +120,7 @@ export default compose<React.ComponentClass>(
                 </Form.Item>
                 <Form.Item>
                   {props.form.getFieldDecorator('password', {
-                    initialValue: '123456',
+                    initialValue: state.formInitialValue.password,
                     rules: [
                       { required: true, message: '请输入密码!' }
                     ]

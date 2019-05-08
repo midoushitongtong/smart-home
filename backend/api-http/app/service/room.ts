@@ -16,20 +16,9 @@ export default class Room extends Service {
     const { app } = this;
     return await app.model.Room.findAll({
       where: {
-        openid: openid
-      }
-    });
-  }
-  /**
-   * 查询房间
-   *
-   * @param id
-   */
-  public async selectRoomDetailById(id: string) {
-    const { app } = this;
-    return await app.model.Room.findOne({
-      where: {
-        id
+        openid: {
+          [Op.eq]: openid
+        }
       }
     });
   }

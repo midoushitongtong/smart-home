@@ -67,7 +67,7 @@ import { updateDeviceInfoList } from '../../../store/feature';
 import api from '../../../api';
 
 @connect({
-  personUserInfo: (state) => state.personUser.personUserInfo,
+  userInfo: (state) => state.account.userInfo,
   roomInfoList: (state) => state.feature.roomInfoList,
   deviceInfoList: (state) => state.feature.deviceInfoList
 }, {
@@ -131,13 +131,13 @@ export default class Home extends wepy.page {
         await Promise.all(this.deviceInfoList.map(async (deviceInfoItem) => {
           // 删除设备
           await api.device.deleteDevice(deviceInfoItem.id, {
-            openid: this.personUserInfo.openid
+            openid: this.userInfo.openid
           });
         }));
 
         // 更新设备列表数据
         let result = await api.device.selectDeviceList({
-          openid: this.personUserInfo.openid
+          openid: this.userInfo.openid
         });
         this.methods.updateDeviceInfoList(result.data);
         this.loading = false;

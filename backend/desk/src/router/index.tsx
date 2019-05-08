@@ -22,7 +22,6 @@ import LayoutMasterSystemHomeWelcome from '../page/_layout/master/system/home/we
 // 个人用户
 import LayoutMasterSystemUserPerson from '../page/_layout/master/system/user/person';
 import LayoutMasterSystemUserPersonList from '../page/_layout/master/system/user/person/list';
-import LayoutMasterSystemUserPersonOperator from '../page/_layout/master/system/user/person/operator';
 
 // 懒加载模块
 // 仪表盘
@@ -111,16 +110,6 @@ export default class Router extends React.Component<Props, State> {
                           path: '/system/user/person/list',
                           component: LayoutMasterSystemUserPersonList,
                           breadcrumb: '列表'
-                        },
-                        {
-                          path: '/system/user/person/operator/:id',
-                          component: LayoutMasterSystemUserPersonOperator,
-                          breadcrumb: '编辑'
-                        },
-                        {
-                          path: '/system/user/person/operator',
-                          component: LayoutMasterSystemUserPersonOperator,
-                          breadcrumb: '添加'
                         }
                       ]
                     }

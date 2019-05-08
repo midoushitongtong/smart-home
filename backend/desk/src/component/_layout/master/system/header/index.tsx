@@ -9,6 +9,7 @@ import NProgress from 'nprogress';
 import { toggleSystemSidebarIsCollapse } from '../../../../../store/system-style';
 import { clearAccountState } from '../../../../../store/account';
 import { AppState } from '../../../../../store';
+import api from '../../../../../api';
 import './index.less';
 
 // 当前组件的类型声明
@@ -52,7 +53,7 @@ export default compose<React.ComponentClass>(
     public signOut = async () => {
       const { props } = this;
       NProgress.start();
-      // await api.account.signOut();
+      await api.account.signOut();
       // 清空用户状态
       props.clearAccountState();
       // 跳转

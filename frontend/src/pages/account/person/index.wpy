@@ -1,10 +1,10 @@
 <template>
   <view class="person-container">
-    <view class="user-info-container" wx:if="{{personUserInfo.userInfo !== undefined}}">
+    <view class="user-info-container" wx:if="{{userInfo.userInfo !== undefined}}">
       <view class="user-info-avatar">
-        <image src="{{personUserInfo.userInfo.avatarUrl}}"></image>
+        <image src="{{userInfo.userInfo.avatarUrl}}"></image>
       </view>
-      <view class="user-info-nickname">{{personUserInfo.userInfo.nickName}}</view>
+      <view class="user-info-nickname">{{userInfo.userInfo.nickName}}</view>
     </view>
     <view class="sign-tooltip-container" wx:else>
       <view class="tooltip-text" @tap="toSignIn">立即登陆, 开启您的智能生活</view>
@@ -36,7 +36,7 @@ import wepy from 'wepy';
 import { connect } from 'wepy-redux';
 
 @connect({
-  personUserInfo: (state) => state.personUser.personUserInfo
+  userInfo: (state) => state.account.userInfo
 }, {})
 export default class Person extends wepy.page {
   config = {
@@ -46,7 +46,7 @@ export default class Person extends wepy.page {
   methods = {
     // 功能项点击
     handlerFunctionItemClick: (e) => {
-      if (this.personUserInfo.userInfo !== undefined) {
+      if (this.userInfo.userInfo !== undefined) {
         wx.navigateTo({
           url: e.target.dataset.url
         });

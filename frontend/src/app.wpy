@@ -3,14 +3,14 @@ import wepy from 'wepy';
 import 'wepy-async-function';
 import { setStore, connect } from 'wepy-redux';
 import configStore from './store';
-import { updatePersonUserInfo } from './store/person-user';
+import { updateUserInfo } from './store/account';
 import api from './api';
 
 const store = configStore();
 setStore(store);
 
 @connect({}, {
-  updatePersonUserInfo
+  updateUserInfo
 })
 export default class extends wepy.app {
   config = {
@@ -73,12 +73,12 @@ export default class extends wepy.app {
     wx.login({
       success: async res => {
         // 发送 res.code 到后台换取 openId, sessionKey, unionId
-        const result = await api.personUser.selectSnapPersonUserInfo({
+        const result = await api.account.selectSnapPersonUserInfo({
           code: res.code
         });
         // 保存临时用户信息
         if (result.code === '0') {
-          this.methods.updatePersonUserInfo(result.data);
+          this.methods.updateUserInfo(result.data);
         } else {
           console.error('获取临时用户信息失败');
         }
@@ -91,7 +91,7 @@ export default class extends wepy.app {
           wx.getUserInfo({
             success: res => {
               // 保存用户信息
-              this.methods.updatePersonUserInfo(res);
+              this.methods.updateUserInfo(res);
               // 可以将 res 发送给后台解码出 unionId
               // 由于 getUserInfo 是网络请求，可能会在 Page.onLoad 之后才返回
               // 所以此处加入 callback 以防止这种情况

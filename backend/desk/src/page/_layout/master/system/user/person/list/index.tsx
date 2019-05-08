@@ -43,8 +43,6 @@ export default compose<React.ComponentClass>(
             title: '操作', dataIndex: 'action', render: (text: any, record: any) => (
               <div className="table-data-action-container">
                 <Link to={`/system/user/person/operator/${record.id}`}>编辑</Link>
-                <Divider type="vertical"/>
-                <span onClick={() => this.deleteData(record)}>删除</span>
               </div>
             )
           }
@@ -92,30 +90,6 @@ export default compose<React.ComponentClass>(
         loading: false,
         dataSource: result.data.records,
         pagination
-      });
-    };
-
-    /**
-     * 删除表格数据
-     *
-     * @param record
-     */
-    public deleteData = (record: any): void => {
-      Modal.confirm({
-        okText: '确认',
-        cancelText: '取消',
-        title: '确认删除此条记录？',
-        content: <Tag color="#f50">{record.username}</Tag>,
-        onOk: async () => {
-          // loading
-          this.setState({ loading: true });
-          await api.person.deletePersonById(record.id);
-          // 刷新表格数据
-          this.refreshData();
-        },
-        onCancel() {
-          console.log('Cancel');
-        },
       });
     };
 
@@ -186,8 +160,8 @@ export default compose<React.ComponentClass>(
             <Form onSubmit={this.handleSearch}>
               <Row className="search-field-container">
                 <Col md={8}>
-                  <Form.Item label="用户名称">
-                    {props.form.getFieldDecorator('username', {
+                  <Form.Item label="微信昵称">
+                    {props.form.getFieldDecorator('nickName', {
                       rules: []
                     })(
                       <Input/>
@@ -200,11 +174,6 @@ export default compose<React.ComponentClass>(
                 </Col>
               </Row>
             </Form>
-          </section>
-          <section className="data-action-container">
-            <Link to="/system/user/person/operator">
-              <Button icon="plus" type="primary">添加</Button>
-            </Link>
           </section>
         </section>
       );

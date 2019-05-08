@@ -5,7 +5,6 @@ import { connect } from 'react-redux';
 import { Switch } from 'react-router-dom';
 import { TransitionGroup, CSSTransition } from "react-transition-group";
 import { AppState } from '../../../../store';
-import { asyncUpdateUserInfo } from '../../../../store/account';
 import LayoutSystemSidebar from '../../../../component/_layout/master/system/sidebar';
 import LayoutSystemHeader from '../../../../component/_layout/master/system/header';
 import './index.less';
@@ -17,7 +16,6 @@ interface ConnectState {
 }
 
 interface ConnectDispatch {
-  asyncUpdateUserInfo: () => object;
 }
 
 
@@ -35,9 +33,7 @@ export default compose<React.ComponentClass>(
       userInfo: state.account.userInfo,
       systemSidebarIsCollapse: state.systemStyle.systemSidebarIsCollapse
     }),
-    {
-      asyncUpdateUserInfo
-    }
+    {}
   )
 )(
   class LayoutMasterSystem extends React.Component<Props, State> {
@@ -50,19 +46,15 @@ export default compose<React.ComponentClass>(
     }
 
     public componentDidMount = (): void => {
-      // const { props } = this;
+      const { props } = this;
       // 验证是否登陆
-      // if (!props.userInfo.hasOwnProperty('id')) {
-      //   props.history.push('/account/signIn');
-      // } else {
-      //   this.setState({
-      //     isRender: true
-      //   });
-      // }
-
-      this.setState({
-        isRender: true
-      });
+      if (!props.userInfo.hasOwnProperty('id')) {
+        props.history.push('/account/signIn');
+      } else {
+        this.setState({
+          isRender: true
+        });
+      }
     };
 
     public render = (): JSX.Element => {

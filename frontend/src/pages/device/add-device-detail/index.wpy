@@ -88,7 +88,7 @@ import { updateDeviceInfoList } from '../../../store/feature';
 import api from '../../../api';
 
 @connect({
-  personUserInfo: (state) => state.personUser.personUserInfo,
+  userInfo: (state) => state.account.userInfo,
   roomInfoList: (state) => state.feature.roomInfoList
 }, {
   updateDeviceInfoList
@@ -162,7 +162,7 @@ export default class Home extends wepy.page {
       this.$apply();
 
       const deviceInfo = {
-        openid: this.personUserInfo.openid,
+        openid: this.userInfo.openid,
         originName: this.form.originName,
         name: this.form.name || this.form.originName,
         originControlName: this.form.originControlName,
@@ -189,7 +189,7 @@ export default class Home extends wepy.page {
       if (result1.code === '0') {
         // 更新房间列表数据
         const result2 = await api.device.selectDeviceList({
-          openid: this.personUserInfo.openid
+          openid: this.userInfo.openid
         });
         this.methods.updateDeviceInfoList(result2.data);
 

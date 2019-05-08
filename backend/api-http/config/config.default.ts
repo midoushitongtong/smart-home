@@ -9,7 +9,7 @@ export default (appInfo: EggAppInfo) => {
   config.security = {
     csrf: {
       enable: false
-    },
+    }
   };
 
   // add your egg config in here
@@ -26,6 +26,20 @@ export default (appInfo: EggAppInfo) => {
     username: 'root',
     password: '123456',
     timezone: '+08:00'
+  };
+
+  // cros
+  config.cors = {
+    // 跨域白名单
+    origin: 'http://10.0.19.175:3000',
+    // 允许 携带 cookie
+    credentials: true
+  };
+
+  // session
+  config.session = {
+    // 24小时 * 3600秒 一天有效时间
+    maxAge: 24 * 3600 * 1000
   };
 
   // add your special config in here

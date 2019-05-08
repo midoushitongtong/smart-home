@@ -1,27 +1,27 @@
 // action type
 const actionType = {
-  UPDATE_PERSON_USER_INFO: 'updatePersonUserInfo',
-  CLEAR_PERSON_USER_STATE: 'clearPersonUserState'
+  UPDATE_USER_INFO: 'updateUserInfo',
+  CLEAR_PERSON_USER_STATE: 'clearUserState'
 };
 
 // state
 const initState = {
-  personUserInfo: {}
+  userInfo: {}
 };
 
 // action
 // 修改用户信息
-export const updatePersonUserInfo = (personUserInfo) => {
+export const updateUserInfo = (userInfo) => {
   return {
-    type: actionType.UPDATE_PERSON_USER_INFO,
+    type: actionType.UPDATE_USER_INFO,
     data: {
-      personUserInfo
+      userInfo
     }
   };
 };
 
 // 清空当前模块的状态
-export const clearPersonUserInfo = () => {
+export const clearUserInfo = () => {
   return {
     type: actionType.CLEAR_PERSON_USER_STATE
   };
@@ -30,14 +30,14 @@ export const clearPersonUserInfo = () => {
 // reducer
 export default (state = initState, action) => {
   switch (action.type) {
-    case actionType.UPDATE_PERSON_USER_INFO:
-      const personUserInfo = {
-        ...state.personUserInfo,
-        ...action.data.personUserInfo
+    case actionType.UPDATE_USER_INFO:
+      const userInfo = {
+        ...state.userInfo,
+        ...action.data.userInfo
       };
       return {
         ...state,
-        personUserInfo
+        userInfo
       };
     case actionType.CLEAR_PERSON_USER_STATE:
       return initState;

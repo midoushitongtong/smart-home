@@ -19,16 +19,16 @@
 
 <script>
 import wepy from 'wepy';
-import { updatePersonUserInfo } from '../../../store/person-user';
+import { updateUserInfo } from '../../../store/account';
 import { updateRoomInfoList, updateDeviceInfoList } from '../../../store/feature';
 import Base from '../../../components/iview/base/index';
 import { connect } from 'wepy-redux';
 import api from '../../../api';
 
 @connect({
-  personUserInfo: (state) => state.personUser.personUserInfo
+  userInfo: (state) => state.account.userInfo
 }, {
-  updatePersonUserInfo,
+  updateUserInfo,
   updateRoomInfoList,
   updateDeviceInfoList
 })
@@ -50,21 +50,21 @@ export default class Person extends wepy.page {
         this.loading = true;
         this.$apply();
         // 保存用户信息到 redux
-        this.methods.updatePersonUserInfo(e.detail);
+        this.methods.updateUserInfo(e.detail);
 
         // 将用户信息保存到数据库
-        const result = await api.personUser.savePersonUserInfo({
-          openid: this.personUserInfo.openid,
-          nickName: this.personUserInfo.userInfo.nickName,
-          avatarUrl: this.personUserInfo.userInfo.avatarUrl
+        const result = await api.account.savePersonUserInfo({
+          openid: this.userInfo.openid,
+          nickName: this.userInfo.userInfo.nickName,
+          avatarUrl: this.userInfo.userInfo.avatarUrl
         });
 
         // 初始化用户数据
         let result1 = api.room.selectRoomList({
-          openid: this.personUserInfo.openid
+          openid: this.userInfo.openid
         });
         let result2 = api.device.selectDeviceList({
-          openid: this.personUserInfo.openid
+          openid: this.userInfo.openid
         });
         result1 = await result1;
         result2 = await result2;

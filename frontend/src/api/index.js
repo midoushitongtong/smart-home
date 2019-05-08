@@ -1,9 +1,9 @@
-import personUser from './person-user';
+import account from './account';
 import room from './room';
 import device from './device';
 
 export default {
-  personUser,
+  account,
   room,
   device
 };

@@ -71,7 +71,7 @@ import { updateRoomInfoList } from '../../../store/feature';
 import api from '../../../api';
 
 @connect({
-  personUserInfo: (state) => state.personUser.personUserInfo
+  userInfo: (state) => state.account.userInfo
 }, {
   updateRoomInfoList
 })
@@ -163,7 +163,7 @@ export default class Home extends wepy.page {
       this.$apply();
 
       const roomInfo = {
-        openid: this.personUserInfo.openid,
+        openid: this.userInfo.openid,
         name: this.form.name,
         icon: this.form.icon
       };
@@ -186,7 +186,7 @@ export default class Home extends wepy.page {
       if (result1.code === '0') {
         // 更新房间列表数据
         const result2 = await api.room.selectRoomList({
-          openid: this.personUserInfo.openid
+          openid: this.userInfo.openid
         });
         this.methods.updateRoomInfoList(result2.data);
 

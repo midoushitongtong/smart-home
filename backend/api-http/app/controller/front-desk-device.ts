@@ -1,7 +1,7 @@
 import { Controller } from 'egg';
 import { Prefix, Get, Post, Put, Delete } from 'egg-shell-decorators';
 
-@Prefix('/device')
+@Prefix('/front-desk/device')
 export default class DeviceController extends Controller {
   @Get('/')
   public async selectDeviceList() {

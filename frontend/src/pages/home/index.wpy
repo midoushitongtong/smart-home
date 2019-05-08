@@ -3,7 +3,7 @@
     <view class="home-info-container">
       <view class="top">
         <view class="home-name">
-          <text wx:if="{{personUserInfo.userInfo !== undefined}}">{{personUserInfo.userInfo.nickName}}的家</text>
+          <text wx:if="{{userInfo.userInfo !== undefined}}">{{userInfo.userInfo.nickName}}的家</text>
         </view>
         <!-- 添加设备按钮 -->
         <view
@@ -12,7 +12,7 @@
         >+
         </view>
       </view>
-      <view class="bottom" wx:if="{{!loading && personUserInfo.userInfo !== undefined}}">
+      <view class="bottom" wx:if="{{!loading && userInfo.userInfo !== undefined}}">
         <view class="tem" wx:if="{{temHum1.tem}}">室内温度
           <view class="number">{{temHum1.tem}}°</view>
         </view>
@@ -24,7 +24,7 @@
     <view class="room-device-container" wx:if="{{!loading}}">
       <!-- 房间信息 -->
       <view class="room-info-list-container">
-        <scroll-view class="scroll-view" scroll-x wx:if="{{personUserInfo.userInfo !== undefined}}">
+        <scroll-view class="scroll-view" scroll-x wx:if="{{userInfo.userInfo !== undefined}}">
           <repeat for="{{newRoomDeviceInfoList}}" key="index" index="index" item="item">
             <view class="room-name {{index === current ? 'active' : ''}}" @tap="changeCurrent({{index}})">
               {{item.name}}
@@ -36,7 +36,7 @@
         </scroll-view>
       </view>
       <!-- 房间对应的设备信息 -->
-      <view class="device-info-list" wx:if="{{personUserInfo.userInfo !== undefined}}">
+      <view class="device-info-list" wx:if="{{userInfo.userInfo !== undefined}}">
         <swiper style="height: {{swiperHeight}}" current="{{current}}" bindchange="chaneScroll">
           <repeat for="{{newRoomDeviceInfoList}}" key="index" index="index" item="item">
             <swiper-item>
@@ -190,7 +190,7 @@ import { updateFeatureInfo, updateRoomInfoList, updateDeviceInfoList } from '../
 import api from '../../api';
 
 @connect({
-  personUserInfo: (state) => state.personUser.personUserInfo,
+  userInfo: (state) => state.account.userInfo,
   featureInfo: (state) => state.feature.featureInfo,
   roomInfoList: (state) => state.feature.roomInfoList,
   deviceInfoList: (state) => state.feature.deviceInfoList
@@ -229,7 +229,7 @@ export default class Home extends wepy.page {
   methods = {
     // 前往签加设备页面
     addFeature: () => {
-      if (this.personUserInfo.userInfo !== undefined) {
+      if (this.userInfo.userInfo !== undefined) {
         wx.navigateTo({
           url: '/pages/device/add-device/index'
         });
@@ -337,10 +337,10 @@ export default class Home extends wepy.page {
       this.loading = true;
       this.$apply();
       let result1 = api.room.selectRoomList({
-        openid: this.personUserInfo.openid
+        openid: this.userInfo.openid
       });
       let result2 = api.device.selectDeviceList({
-        openid: this.personUserInfo.openid
+        openid: this.userInfo.openid
       });
       result1 = await result1;
       result2 = await result2;
@@ -356,9 +356,9 @@ export default class Home extends wepy.page {
   };
 
   watch = {
-    personUserInfo: async () => {
+    userInfo: async () => {
       // 监听用户信息, 初始化房间与设备数据
-      if (this.personUserInfo.openid && this.deviceInfoList.length === 0 && this.roomInfoList.length === 0) {
+      if (this.userInfo.openid && this.deviceInfoList.length === 0 && this.roomInfoList.length === 0) {
         this.methods.updateRoomDeviceInfoList();
       }
     },
@@ -406,11 +406,11 @@ export default class Home extends wepy.page {
     }
 
     // 如果有用户信息说明已经初始化, 直接取消 loading
-    if (this.personUserInfo.openid) {
+    if (this.userInfo.openid) {
       this.loading = false;
       this.$apply();
     }
-    if (this.personUserInfo.openid && this.deviceInfoList.length === 0 && this.roomInfoList.length === 0) {
+    if (this.userInfo.openid && this.deviceInfoList.length === 0 && this.roomInfoList.length === 0) {
       this.methods.updateRoomDeviceInfoList();
     }
 

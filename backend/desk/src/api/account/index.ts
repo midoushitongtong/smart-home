@@ -22,21 +22,21 @@ const api:Api = {
   signIn(data: any): object {
     return ajax(
       'POST',
-      `${config.API_ROOT}/manager/signIn`,
+      `${config.API_ROOT}/back-desk/manage-user/sign-in`,
       data
     );
   },
   signOut(): object {
     return ajax(
       'GET',
-      `${config.API_ROOT}/manager/signOut`,
+      `${config.API_ROOT}/back-desk/manage-user/sign-out`,
       {}
     );
   },
   selectUserInfo(): object {
     return ajax(
       'GET',
-      `${config.API_ROOT}/manager/userInfo`,
+      `${config.API_ROOT}/back-desk/manage-user/manage-user-info`,
       {}
     );
   }

@@ -9,7 +9,7 @@ export default {
     return new Promise((resolve, reject) => {
       wx.request({
         method: 'GET',
-        url: `${config.API_HTTP_ROOT}/person-user/select-snap-person-user-info`,
+        url: `${config.API_HTTP_ROOT}/front-desk/person-user/snap-person-user-info`,
         data,
         success: (res) => {
           if (res && res.statusCode === 200) {
@@ -29,7 +29,7 @@ export default {
     return new Promise((resolve, reject) => {
       wx.request({
         method: 'POST',
-        url: `${config.API_HTTP_ROOT}/person-user/save-person-user-info`,
+        url: `${config.API_HTTP_ROOT}/front-desk/person-user/person-user-info`,
         data,
         success: (res) => {
           if (res && res.statusCode === 200) {

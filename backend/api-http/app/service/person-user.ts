@@ -4,10 +4,10 @@ import { PersonUserModel } from '../model/person-user';
 import { Op } from 'sequelize';
 
 /**
- * Wechat Service
+ * PersonUser Service
  *
  */
-export default class Wechat extends Service {
+export default class PersonUser extends Service {
   /**
    * 获取临时登陆凭证
    *
@@ -59,5 +59,26 @@ export default class Wechat extends Service {
       });
       return result;
     }
+  }
+
+  public async selectPersonUserList(data: any) {
+    const { app } = this;
+    // 计算分页偏移量
+    data.offset = (data.offset - 1) * data.limit;
+
+    // 生成查询条件
+    const condition: any = {};
+    if (data.nickName) {
+      condition.where = {
+        nickName: {
+          [Op.like]: `%${data.nickName}%`
+        }
+      };
+    }
+    condition.offset = data.offset;
+    condition.limit = data.limit;
+
+    // 返回查询数据
+    return await app.model.PersonUser.findAndCountAll(condition);
   }
 }

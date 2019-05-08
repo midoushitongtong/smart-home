@@ -1,6 +1,7 @@
 import React from 'react';
 import { compose } from 'redux';
 import { connect } from 'react-redux';
+import { Spin } from 'antd';
 import Router from './router';
 import { asyncUpdateUserInfo } from './store/account';
 import { AppState } from './store';
@@ -44,9 +45,9 @@ export default compose<React.ComponentClass>(
 
 
     public componentDidMount = async () => {
-      // const { props } = this;
+      const { props } = this;
       // 更新当前用户登陆状态
-      // await props.asyncUpdateUserInfo();
+      await props.asyncUpdateUserInfo();
       this.setState({
         isRender: true
       });
@@ -61,7 +62,11 @@ export default compose<React.ComponentClass>(
           </section>
         );
       } else {
-        return <section>加载中!</section>;
+        return (
+          <section className="loading-container">
+            <Spin size="large"/>
+          </section>
+        );
       }
     }
   }

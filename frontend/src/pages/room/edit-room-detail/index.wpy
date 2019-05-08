@@ -121,7 +121,7 @@ import { updateRoomInfoList, updateDeviceInfoList } from '../../../store/feature
 import api from '../../../api';
 
 @connect({
-  personUserInfo: (state) => state.personUser.personUserInfo,
+  userInfo: (state) => state.account.userInfo,
   deviceInfoList: (state) => state.feature.deviceInfoList
 }, {
   updateRoomInfoList,
@@ -257,7 +257,7 @@ export default class Home extends wepy.page {
       this.$apply();
 
       const roomInfo = {
-        openid: this.personUserInfo.openid,
+        openid: this.userInfo.openid,
         id: this.form.id,
         name: this.form.name,
         icon: this.form.icon
@@ -285,18 +285,18 @@ export default class Home extends wepy.page {
         if (!roomDeviceInfoItem.checked) {
           updateDeviceFlag = true;
           await api.device.deleteDevice(roomDeviceInfoItem.id, {
-            openid: this.personUserInfo.openid
+            openid: this.userInfo.openid
           });
         }
       }));
 
       let result1 = api.room.selectRoomList({
-        openid: this.personUserInfo.openid
+        openid: this.userInfo.openid
       });
       let result2 = null;
       if (updateDeviceFlag) {
         result2 = api.device.selectDeviceList({
-          openid: this.personUserInfo.openid
+          openid: this.userInfo.openid
         });
       }
       result1 = await result1;
@@ -349,14 +349,14 @@ export default class Home extends wepy.page {
 
         // 删除房间数据(会删除对应房间设备数据)
         await api.room.deleteRoom(this.form.id, {
-          openid: this.personUserInfo.openid
+          openid: this.userInfo.openid
         });
 
         let result1 = api.room.selectRoomList({
-          openid: this.personUserInfo.openid
+          openid: this.userInfo.openid
         });
         let result2 = api.device.selectDeviceList({
-          openid: this.personUserInfo.openid
+          openid: this.userInfo.openid
         });
         result1 = await result1;
         result2 = await result2;

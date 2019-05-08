@@ -62,7 +62,7 @@ import { updateRoomInfoList, updateDeviceInfoList } from '../../../store/feature
 import api from '../../../api';
 
 @connect({
-  personUserInfo: (state) => state.personUser.personUserInfo,
+  userInfo: (state) => state.account.userInfo,
   roomInfoList: (state) => state.feature.roomInfoList,
   deviceInfoList: (state) => state.feature.deviceInfoList
 }, {
@@ -127,7 +127,7 @@ export default class Home extends wepy.page {
         await Promise.all(this.newRoomInfoList.map(async (roomInfoItem) => {
           // 删除房间
           await api.room.deleteRoom(roomInfoItem.id, {
-            openid: this.personUserInfo.openid
+            openid: this.userInfo.openid
           });
         }));
 
