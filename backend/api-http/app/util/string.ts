@@ -1,10 +1,9 @@
 export default {
   toUnicode: (data) => {
-    if (data === '' || typeof data === 'undefined') return '请输入汉字';
-    var str = '';
+    var res: any = [];
     for (var i = 0; i < data.length; i++) {
-      str += "\\u" + data.charCodeAt(i).toString(16);
+      res[i] = ("00" + data.charCodeAt(i).toString(16)).slice(-4);
     }
-    return str;
+    return "\\u" + res.join("\\u");
   }
 }

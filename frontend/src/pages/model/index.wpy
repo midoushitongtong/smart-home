@@ -1,0 +1,283 @@
+<template>
+  <view class="smart-model-container">
+    <view class="smart-model-item online-model" @tap="toSmartModel('online')">
+      <view class="smart-model-text">居家模式</view>
+      <image src="../../assets/images/online-model.jpg" alt=""/>
+    </view>
+    <view class="smart-model-item offline-model" @tap="toSmartModel('offline')">
+      <view class="smart-model-text">离家模式</view>
+      <image src="../../assets/images/offline-model.jpg" alt=""/>
+    </view>
+
+    <i-modal
+      i-class="i-modal-delete-smart-model"
+      action-mode="vertical"
+      visible="{{visible}}"
+      actions="{{actions}}"
+      @click="handlerAction"
+      @close="toggleModal({{false}})"
+    >
+      <view class="model-tooltip">
+        以下绑定的设备将会被
+        <view class="bold">{{model === 'online' ? '开启!' : '关闭!'}}</view>
+      </view>
+      <view class="device-list-container">
+        <view wx:if="{{newRoomDeviceInfoList.length > 0}}">
+          <i-cell-group>
+            <repeat for="{{newRoomDeviceInfoList}}" key="index" index="index" item="item">
+              <label class="device-list-item" @tap="toggleDevice({{item}})">
+                <i-cell i-class="i-cell-device-list-item">
+                  <view class="device-base-info-container" slot="icon">
+                    <view class="image-container">
+                      <image src="{{item.icon}}"/>
+                    </view>
+                    <view class="device-room-name">
+                      <text class="device-name">{{item.name}}</text>
+                      <text class="room-name">{{item.roomName}}</text>
+                    </view>
+                  </view>
+                  <view slot="footer">
+                    <radio
+                      color="#40a9ff"
+                      value="{{item.id}}"
+                      checked="{{item.checked}}"
+                      @tap="toggleDevice({{item}})"
+                    />
+                  </view>
+                </i-cell>
+              </label>
+            </repeat>
+          </i-cell-group>
+        </view>
+        <view class="not-device-container" wx:else>
+          <text>当前暂无设备!</text>
+        </view>
+      </view>
+    </i-modal>
+  </view>
+  <i-message id="message"/>
+</template>
+
+<script>
+import wepy from 'wepy';
+import { connect } from 'wepy-redux';
+import featureSocket from '../../util/feature-socket';
+
+@connect({
+  roomInfoList: (state) => state.feature.roomInfoList,
+  deviceInfoList: (state) => state.feature.deviceInfoList
+}, {})
+export default class Home extends wepy.page {
+  config = {
+    navigationBarTitleText: ''
+  };
+
+  data = {
+    // 当前房间设备信息
+    newRoomDeviceInfoList: [],
+    // 操作模式[离家, 居家],
+    model: '',
+    // 控制 显示/隐藏 模式容器
+    visible: false,
+    actions: [
+      {
+        name: '取消'
+      },
+      {
+        loading: false,
+        name: '确定',
+        color: '#f02517'
+      }
+    ]
+  };
+
+  methods = {
+    toSmartModel: (model) => {
+      this.model = model;
+      this.methods.toggleModal(true);
+    },
+    refreshNewRoomDeviceInfoList: () => {
+      this.newRoomDeviceInfoList = this.deviceInfoList.map(deviceInfoItem => {
+        deviceInfoItem.roomName = this.roomInfoList.find(roomInfoItem => roomInfoItem.id === deviceInfoItem.roomId).name;
+        deviceInfoItem.checked = true;
+        return deviceInfoItem;
+      });
+      this.$apply();
+    },
+    // 显示/隐藏 删除所有房间确认容器
+    toggleModal: (flag) => {
+      this.visible = flag;
+      this.$apply();
+    },
+    // 删除/添加设备
+    toggleDevice: (e) => {
+      this.newRoomDeviceInfoList = this.newRoomDeviceInfoList.map(deviceInfoItem => {
+        if (deviceInfoItem.id === e.id) {
+          const newDeviceInfoItem = {
+            ...deviceInfoItem
+          };
+          newDeviceInfoItem.checked = !newDeviceInfoItem.checked;
+          return newDeviceInfoItem;
+        }
+        return deviceInfoItem;
+      });
+      this.$apply();
+    },
+    // 模态框按钮点击事件
+    handlerAction: async (e) => {
+      if (this.actions[1].loading) return;
+      if (e.detail.index === 1) {
+        this.actions[1].loading = true;
+        this.$apply();
+
+        const isOnline = this.model === 'online';
+
+        let newRoomDeviceInfoListCount = this.newRoomDeviceInfoList.length;
+        this.newRoomDeviceInfoList.forEach((newRoomDeviceInfoItem, index) => {
+          // 未选中的设备不发送 socket 指令
+          if (!newRoomDeviceInfoItem.checked) {
+            newRoomDeviceInfoListCount--;
+            return;
+          }
+          setTimeout(() => {
+            // 发送 socket 指令
+            switch (newRoomDeviceInfoItem.originControlName) {
+              case 'LED':
+              case 'door':
+              case 'cur':
+              case 'hood':
+                featureSocket.sendWebSocketData(`${newRoomDeviceInfoItem.controlName}-${isOnline ? '1' : '0'}`);
+                break;
+              case 'fan':
+                featureSocket.sendWebSocketData(`${newRoomDeviceInfoItem.controlName}-${isOnline ? '1' : '0'}`);
+                break;
+              case 'tem':
+                // 判断是开关还是挡位
+                featureSocket.sendWebSocketData(`${newRoomDeviceInfoItem.controlName}-${isOnline ? '23' : '0'}`);
+                break;
+              default:
+                console.log('未知 originControlName');
+            }
+            // 执行完成, 将checked改成全选
+            if (index === newRoomDeviceInfoListCount - 1) {
+              this.actions[1].loading = false;
+              this.$apply();
+              this.methods.refreshNewRoomDeviceInfoList();
+              this.methods.toggleModal(false);
+            }
+          }, index * 500);
+        });
+      } else {
+        this.methods.toggleModal(false);
+      }
+    }
+  };
+
+  watch = {
+    // 监听房间数据, 更新房间数据
+    roomInfoList: () => {
+      this.methods.refreshNewRoomDeviceInfoList();
+    },
+    // 监听设备数据, 更新新房间数据
+    deviceInfoList: () => {
+      this.methods.refreshNewRoomDeviceInfoList();
+    }
+  };
+
+  onLoad() {
+    this.methods.refreshNewRoomDeviceInfoList();
+  }
+}
+</script>
+
+<style lang="less">
+  .smart-model-container {
+    .smart-model-item {
+      position: relative;
+      margin: 5px;
+      height: 165px;
+      .smart-model-text {
+        position: absolute;
+        top: 10px;
+        left: 15px;
+        font-size: 15px;
+        color: #fff;
+      }
+      image {
+        width: 100%;
+        height: 165px;
+        border-radius: 5px;
+      }
+    }
+    .i-modal-delete-smart-model {
+      & > view:first-child {
+        width: 100%;
+        & > view:first-child {
+          & > view:first-child {
+            max-height: 90%;
+            margin-bottom: 0;
+            padding-left: 10px;
+            padding-right: 10px;
+            .model-tooltip {
+              display:flex;
+              justify-content:center;
+              padding-bottom: 10px;
+              border-bottom: 1px solid rgba(0, 0, 0, .05);
+              .bold {
+                color: #40a9ff;
+                font-weight: bold;
+              }
+            }
+            .device-list-container {
+              overflow-y: auto;
+              max-height: 60vh;
+              .device-list-item {
+                .i-cell-device-list-item {
+                  padding: 6px 7px;
+                  &:active {
+                    background-color: rgba(0, 0, 0, .05);
+                  }
+                }
+                .device-base-info-container {
+                  display: flex;
+                  .image-container {
+                    image {
+                      width: 25px;
+                      height: 25px;
+                      margin-right: 10px;
+                      padding: 9px;
+                      border: ~"1rpx" solid #e9eaec;
+                    }
+                  }
+                  .device-room-name {
+                    display: flex;
+                    flex-direction: column;
+                    text-align: left;
+                    .device-name {
+                      margin-top: 3px;
+                      margin-bottom: 3px;
+                      font-size: 13px;
+                    }
+                    .room-name {
+                      font-size: 11px;
+                      color: #999;
+                    }
+                  }
+                }
+              }
+              .i-button-to-add-room {
+                margin-left: 15px;
+                margin-right: 15px;
+                margin-bottom: 15px;
+              }
+            }
+          }
+          & > view:nth-child(2) {
+            padding-left: 10px;
+            padding-right: 10px;
+          }
+        }
+      }
+    }
+  }
+</style>

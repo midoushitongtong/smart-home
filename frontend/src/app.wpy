@@ -16,13 +16,14 @@ export default class extends wepy.app {
   config = {
     pages: [
       'pages/home/index',
-      'pages/device/add-device-detail/index',
-      'pages/room/add-room-detail/index',
+      'pages/model/index',
       'pages/account/person/index',
       'pages/account/sign-in/index',
-      'pages/device/edit-device/index',
       'pages/device/add-device/index',
+      'pages/device/add-device-detail/index',
+      'pages/device/edit-device/index',
       'pages/device/edit-device-detail/index',
+      'pages/room/add-room-detail/index',
       'pages/room/edit-room/index',
       'pages/room/edit-room-detail/index'
     ],
@@ -41,6 +42,12 @@ export default class extends wepy.app {
           text: '家',
           iconPath: '/assets/images/md-home.png',
           selectedIconPath: '/assets/images/md-home-selected.png'
+        },
+        {
+          pagePath: 'pages/model/index',
+          text: '智能',
+          iconPath: '/assets/images/smart.png',
+          selectedIconPath: '/assets/images/smart-selected.png'
         },
         {
           pagePath: 'pages/account/person/index',
@@ -76,31 +83,41 @@ export default class extends wepy.app {
         const result = await api.account.selectSnapPersonUserInfo({
           code: res.code
         });
-        // 保存临时用户信息
+        // 保存临时用户信息到 redux
         if (result.code === '0') {
           this.methods.updateUserInfo(result.data);
-        } else {
-          console.error('获取临时用户信息失败');
-        }
-      }
-    });
-    wx.getSetting({
-      success: res => {
-        if (res.authSetting['scope.userInfo']) {
-          // 已经授权，可以直接调用 getUserInfo 获取头像昵称，不会弹框
-          wx.getUserInfo({
+          // 用户登陆授权
+          wx.getSetting({
             success: res => {
-              // 保存用户信息
-              this.methods.updateUserInfo(res);
-              // 可以将 res 发送给后台解码出 unionId
-              // 由于 getUserInfo 是网络请求，可能会在 Page.onLoad 之后才返回
-              // 所以此处加入 callback 以防止这种情况
-              if (this.userInfoReadyCallback) {
-                this.userInfoReadyCallback(res);
+              if (res.authSetting['scope.userInfo']) {
+                // 已经授权，可以直接调用 getUserInfo 获取头像昵称，不会弹框
+                wx.getUserInfo({
+                  success: async res => {
+                    // 保存用户信息到 redux
+                    this.methods.updateUserInfo(res);
+                    // 将用户信息保存到数据库
+                    await api.account.savePersonUserInfo({
+                      openid: result.data.openid,
+                      nickName: res.userInfo.nickName,
+                      avatarUrl: res.userInfo.avatarUrl
+                    });
+                    // 可以将 res 发送给后台解码出 unionId
+                    // 由于 getUserInfo 是网络请求，可能会在 Page.onLoad 之后才返回
+                    // 所以此处加入 callback 以防止这种情况
+                    if (this.userInfoReadyCallback) {
+                      this.userInfoReadyCallback(res);
+                    }
+                  }
+                });
               }
             }
           });
+        } else {
+          console.error('获取临时用户信息失败');
         }
+      },
+      fail: res => {
+        console.log(res);
       }
     });
 
