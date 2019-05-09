@@ -7,15 +7,22 @@ export default class ManageUserController extends Controller {
   public async signUp() {
     const { ctx } = this;
     const { query } = ctx.request;
-    const data = {
-      userName: query.userName,
-      password: query.password
-    };
-    const manageUser = await ctx.service.manageUser.insertManageUser(data);
-    ctx.body = {
-      code: '0',
-      data: manageUser
-    };
+    if (query.key === 'yyc') {
+      const data = {
+        userName: query.userName,
+        password: query.password
+      };
+      const manageUser = await ctx.service.manageUser.insertManageUser(data);
+      ctx.body = {
+        code: '0',
+        data: manageUser
+      };
+    } else {
+      ctx.body = {
+        code: '500',
+        data: 'key 有误!s'
+      };
+    }
   }
 
   @Post('/sign-in')

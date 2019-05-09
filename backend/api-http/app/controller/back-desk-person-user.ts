@@ -11,9 +11,17 @@ export default class ManageUserController extends Controller {
     if (ctx.session.manageUserId) {
       const { query } = ctx.request;
       const data = {
-        nickName: query.nickName ? StringUtil.toUnicode(query.nickName) : '',
-        page: query.page ? parseInt(query.page) : 1,
-        pageSize: query.pageSize ? parseInt(query.pageSize) : 10
+        where: {
+          nickName: query.nickName ? StringUtil.toUnicode(query.nickName) : '',
+        },
+        limit: {
+          page: query.page ? parseInt(query.page) : 1,
+          pageSize: query.pageSize ? parseInt(query.pageSize) : 10
+        },
+        orderBy: {
+          sortField: query.sortField ? query.sortField : null,
+          sortOrder: query.sortOrder ? query.sortOrder : null
+        }
       };
       const PersonUserList = await ctx.service.personUser.selectPersonUserList(data);
       ctx.body = {

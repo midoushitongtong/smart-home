@@ -42,25 +42,24 @@ export default compose<React.ComponentClass>(
       super(props);
       this.state = {
         columns: [
-          {
-            title: 'openid', dataIndex: 'openid'
-          },
-          {
-            title: '昵称', dataIndex: 'nickName', render: (text: any, record: any) => (
-              <span>{stringUtil.unicodeToChinese(text)}</span>
-            )
-          },
+          { title: '序号', sorter: true, dataIndex: 'id' },
+          { title: 'openid', dataIndex: 'openid' },
           {
             title: '头像', dataIndex: 'avatarUrl', render: (text: any, record: any) => (
               <img src={text} alt={record.nickName}/>
             )
           },
-          { title: '注册日期', dataIndex: 'created_at' },
-          { title: '最后修改日期', dataIndex: 'updated_at' },
+          {
+            title: '昵称', sorter: true, dataIndex: 'nickName', render: (text: any, record: any) => (
+              <span>{stringUtil.unicodeToChinese(text)}</span>
+            )
+          },
+          { title: '创建时间', sorter: true, dataIndex: 'created_at' },
+          { title: '修改时间', sorter: true, dataIndex: 'updated_at' },
           {
             title: '操作', dataIndex: 'action', render: (text: any, record: any) => (
               <div className="table-data-action-container">
-                <span onClick={() => this.showUserRoomAndDeviceInfo(record)}>查看已绑定的房间与设备</span>
+                <span onClick={() => this.showUserRoomAndDeviceInfo(record)}>查看已绑定房间与设备</span>
               </div>
             )
           }
@@ -73,7 +72,14 @@ export default compose<React.ComponentClass>(
           showSizeChanger: true,
           pageSizeOptions: ['10', '20', '100']
         },
-        searchCondition: {},
+        searchCondition: {
+          limit: {
+            page: 1,
+            pageSize: 10
+          },
+          where: {},
+          orderBy: {}
+        },
         loading: false,
         icon: {
           '/assets/images/balcony.png': require('../../../../../../../assets/images/balcony.png'),
@@ -99,11 +105,7 @@ export default compose<React.ComponentClass>(
 
     public componentDidMount = (): void => {
       const { state } = this;
-      this.refreshData({
-        page: state.pagination.current,
-        pageSize: state.pagination.pageSize,
-        ...state.searchCondition
-      });
+      this.refreshData(state.searchCondition);
     };
 
     /**
@@ -111,13 +113,26 @@ export default compose<React.ComponentClass>(
      *
      */
     public refreshData = async (searchCondition: any) => {
+      console.log(searchCondition);
       const { state } = this;
       this.setState({
         loading: true
       });
 
+      // 构建搜索条件
+      const newSearchCondition = {
+        ...searchCondition.where
+      };
+      if (searchCondition.orderBy.sortField && searchCondition.orderBy.sortOrder) {
+        newSearchCondition.sortField = searchCondition.orderBy.sortField;
+        newSearchCondition.sortOrder = searchCondition.orderBy.sortOrder === 'ascend' ? 'asc' : 'desc';
+      }
+      if (searchCondition.limit.page && searchCondition.limit.pageSize) {
+        newSearchCondition.page = searchCondition.limit.page;
+        newSearchCondition.pageSize = searchCondition.limit.pageSize;
+      }
       // 获取表格数据
-      const result: any = await api.personUser.selectPersonUserList(searchCondition);
+      const result: any = await api.personUser.selectPersonUserList(newSearchCondition);
 
       // 获取成功, 刷新数据
       const pagination = {
@@ -143,16 +158,21 @@ export default compose<React.ComponentClass>(
       const { state, props } = this;
       props.form.validateFields(async (error, valueList) => {
         if (!error) {
+          // 构建搜索条件
+          const searchCondition = {
+            where: valueList,
+            orderBy: state.searchCondition.orderBy,
+            limit: {
+              page: 1,
+              pageSize: state.searchCondition.limit.pageSize
+            }
+          };
           // 保存搜索条件
           this.setState({
-            searchCondition: valueList
+            searchCondition
           });
           // 刷新表格数据
-          this.refreshData({
-            page: 1,
-            pageSize: state.pagination.pageSize,
-            ...valueList
-          });
+          this.refreshData(searchCondition);
         }
       });
     };
@@ -163,32 +183,61 @@ export default compose<React.ComponentClass>(
      */
     public handleReset = (): void => {
       const { state, props } = this;
-      // 清空搜索条件
+      // 构建搜索条件
+      const searchCondition = {
+        where: {},
+        orderBy: state.searchCondition.orderBy,
+        limit: {
+          page: 1,
+          pageSize: state.searchCondition.limit.pageSize
+        }
+      };
+      // 保存搜索条件
       this.setState({
-        searchCondition: {}
+        searchCondition
       });
       props.form.resetFields();
       // 刷新表格数据
-      this.refreshData({
-        page: 1,
-        pageSize: state.pagination.pageSize
-      });
+      this.refreshData(searchCondition);
     };
 
     /**
      * 表格的数据搜索条件发送变化
      *
      */
-    public handleTableChange = (currentPagination: any): void => {
+    public handleTableChange = (currentPagination: any, currentFilters: any, currentSorter: any): void => {
       const { state } = this;
-      // 获取表格数据
-      this.refreshData({
-        page: currentPagination.current,
-        pageSize: currentPagination.pageSize,
-        searchCondition: {
-          ...state.searchCondition
-        }
+      // 构建搜索条件
+      const searchCondition = {
+        where: state.searchCondition.where,
+        orderBy: {},
+        limit: {}
+      };
+      if (currentPagination.current && currentPagination.pageSize) {
+        searchCondition.limit = {
+          page: currentPagination.current,
+          pageSize: currentPagination.pageSize
+        };
+      }
+      if (currentSorter.columnKey && currentSorter.order) {
+        searchCondition.orderBy = {
+          sortField: currentSorter.columnKey,
+          sortOrder: currentSorter.order
+        };
+      }
+      // 排序规则改变, 默认重第一页显示
+      if (state.searchCondition.orderBy.sortField !== currentSorter.columnKey || state.searchCondition.orderBy.sortOrder !== currentSorter.order) {
+        searchCondition.limit = {
+          page: 1,
+          pageSize: currentPagination.pageSize
+        };
+      }
+      // 保存搜索条件
+      this.setState({
+        searchCondition
       });
+      // 刷新表格数据
+      this.refreshData(searchCondition);
     };
 
     /**

@@ -26,8 +26,20 @@ const schema = {
   openid: STRING(50),
   name: STRING(50),
   icon: STRING(255),
-  created_at: DATE,
-  updated_at: DATE
+  created_at: {
+    type: DATE,
+    get(this: RoomModelInstance) {
+      const date = new Date(this.getDataValue('created_at'));
+      return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
+    }
+  },
+  updated_at: {
+    type: DATE,
+    get(this: RoomModelInstance) {
+      const date = new Date(this.getDataValue('updated_at'));
+      return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
+    }
+  }
 };
 
 const schemaOption = {

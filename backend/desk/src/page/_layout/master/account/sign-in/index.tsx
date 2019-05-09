@@ -44,8 +44,8 @@ export default compose<React.ComponentClass>(
       super(props);
       this.state = {
         formInitialValue: {
-          userName: 'tidc',
-          password: '123456'
+          userName: '',
+          password: ''
         }
       }
     }

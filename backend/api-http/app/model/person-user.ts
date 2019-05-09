@@ -12,9 +12,9 @@ export interface PersonUserModel {
   // 头像
   avatarUrl?: string;
   // 创建时间
-  createdAt?: Date;
+  created_at?: Date;
   // 修改时间
-  updatedAt?: Date;
+  updated_at?: Date;
 }
 
 interface PersonUserModelInstance extends PersonUserModel, Instance<PersonUserModel> {
@@ -26,8 +26,20 @@ const schema = {
   openid: STRING(255),
   nickName: STRING(255),
   avatarUrl: STRING(255),
-  created_at: DATE,
-  updated_at: DATE
+  created_at: {
+    type: DATE,
+    get(this: PersonUserModelInstance) {
+      const date = new Date(this.getDataValue('created_at'));
+      return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
+    }
+  },
+  updated_at: {
+    type: DATE,
+    get(this: PersonUserModelInstance) {
+      const date = new Date(this.getDataValue('updated_at'));
+      return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
+    }
+  }
 };
 
 const schemaOption = {

@@ -361,6 +361,19 @@ export default class Home extends wepy.page {
       if (this.userInfo.openid && this.deviceInfoList.length === 0 && this.roomInfoList.length === 0) {
         this.methods.updateRoomDeviceInfoList();
       }
+      // 监听用户信息, 更新数据库用户信息
+      if (this.userInfo.openid && this.userInfo.userInfo) {
+        // 将用户信息保存到数据库
+        await api.account.savePersonUserInfo({
+          openid: this.userInfo.openid,
+          nickName: this.userInfo.userInfo.nickName,
+          avatarUrl: this.userInfo.userInfo.avatarUrl
+        });
+        // 用户信息更新, 初始化房间与设备数据
+        if (this.userInfo.openid && this.deviceInfoList.length === 0 && this.roomInfoList.length === 0) {
+          this.methods.updateRoomDeviceInfoList();
+        }
+      }
     },
     roomInfoList: () => {
       // 监听房间数据, 更新房间与设备对应的数据
@@ -405,11 +418,12 @@ export default class Home extends wepy.page {
       });
     }
 
-    // 如果有用户信息说明已经初始化, 直接取消 loading
+    // 如果有openid, 就已经初始化, 直接取消 loading
     if (this.userInfo.openid) {
       this.loading = false;
       this.$apply();
     }
+    // 如果有openid, 就已经初始化, 如果列表数据是空的, 就刷新列表数据
     if (this.userInfo.openid && this.deviceInfoList.length === 0 && this.roomInfoList.length === 0) {
       this.methods.updateRoomDeviceInfoList();
     }

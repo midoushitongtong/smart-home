@@ -130,11 +130,20 @@ export default class Router extends React.Component<Props, State> {
 
   public render = (): JSX.Element => {
     const { state } = this;
-    return (
-      <BrowserRouter>
-        {/* 分发所有路由组件的入口 */}
-        {renderRoutes(state.routeList)}
-      </BrowserRouter>
-    );
+    return process.env.NODE_ENV === 'development'
+      ? (
+        <BrowserRouter>
+          {/* 分发所有路由组件的入口 */}
+          {renderRoutes(state.routeList)}
+        </BrowserRouter>
+      )
+      : (
+        <BrowserRouter
+          basename="/smart-home/backend/desk"
+        >
+          {/* 分发所有路由组件的入口 */}
+          {renderRoutes(state.routeList)}
+        </BrowserRouter>
+      );
   };
 }

@@ -20,9 +20,9 @@ export interface DeviceModel {
   // 设备控制名
   controlName?: string,
   // 创建时间
-  createdAt?: Date;
+  created_at?: Date;
   // 修改时间
-  updatedAt?: Date;
+  updated_at?: Date;
 }
 
 interface DeviceModelInstance extends DeviceModel, Instance<DeviceModel> {
@@ -38,8 +38,20 @@ const schema = {
   originControlName: STRING(50),
   controlName: STRING(50),
   icon: STRING(255),
-  created_at: DATE,
-  updated_at: DATE
+  created_at: {
+    type: DATE,
+    get(this: DeviceModelInstance) {
+      const date = new Date(this.getDataValue('created_at'));
+      return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
+    }
+  },
+  updated_at: {
+    type: DATE,
+    get(this: DeviceModelInstance) {
+      const date = new Date(this.getDataValue('updated_at'));
+      return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
+    }
+  }
 };
 
 const schemaOption = {

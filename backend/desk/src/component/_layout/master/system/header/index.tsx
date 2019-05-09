@@ -83,7 +83,7 @@ export default compose<React.ComponentClass>(
                     <Menu.Item key="1" onClick={this.signOut}>退出登录</Menu.Item>
                   </Menu>
                 )}>
-                  <span>{props.userInfo.username || 'admin'}</span>
+                  <span>{props.userInfo.userName}</span>
                 </Dropdown>
               </div>
             </section>

@@ -51,12 +51,20 @@ export default class PersonUser extends Service {
       // 用户不存在就插入
       // 插入用户数据
       const result = await app.model.PersonUser.create(data);
-      // 插入默认房间
-      await app.model.Room.create({
-        openid: data.openid,
-        name: '客厅',
-        icon: '/assets/images/living.png'
+      // 判断用户是否有房间
+      const roomList = await app.model.Room.findAll({
+        where: {
+          openid: data.openid
+        }
       });
+      if (roomList.length <= 0) {
+        // 用户没有房间, 插入默认房间
+        await app.model.Room.create({
+          openid: data.openid,
+          name: '客厅',
+          icon: '/assets/images/living.png'
+        });
+      }
       return result;
     }
   }
@@ -66,28 +74,35 @@ export default class PersonUser extends Service {
    *
    * @param data
    */
-  public async selectPersonUserList(data: any) {
+  public async selectPersonUserList(data: { where: any, limit: any, orderBy: any }) {
     const { app } = this;
-    // 计算分页偏移量
-    const offset = (data.page - 1) * data.pageSize;
-    const limit = data.pageSize;
-
-    // 生成查询条件
+    // 构建查询条件
     const condition: any = {};
-    if (data.nickName) {
+    if (data.where.nickName) {
+      // 查询条件
       condition.where = {
+        ...condition.where,
         nickName: {
-          [Op.like]: `%${data.nickName}%`
+          [Op.like]: `%${data.where.nickName}%`
         }
       };
     }
-    condition.offset = offset;
-    condition.limit = limit;
+    if (data.limit.page && data.limit.pageSize) {
+      // 计算分页偏移量
+      condition.offset = (data.limit.page - 1) * data.limit.pageSize;
+      condition.limit = data.limit.pageSize;
+    }
+    if (data.orderBy.sortField && data.orderBy.sortOrder) {
+      // 排序
+      condition.order = [
+        [data.orderBy.sortField, data.orderBy.sortOrder]
+      ];
+    }
 
     // 返回查询数据
     const result: any = await app.model.PersonUser.findAndCountAll(condition);
-    result.page = data.page;
-    result.pageSize = data.pageSize;
+    result.page = data.limit.page;
+    result.pageSize = data.limit.pageSize;
     return result;
   }
 
@@ -105,7 +120,7 @@ export default class PersonUser extends Service {
         }
       }
     });
-    roomList= await Promise.all(roomList.map(async (roomItem: any) => {
+    roomList = await Promise.all(roomList.map(async (roomItem: any) => {
       roomItem.dataValues.deviceList = await app.model.Device.findAll({
         where: {
           roomId: {
