@@ -18,7 +18,7 @@
       @close="toggleModal({{false}})"
     >
       <view class="model-tooltip">
-        以下绑定的设备将会被
+        以下在线的设备将会被
         <view class="bold">{{model === 'online' ? '开启!' : '关闭!'}}</view>
       </view>
       <view class="device-list-container">
@@ -64,6 +64,7 @@ import { connect } from 'wepy-redux';
 import featureSocket from '../../util/feature-socket';
 
 @connect({
+  featureInfo: (state) => state.feature.featureInfo,
   roomInfoList: (state) => state.feature.roomInfoList,
   deviceInfoList: (state) => state.feature.deviceInfoList
 }, {})
@@ -97,11 +98,14 @@ export default class Home extends wepy.page {
       this.methods.toggleModal(true);
     },
     refreshNewRoomDeviceInfoList: () => {
-      this.newRoomDeviceInfoList = this.deviceInfoList.map(deviceInfoItem => {
-        deviceInfoItem.roomName = this.roomInfoList.find(roomInfoItem => roomInfoItem.id === deviceInfoItem.roomId).name;
-        deviceInfoItem.checked = true;
-        return deviceInfoItem;
-      });
+      this.newRoomDeviceInfoList = this.deviceInfoList
+        // 过滤不在线的设备
+        .filter(deviceInfoItem => this.featureInfo[deviceInfoItem.controlName] !== undefined)
+        .map(deviceInfoItem => {
+          deviceInfoItem.roomName = this.roomInfoList.find(roomInfoItem => roomInfoItem.id === deviceInfoItem.roomId).name;
+          deviceInfoItem.checked = true;
+          return deviceInfoItem;
+        });
       this.$apply();
     },
     // 显示/隐藏 删除所有房间确认容器
@@ -219,8 +223,8 @@ export default class Home extends wepy.page {
             padding-left: 10px;
             padding-right: 10px;
             .model-tooltip {
-              display:flex;
-              justify-content:center;
+              display: flex;
+              justify-content: center;
               padding-bottom: 10px;
               border-bottom: 1px solid rgba(0, 0, 0, .05);
               .bold {

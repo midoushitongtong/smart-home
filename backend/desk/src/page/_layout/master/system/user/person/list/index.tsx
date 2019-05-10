@@ -55,7 +55,7 @@ export default compose<React.ComponentClass>(
             )
           },
           { title: '创建时间', sorter: true, dataIndex: 'created_at' },
-          { title: '修改时间', sorter: true, dataIndex: 'updated_at' },
+          { title: '最近登陆时间', sorter: true, dataIndex: 'updated_at' },
           {
             title: '操作', dataIndex: 'action', render: (text: any, record: any) => (
               <div className="table-data-action-container">
