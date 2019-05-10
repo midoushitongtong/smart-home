@@ -3,6 +3,7 @@ const actionType = {
   UPDATE_FEATURE_INFO: 'updateFeatureInfo',
   UPDATE_ROOM_INFO_LIST: 'updateRoomInfoList',
   UPDATE_DEVICE_INFO_LIST: 'updateDeviceInfoList',
+  UPDATE_SMART_DEVICE_INFO_LIST: 'updateSmartDeviceInfoList',
   CLEAR_FEATURE_STATE: 'clearFeatureInfo'
 };
 
@@ -10,7 +11,8 @@ const actionType = {
 const initState = {
   featureInfo: {},
   roomInfoList: [],
-  deviceInfoList: []
+  deviceInfoList: [],
+  smartDeviceInfoList: []
 };
 
 // action
@@ -41,6 +43,15 @@ export const updateDeviceInfoList = (deviceInfoList) => {
     }
   };
 };
+// 修改当前智能设备列表
+export const updateSmartDeviceInfoList = (smartDeviceInfoList) => {
+  return {
+    type: actionType.UPDATE_SMART_DEVICE_INFO_LIST,
+    data: {
+      smartDeviceInfoList
+    }
+  };
+};
 
 // 清空当前模块的状态
 export const clearFeatureInfo = () => {
@@ -58,6 +69,11 @@ export default (state = initState, action) => {
         ...action.data
       };
     case actionType.UPDATE_DEVICE_INFO_LIST:
+      return {
+        ...state,
+        ...action.data
+      };
+    case actionType.UPDATE_SMART_DEVICE_INFO_LIST:
       return {
         ...state,
         ...action.data

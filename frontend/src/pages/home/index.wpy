@@ -54,12 +54,12 @@
                         </view>
                         <!-- 只有swiper的设备 -->
                         <view
-                          class="action-power {{featureInfo[item2.controlName] ? 'active' : ''}} {{featureInfo[item2.controlName] == undefined ? 'offline' : ''}}"
+                          class="action-power {{featureInfo[item2.controlName] === '1' ? 'active' : ''}} {{featureInfo[item2.controlName] == undefined ? 'offline' : ''}}"
                           wx:if="{{item2.originControlName === 'LED' || item2.originControlName === 'door' || item2.originControlName === 'hood' || item2.originControlName === 'cur'}}"
                         >
                           <view class="offline" wx:if="{{featureInfo[item2.controlName] == undefined}}">离线</view>
                           <view class="online" wx:else>
-                            <image src="/assets/images/power-on.png" wx:if="{{featureInfo[item2.controlName]}}"/>
+                            <image src="/assets/images/power-on.png" wx:if="{{featureInfo[item2.controlName] === '1'}}"/>
                             <image src="/assets/images/power-off.png" wx:else/>
                           </view>
                         </view>
@@ -127,7 +127,7 @@
           <i-cell title="开关">
             <i-switch
               i-class="{{openLoading ? 'open-loading' : ''}}"
-              value="{{featureInfo[actionDeviceInfo.controlName]}}"
+              value="{{featureInfo[actionDeviceInfo.controlName] === '1'}}"
               @change="changeFeatureInfo"
               slot="footer"
             />

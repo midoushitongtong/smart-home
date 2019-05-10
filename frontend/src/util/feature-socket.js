@@ -104,7 +104,7 @@ const featureSocket = {
     // 将数据保存到 reudx 中
     if (data.substring(0, 'LED'.length) === 'LED') {
       const controlName = featureSocket.getControlName(data);
-      const controlValue = data.split('-')[1] === '1';
+      const controlValue = data.split('-')[1];
       const featureInfo = {
         [controlName]: controlValue
       };
@@ -115,7 +115,7 @@ const featureSocket = {
       return featureInfo;
     } else if (data.substring(0, 'door'.length) === 'door') {
       const controlName = featureSocket.getControlName(data);
-      const controlValue = data.split('-')[1] === '1';
+      const controlValue = data.split('-')[1];
       const featureInfo = {
         [controlName]: controlValue
       };
@@ -126,7 +126,7 @@ const featureSocket = {
       return featureInfo;
     } else if (data.substring(0, 'hood'.length) === 'hood') {
       const controlName = featureSocket.getControlName(data);
-      const controlValue = data.split('-')[1] === '1';
+      const controlValue = data.split('-')[1];
       const featureInfo = {
         [controlName]: controlValue
       };
@@ -137,7 +137,7 @@ const featureSocket = {
       return featureInfo;
     } else if (data.substring(0, 'cur'.length) === 'cur') {
       const controlName = featureSocket.getControlName(data);
-      const controlValue = data.split('-')[1] === '1';
+      const controlValue = data.split('-')[1];
       const featureInfo = {
         [controlName]: controlValue
       };

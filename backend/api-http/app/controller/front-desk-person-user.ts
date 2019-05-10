@@ -24,10 +24,9 @@ export default class PersonUserController extends Controller {
       nickName: StringUtil.toUnicode(body.nickName),
       avatarUrl: body.avatarUrl
     };
-    const personUserInfo = await ctx.service.personUser.savePersonUserInfo(data);
+    await ctx.service.personUser.savePersonUserInfo(data);
     ctx.body = {
-      code: '0',
-      data: personUserInfo
+      code: '0'
     };
   };
 }

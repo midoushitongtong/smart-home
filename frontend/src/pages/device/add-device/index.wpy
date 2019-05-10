@@ -263,7 +263,6 @@ export default class Home extends wepy.page {
   };
 
   onLoad() {
-    console.log(this.roomInfoList);
     // 初始化附近设备列表
     this.methods.refreshNearbyDeviceList(this.featureInfo);
   }

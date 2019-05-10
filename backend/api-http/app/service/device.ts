@@ -30,7 +30,67 @@ export default class Device extends Service {
    */
   public async insertDevice(data: DeviceModel) {
     const { app } = this;
-    return await app.model.Device.create(data);
+    const result = await app.model.Device.create(data);
+    // 插入智能设备默认控制数据
+    let onlineControlValue = '';
+    let offlineControlValue = '';
+    let sleepControlValue = '';
+    switch (result.originControlName) {
+      // 灯 窗帘
+      case 'LED':
+      case 'cur':
+        onlineControlValue = '1';
+        offlineControlValue = '0';
+        sleepControlValue = '0';
+        break;
+      // 门
+      case 'hood':
+        onlineControlValue = '1';
+        offlineControlValue = '0';
+        sleepControlValue = '0';
+        break;
+      //  油烟机
+      case 'door':
+        onlineControlValue = '0';
+        offlineControlValue = '0';
+        sleepControlValue = '0';
+        break;
+      // 风扇
+      case 'fan':
+        onlineControlValue = '1';
+        offlineControlValue = '0';
+        sleepControlValue = '0';
+        break;
+      // 空调
+      case 'tem':
+        // 判断是开关还是挡位
+        onlineControlValue = '23';
+        offlineControlValue = '0';
+        sleepControlValue = '23';
+        break;
+      default:
+        console.log('未知 originControlName');
+    }
+    // 插入智能设备
+    await app.model.SmartDevice.create({
+      ...data,
+      deviceId: result.id,
+      model: 'online',
+      controlValue: onlineControlValue
+    });
+    await app.model.SmartDevice.create({
+      ...data,
+      deviceId: result.id,
+      model: 'offline',
+      controlValue: offlineControlValue
+    });
+    await app.model.SmartDevice.create({
+      ...data,
+      deviceId: result.id,
+      model: 'sleep',
+      controlValue: sleepControlValue
+    });
+    return result;
   }
 
   /**
@@ -40,7 +100,7 @@ export default class Device extends Service {
    */
   public async updateDeviceById(data: DeviceModel) {
     const { app } = this;
-    return await app.model.Device.update({
+    const result = await app.model.Device.update({
       roomId: data.roomId,
       originName: data.originName,
       name: data.name,
@@ -57,6 +117,25 @@ export default class Device extends Service {
         }
       }
     });
+    // 修改智能设备
+    await app.model.SmartDevice.update({
+      roomId: data.roomId,
+      originName: data.originName,
+      name: data.name,
+      originControlName: data.originControlName,
+      controlName: data.controlName,
+      icon: data.icon
+    }, {
+      where: {
+        deviceId: {
+          [Op.eq]: data.id
+        },
+        openid: {
+          [Op.eq]: data.openid
+        }
+      }
+    });
+    return result;
   }
 
   /**
@@ -66,7 +145,7 @@ export default class Device extends Service {
    */
   public async deleteDeviceById(data: DeviceModel) {
     const { app } = this;
-    return await app.model.Device.destroy({
+    const result = await app.model.Device.destroy({
       where: {
         id: {
           [Op.eq]: data.id
@@ -76,5 +155,17 @@ export default class Device extends Service {
         }
       }
     });
+    // 删除智能设备
+    await app.model.SmartDevice.destroy({
+      where: {
+        deviceId: {
+          [Op.eq]: data.id
+        },
+        openid: {
+          [Op.eq]: data.openid
+        }
+      }
+    });
+    return result;
   }
 }
