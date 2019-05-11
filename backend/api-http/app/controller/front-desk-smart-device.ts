@@ -20,14 +20,7 @@ export default class DeviceController extends Controller {
     const { body } = ctx.request;
     const data = {
       id,
-      deviceId: body.deviceId,
       openid: body.openid,
-      roomId: body.roomId,
-      icon: body.icon,
-      originName: body.originName,
-      name: body.name,
-      originControlName: body.originControlName,
-      controlName: body.controlName,
       controlValue: body.controlValue
     };
     await ctx.service.smartDevice.updateSmartDeviceById(data);

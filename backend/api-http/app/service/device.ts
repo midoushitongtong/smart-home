@@ -73,19 +73,19 @@ export default class Device extends Service {
     }
     // 插入智能设备
     await app.model.SmartDevice.create({
-      ...data,
+      openid: data.openid,
       deviceId: result.id,
       model: 'online',
       controlValue: onlineControlValue
     });
     await app.model.SmartDevice.create({
-      ...data,
+      openid: data.openid,
       deviceId: result.id,
       model: 'offline',
       controlValue: offlineControlValue
     });
     await app.model.SmartDevice.create({
-      ...data,
+      openid: data.openid,
       deviceId: result.id,
       model: 'sleep',
       controlValue: sleepControlValue
@@ -100,7 +100,7 @@ export default class Device extends Service {
    */
   public async updateDeviceById(data: DeviceModel) {
     const { app } = this;
-    const result = await app.model.Device.update({
+    return await app.model.Device.update({
       roomId: data.roomId,
       originName: data.originName,
       name: data.name,
@@ -117,25 +117,6 @@ export default class Device extends Service {
         }
       }
     });
-    // 修改智能设备
-    await app.model.SmartDevice.update({
-      roomId: data.roomId,
-      originName: data.originName,
-      name: data.name,
-      originControlName: data.originControlName,
-      controlName: data.controlName,
-      icon: data.icon
-    }, {
-      where: {
-        deviceId: {
-          [Op.eq]: data.id
-        },
-        openid: {
-          [Op.eq]: data.openid
-        }
-      }
-    });
-    return result;
   }
 
   /**

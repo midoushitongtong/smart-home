@@ -45,13 +45,13 @@ export default class extends wepy.app {
         },
         {
           pagePath: 'pages/model/index',
-          text: '智能',
+          text: '易管理',
           iconPath: '/assets/images/smart.png',
           selectedIconPath: '/assets/images/smart-selected.png'
         },
         {
           pagePath: 'pages/account/person/index',
-          text: '我的',
+          text: '个人中心',
           iconPath: '/assets/images/md-person.png',
           selectedIconPath: '/assets/images/md-person-selected.png'
         }

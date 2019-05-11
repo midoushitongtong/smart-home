@@ -7,7 +7,7 @@
       <view class="user-info-nickname">{{userInfo.userInfo.nickName}}</view>
     </view>
     <view class="sign-tooltip-container" wx:else>
-      <view class="tooltip-text" @tap="toSignIn">立即登陆, 开启您的智能生活</view>
+      <view class="tooltip-text" @tap="toSignIn">立即登陆, 开启您的品质生活</view>
       <button class="tooltip-button" @tap="toSignIn">登陆/注册</button>
     </view>
     <view class="function-list">

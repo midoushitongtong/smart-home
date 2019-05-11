@@ -103,7 +103,7 @@
       </view>
       <view class="to-sign-in-tooltip" @tap="toSignIn" wx:else>
         <view class="bold">立即登陆</view>
-        <view>开启您的智能生活</view>
+        <view>开启您的品质生活</view>
       </view>
     </view>
     <view class="loading-container" wx:else>

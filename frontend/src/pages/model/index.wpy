@@ -1,16 +1,16 @@
 <template>
   <view class="smart-model-container">
     <view class="smart-model-item" @tap="toSmartModel('online')">
-      <view class="smart-model-text">居家模式</view>
-      <image src="../../assets/images/online-model.jpg" alt="居家模式"/>
+      <view class="smart-model-text">常用管理</view>
+      <image src="../../assets/images/online-model.jpg" alt="常用管理"/>
     </view>
     <view class="smart-model-item" @tap="toSmartModel('offline')">
-      <view class="smart-model-text">离家模式</view>
-      <image src="../../assets/images/offline-model.jpg" alt="离线模式"/>
+      <view class="smart-model-text">外出管理</view>
+      <image src="../../assets/images/offline-model.jpg" alt="外出管理"/>
     </view>
     <view class="smart-model-item" @tap="toSmartModel('sleep')">
-      <view class="smart-model-text">睡眠模式</view>
-      <image src="../../assets/images/sleep-model.jpg" alt="离线模式"/>
+      <view class="smart-model-text">睡眠管理</view>
+      <image src="../../assets/images/sleep-model.jpg" alt="睡眠管理"/>
     </view>
 
     <view class="loading-container" wx:if="{{actionLoading}}">
@@ -26,9 +26,9 @@
       @close="toggleModal({{false}})"
     >
       <view class="model-tooltip">
-        <view>{{model === 'online' ? '居家模式' : model === 'offline' ? '离家模式' : model === 'sleep' ? '睡眠模式' : ''}}</view>
+        <view>{{model === 'online' ? '常用管理' : model === 'offline' ? '外出管理' : model === 'sleep' ? '睡眠管理' : ''}}</view>
         <view>
-          <view class="bold">设备将会执行以下操作</view>
+          <view class="bold">设备将根据以下配置进行操作</view>
         </view>
       </view>
       <view class="device-list-container">
@@ -39,12 +39,12 @@
               i-class="i-button-edit-smart-device"
               type="info"
               @tap="toEditSmartModel()"
-            >修改配置
+            >修改设备操作配置
             </i-button>
           </view>
           <repeat for="{{newModelRoomSmartDeviceInfoList}}" key="index" index="index" item="item">
             <label class="device-list-item">
-              <i-cell i-class="i-cell-device-list-item">
+              <i-cell i-class="i-cell-device-list-item {{featureInfo[item.controlName] == undefined ? 'offline' : ''}}">
                 <view class="device-base-info-container" slot="icon">
                   <view class="image-container">
                     <image src="{{item.icon}}"/>
@@ -114,11 +114,11 @@
       @close="toggleModal2({{false}})"
     >
       <view class="model-tooltip">
-        <view>修改
-          <view class="bold">{{model === 'online' ? '居家模式' : model === 'offline' ? '离家模式' : model === 'sleep' ? '睡眠模式' :
+        <view>
+          <view class="bold">{{model === 'online' ? '常用管理' : model === 'offline' ? '外出管理' : model === 'sleep' ? '睡眠管理' :
             ''}}
           </view>
-          配置信息
+          设备操作配置
         </view>
       </view>
       <view class="device-list-container">
@@ -235,7 +235,7 @@ export default class Home extends wepy.page {
     newModelRoomSmartDeviceInfoList: [],
     // 加载智能设备状态
     actionLoading: true,
-    // 操作模式[离家, 居家],
+    // 操作模式
     model: '',
     // 控制 显示/隐藏 模式容器
     visible: false,
@@ -250,7 +250,7 @@ export default class Home extends wepy.page {
         color: '#f02517'
       }
     ],
-    // 操作模式[离家, 居家],
+    // 操作模式
     model2: '',
     // 控制 显示/隐藏 模式容器
     visible2: false,
@@ -276,12 +276,11 @@ export default class Home extends wepy.page {
         this.methods.updateSmartDeviceInfoList(result.data);
         this.actionLoading = false;
         this.$apply();
-      }, 1000);
+      }, 250);
     },
     refreshNewRoomSmartDeviceInfoList: () => {
       this.newRoomSmartDeviceInfoList = this.smartDeviceInfoList
-      // 过滤不在线的设备
-        .filter(deviceInfoItem => this.featureInfo[deviceInfoItem.controlName] !== undefined)
+        // 获取当前设备房间名
         .map(smartDeviceInfoItem => {
           smartDeviceInfoItem.roomName = this.roomInfoList.find(roomInfoItem => roomInfoItem.id === smartDeviceInfoItem.roomId).name;
           return smartDeviceInfoItem;
@@ -342,6 +341,11 @@ export default class Home extends wepy.page {
         let newModelRoomSmartDeviceInfoListCount = this.newModelRoomSmartDeviceInfoList.length;
 
         this.newModelRoomSmartDeviceInfoList.forEach((newModelRoomDeviceInfoItem, index) => {
+          // 离线设备不进行操作
+          if (this.featureInfo[newModelRoomDeviceInfoItem.controlName] === undefined) {
+            newModelRoomSmartDeviceInfoListCount--;
+            return;
+          }
           setTimeout(() => {
             // 发送 socket 指令
             switch (newModelRoomDeviceInfoItem.originControlName) {
@@ -389,19 +393,12 @@ export default class Home extends wepy.page {
       this.$apply();
     },
     // 模态框按钮点击事件
-    handlerAction2: async (e) => {
+    handlerAction2: async () => {
       this.methods.toggleModal2(false);
     },
     changeFeatureInfo: async (actionDeviceInfo, e) => {
       let data = {
-        deviceId: actionDeviceInfo.deviceId,
-        openid: actionDeviceInfo.openid,
-        roomId: actionDeviceInfo.roomId,
-        icon: actionDeviceInfo.icon,
-        originName: actionDeviceInfo.originName,
-        name: actionDeviceInfo.name,
-        originControlName: actionDeviceInfo.originControlName,
-        controlName: actionDeviceInfo.controlName
+        openid: actionDeviceInfo.openid
       };
       switch (actionDeviceInfo.originControlName) {
         case 'LED':
@@ -451,7 +448,7 @@ export default class Home extends wepy.page {
     },
     // 监听设备数据, 更新智能设备数据
     deviceInfoList: () => {
-      this.methods.updateNewSmartDeviceList();
+      this.methods.refreshNewRoomSmartDeviceInfoList();
     },
     // 监听智能设备数据, 更新新的智能设备数据
     smartDeviceInfoList: () => {
@@ -530,6 +527,9 @@ export default class Home extends wepy.page {
                 .i-cell-device-list-item {
                   border-bottom: 1px solid #eee;
                   padding: 6px 7px;
+                  &.offline {
+                    background: rgba(0, 0, 0, .05);
+                  }
                 }
                 .device-base-info-container {
                   display: flex;
@@ -576,7 +576,6 @@ export default class Home extends wepy.page {
                         overflow: hidden;
                         white-space: nowrap;
                         text-overflow: ellipsis;
-                        font-size: 12px;
                         color: #888;
                       }
                     }
@@ -604,7 +603,6 @@ export default class Home extends wepy.page {
                         overflow: hidden;
                         white-space: nowrap;
                         text-overflow: ellipsis;
-                        font-size: 12px;
                         color: #888;
                       }
                     }
