@@ -54,8 +54,8 @@ export default compose<React.ComponentClass>(
               <span>{stringUtil.unicodeToChinese(text)}</span>
             )
           },
-          { title: '创建时间', sorter: true, dataIndex: 'created_at' },
-          { title: '最近登陆时间', sorter: true, dataIndex: 'updated_at' },
+          { title: '创建时间', sorter: true, dataIndex: 'createdAt' },
+          { title: '最近登陆时间', sorter: true, dataIndex: 'updatedAt' },
           {
             title: '操作', dataIndex: 'action', render: (text: any, record: any) => (
               <div className="table-data-action-container">

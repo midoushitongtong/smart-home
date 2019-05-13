@@ -59,7 +59,8 @@
                         >
                           <view class="offline" wx:if="{{featureInfo[item2.controlName] == undefined}}">离线</view>
                           <view class="online" wx:else>
-                            <image src="/assets/images/power-on.png" wx:if="{{featureInfo[item2.controlName] === '1'}}"/>
+                            <image src="/assets/images/power-on.png"
+                                   wx:if="{{featureInfo[item2.controlName] === '1'}}"/>
                             <image src="/assets/images/power-off.png" wx:else/>
                           </view>
                         </view>
@@ -244,18 +245,27 @@ export default class Home extends wepy.page {
     refreshNewRoomDeviceInfoList: () => {
       // 设置设备对应的房间名称, 以及控制前缀
       let newDeviceInfoList = this.deviceInfoList.map(deviceInfoItem => {
-        deviceInfoItem.roomName = this.roomInfoList.find(roomInfoItem => roomInfoItem.id === deviceInfoItem.roomId).name;
+        const roomInfo = this.roomInfoList.find(roomInfoItem => roomInfoItem.id === deviceInfoItem.roomId);
+        if (roomInfo) {
+          deviceInfoItem.roomName = roomInfo.name;
+        }
         return deviceInfoItem;
       });
+
+      // 所有房间设备
+      let allRoomDeviceInfoList = [];
+
       // 将设备归类到对应的房间
       const newRoomDeviceInfoList = this.roomInfoList.map((roomInfoItem) => {
         roomInfoItem.deviceInfoList = newDeviceInfoList.filter(deviceInfoItem => deviceInfoItem.roomId === roomInfoItem.id);
+        allRoomDeviceInfoList = allRoomDeviceInfoList.concat(roomInfoItem.deviceInfoList);
         return roomInfoItem;
       });
+
       // 我的设备显示全部设备
       newRoomDeviceInfoList.unshift({
         name: '我的设备',
-        deviceInfoList: newDeviceInfoList
+        deviceInfoList: allRoomDeviceInfoList
       });
 
       // 更新数据
@@ -422,6 +432,14 @@ export default class Home extends wepy.page {
 
     // 初始化数据
     this.methods.refreshNewRoomDeviceInfoList();
+
+    // 更新温度和湿度
+    if (this.featureInfo && this.featureInfo.temHum1) {
+      this.temHum1 = {
+        tem: this.featureInfo.temHum1.split('-')[0],
+        hum: this.featureInfo.temHum1.split('-')[1]
+      };
+    }
   }
 }
 </script>

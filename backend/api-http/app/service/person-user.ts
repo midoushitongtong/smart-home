@@ -50,6 +50,7 @@ export default class PersonUser extends Service {
     } else {
       // 用户不存在就插入
       // 插入用户数据
+      console.log(data);
       const result = await app.model.PersonUser.create(data);
       // 判断用户是否有房间
       const roomList = await app.model.Room.findAll({

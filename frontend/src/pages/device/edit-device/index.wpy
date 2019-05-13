@@ -4,10 +4,6 @@
       <view wx:if="{{newRoomDeviceInfoList.length > 0}}">
         <repeat for="{{newRoomDeviceInfoList}}" key="index" index="index" item="item">
           <view class="room-device-container">
-            <view class="room-info">
-              <image src="{{item.icon}}"></image>
-              <view>{{item.name}}</view>
-            </view>
             <i-cell-group>
               <repeat for="{{item.deviceInfoList}}" key="index2" index="index2" item="item2">
                 <i-cell
@@ -17,8 +13,9 @@
                 >
                   <view class="device-base-info-container" slot="icon">
                     <image src="{{item2.icon}}"/>
-                    <view class="name">
-                      <text>{{item2.name}}</text>
+                    <view class="device-name-room-name">
+                      <view>{{item2.name}}</view>
+                      <view>{{item.name}}</view>
                     </view>
                   </view>
                 </i-cell>
@@ -175,24 +172,7 @@ export default class Home extends wepy.page {
         padding-bottom: 10px;
       }
       .room-device-container {
-        .room-info {
-          display: flex;
-          align-items: center;
-          padding: 12px 15px;
-          border-bottom: 1px solid rgba(0, 0, 0, .3);
-          image {
-            width: 25px;
-            height: 25px;
-            margin-right: 10px;
-            padding: 9px;
-            border: ~"1rpx" solid #e9eaec;
-          }
-          view {
-            font-size: 13px;
-          }
-        }
         .i-cell-device-list-item {
-          margin-left: 20px;
           &:active {
             background-color: rgba(0, 0, 0, .05);
           }
@@ -206,9 +186,14 @@ export default class Home extends wepy.page {
               padding: 9px;
               border: ~"1rpx" solid #e9eaec;
             }
-            .name {
+            .device-name-room-name {
               display: flex;
               flex-direction: column;
+              view:last-child {
+                margin-top: 3px;
+                font-size: 11px;
+                color: #999;
+              }
             }
           }
         }

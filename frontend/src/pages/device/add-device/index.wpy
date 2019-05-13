@@ -7,6 +7,14 @@
     <view wx:else>
       <view class="nearby-device-list">
         <view wx:if="{{nearbyDeviceList.length > 0}}">
+          <view class="action-container">
+            <i-button
+              i-class="i-button-add-all-device"
+              type="success"
+              @tap="toggleModal({{true}})"
+            >一键添加所有设备
+            </i-button>
+          </view>
           <view class="nearby-device-list-container">
             <i-cell-group>
               <repeat for="{{nearbyDeviceList}}" key="index" index="index" item="item">
@@ -24,14 +32,6 @@
                 </i-cell>
               </repeat>
             </i-cell-group>
-            <view class="action-container">
-              <i-button
-                i-class="i-button-add-all-device"
-                type="success"
-                @tap="toggleModal({{true}})"
-              >一键添加所有设备
-              </i-button>
-            </view>
           </view>
         </view>
         <view class="not-nearby-device-list-container" wx:else>暂无设备可用~</view>

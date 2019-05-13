@@ -1,7 +1,4 @@
-import { Instance, INTEGER, STRING, DATE } from "sequelize";
-import { Application } from 'egg';
-
-// ide 提示
+// 数据库约束对象
 export interface ManageUserModel {
   // id
   id?: number;
@@ -15,36 +12,45 @@ export interface ManageUserModel {
   updated_at?: Date;
 }
 
-interface ManageUserModelInstance extends ManageUserModel, Instance<ManageUserModel> {
-}
+export default app => {
+  const { INTEGER, STRING, DATE } = app.Sequelize;
 
-// 数据库字段
-const schema = {
-  id: { type: INTEGER, primaryKey: true, autoIncrement: true },
-  userName: STRING(255),
-  password: STRING(255),
-  created_at: {
-    type: DATE,
-    get(this: ManageUserModelInstance) {
-      const date = new Date(this.getDataValue('created_at'));
-      return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
+  // 数据库字段
+  const databaseFiled = {
+    id: { type: INTEGER, primaryKey: true, autoIncrement: true },
+    userName: STRING(255),
+    password: STRING(255),
+    createdAt: {
+      type: DATE,
+      get() {
+        if ((this as any).getDataValue('createdAt')) {
+          const date = new Date((this as any).getDataValue('createdAt'));
+          return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
+        } else {
+          return '';
+        }
+      }
+    },
+    updatedAt: {
+      type: DATE,
+      get() {
+        if ((this as any).getDataValue('updatedAt')) {
+          const date = new Date((this as any).getDataValue('updatedAt'));
+          return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
+        } else {
+          return '';
+        }
+      }
     }
-  },
-  updated_at: {
-    type: DATE,
-    get(this: ManageUserModelInstance) {
-      const date = new Date(this.getDataValue('updated_at'));
-      return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
-    }
-  }
-};
+  };
 
-const schemaOption = {
-  timestamps: true,
-  underscored: true,
-  freezeTableName: true
-};
+  // 数据库配置
+  const databaseConfig = {
+    freezeTableName: false,     // 表名不带复数
+    tableName: 'manage_user',  // 表名
+    timestamps: true,           // 自动维护 createdAt updatedAt
+    underscored: true,          // 开启驼峰转换
+  };
 
-export default (app: Application) => {
-  return app.model.define<ManageUserModelInstance, ManageUserModel>('manage_user', schema, schemaOption);
-}
+  return app.model.define('manage_user', databaseFiled, databaseConfig);
+};

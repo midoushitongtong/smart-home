@@ -44,7 +44,8 @@
           </view>
           <repeat for="{{newModelRoomSmartDeviceInfoList}}" key="index" index="index" item="item">
             <label class="device-list-item">
-              <i-cell i-class="i-cell-device-list-item {{featureInfo[item.controlName] == undefined ? 'offline' : ''}}">
+              <i-cell
+                i-class="i-cell-device-list-item {{featureInfo[item.controlName] == undefined ? 'offline' : ''}}">
                 <view class="device-base-info-container" slot="icon">
                   <view class="image-container">
                     <image src="{{item.icon}}"/>
@@ -100,7 +101,7 @@
           </repeat>
         </view>
         <view class="not-device-container" wx:else>
-          <text>当前暂无设备!</text>
+          <text>尚未添加设备!</text>
         </view>
       </view>
     </i-modal>
@@ -199,7 +200,7 @@
           </repeat>
         </view>
         <view class="not-device-container" wx:else>
-          <text>当前暂无设备!</text>
+          <text>尚未添加设备!</text>
         </view>
       </view>
     </i-modal>
@@ -234,7 +235,7 @@ export default class Home extends wepy.page {
     // 对应模式的只能设备数组
     newModelRoomSmartDeviceInfoList: [],
     // 加载智能设备状态
-    actionLoading: true,
+    actionLoading: false,
     // 操作模式
     model: '',
     // 控制 显示/隐藏 模式容器
@@ -266,43 +267,52 @@ export default class Home extends wepy.page {
   methods = {
     // 更新智能设备
     updateNewSmartDeviceList: async () => {
+      if (this.actionLoading) return;
       this.actionLoading = true;
       this.$apply();
       // 获取智能设备数据
       const result = await api.smartDevice.selectSmartDeviceList({
         openid: this.userInfo.openid
       });
-      setTimeout(() => {
-        this.methods.updateSmartDeviceInfoList(result.data);
-        this.actionLoading = false;
-        this.$apply();
-      }, 250);
+      this.actionLoading = false;
+      this.$apply();
+      this.methods.updateSmartDeviceInfoList(result.data);
     },
     refreshNewRoomSmartDeviceInfoList: () => {
-      this.newRoomSmartDeviceInfoList = this.smartDeviceInfoList
-        // 获取当前设备房间名
-        .map(smartDeviceInfoItem => {
-          smartDeviceInfoItem.roomName = this.roomInfoList.find(roomInfoItem => roomInfoItem.id === smartDeviceInfoItem.roomId).name;
-          return smartDeviceInfoItem;
+      // 设置设备对应的房间名称, 以及控制前缀
+      let newSmartDeviceInfoList = this.smartDeviceInfoList.map(smartDeviceInfoItem => {
+        const roomInfo = this.roomInfoList.find(roomInfoItem => roomInfoItem.id === smartDeviceInfoItem.roomId);
+        if (roomInfo) {
+          smartDeviceInfoItem.roomName = roomInfo.name;
+        }
+        return smartDeviceInfoItem;
+      });
+      // 将设备归类到对应的房间
+      const newRoomSmartDeviceInfoList = [];
+      this.roomInfoList.forEach((roomInfoItem) => {
+        newSmartDeviceInfoList.forEach(smartDeviceInfoItem => {
+          if (smartDeviceInfoItem.roomId === roomInfoItem.id) {
+            smartDeviceInfoItem.roomName = roomInfoItem.name;
+            newRoomSmartDeviceInfoList.push(smartDeviceInfoItem);
+          }
         });
+      });
+      this.newRoomSmartDeviceInfoList = newRoomSmartDeviceInfoList;
       if (this.model) {
         // 刷新当前model数据
         this.methods.refreshNewModelRoomSmartDeviceInfoList(this.model, false);
       }
-      this.$apply();
     },
     refreshNewModelRoomSmartDeviceInfoList: (model, isRefresh) => {
       if (isRefresh) {
         this.newModelRoomSmartDeviceInfoList = [];
-        this.$apply();
         setTimeout(() => {
           this.newModelRoomSmartDeviceInfoList = this.newRoomSmartDeviceInfoList.filter(newRoomSmartDeviceInfoItem => newRoomSmartDeviceInfoItem.model === model);
-          this.$apply();
         }, 5);
       } else {
         this.newModelRoomSmartDeviceInfoList = this.newRoomSmartDeviceInfoList.filter(newRoomSmartDeviceInfoItem => newRoomSmartDeviceInfoItem.model === model);
-        this.$apply();
       }
+      this.$apply();
     },
     toSmartModel: (model) => {
       if (this.userInfo.userInfo !== undefined) {
@@ -335,8 +345,12 @@ export default class Home extends wepy.page {
     handlerAction: async (e) => {
       if (this.actions[1].loading) return;
       if (e.detail.index === 1) {
+        // 执行完成, 将checked改成全选
+        if (this.newModelRoomSmartDeviceInfoList.length === 0) {
+          return;
+        }
+
         this.actions[1].loading = true;
-        this.$apply();
 
         let newModelRoomSmartDeviceInfoListCount = this.newModelRoomSmartDeviceInfoList.length;
 
@@ -368,7 +382,6 @@ export default class Home extends wepy.page {
             // 执行完成, 将checked改成全选
             if (index === newModelRoomSmartDeviceInfoListCount - 1) {
               this.actions[1].loading = false;
-              this.$apply();
               this.methods.toggleModal(false);
             }
           }, index * 233);
@@ -390,7 +403,6 @@ export default class Home extends wepy.page {
     // 显示/隐藏 删除所有房间确认容器
     toggleModal2: (flag) => {
       this.visible2 = flag;
-      this.$apply();
     },
     // 模态框按钮点击事件
     handlerAction2: async () => {
@@ -426,8 +438,6 @@ export default class Home extends wepy.page {
         default:
           console.log('未知 originControlName');
       }
-      this.actionLoading = true;
-      this.$apply();
       // 修改智能模式设备信息
       await api.smartDevice.updateSmartDevice(actionDeviceInfo.id, data);
       // 重新获取智能设备信息
@@ -439,19 +449,23 @@ export default class Home extends wepy.page {
     userInfo: async () => {
       // 监听用户信息, 更新智能设备
       if (this.userInfo.openid && this.newRoomSmartDeviceInfoList.length === 0) {
+        console.log(1);
         await this.methods.updateNewSmartDeviceList();
       }
     },
     // 监听房间数据, 更新智能设备数据
     roomInfoList: () => {
+      console.log(2);
       this.methods.updateNewSmartDeviceList();
     },
     // 监听设备数据, 更新智能设备数据
     deviceInfoList: () => {
-      this.methods.refreshNewRoomSmartDeviceInfoList();
+      console.log(3);
+      this.methods.updateNewSmartDeviceList();
     },
     // 监听智能设备数据, 更新新的智能设备数据
     smartDeviceInfoList: () => {
+      console.log(4);
       this.methods.refreshNewRoomSmartDeviceInfoList();
     }
   };

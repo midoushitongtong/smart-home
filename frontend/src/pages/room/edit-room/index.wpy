@@ -12,8 +12,8 @@
               <view class="room-base-info-container" slot="icon">
                 <image src="{{item.icon}}"/>
                 <view class="name-device">
-                  <text>{{item.name}}</text>
-                  <text>{{item.deviceCount}}个设备</text>
+                  <view>{{item.name}}</view>
+                  <view>{{item.deviceCount}}个设备</view>
                 </view>
               </view>
             </i-cell>
@@ -187,7 +187,7 @@ export default class Home extends wepy.page {
           .name-device {
             display: flex;
             flex-direction: column;
-            text:last-child {
+            view:last-child {
               margin-top: 3px;
               font-size: 11px;
               color: #999;
