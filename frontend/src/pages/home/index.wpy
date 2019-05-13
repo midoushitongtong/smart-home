@@ -1,15 +1,22 @@
 <template>
   <view class="home-container">
+    <view class="bg-container">
+      <view class="bg-inner-container"></view>
+      <view class="ball-1"></view>
+      <view class="ball-2"></view>
+      <view class="ball-3"></view>
+    </view>
     <view class="home-info-container">
       <view class="top">
         <view class="home-name">
-          <text wx:if="{{userInfo.userInfo !== undefined}}">{{userInfo.userInfo.nickName}}的家</text>
+          <view wx:if="{{userInfo.userInfo !== undefined}}">{{userInfo.userInfo.nickName}}的家</view>
         </view>
         <!-- 添加设备按钮 -->
         <view
           class="to-add-deice"
           @tap="addFeature"
-        >+
+        >
+          <view class="text">+</view>
         </view>
       </view>
       <view class="bottom" wx:if="{{!loading && userInfo.userInfo !== undefined}}">
@@ -446,11 +453,91 @@ export default class Home extends wepy.page {
 
 <style lang="less">
   .home-container {
+    .bg-container {
+      z-index: -1;
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      .bg-inner-container {
+        position: absolute;
+        top: 0;
+        right: 0;
+        left: 0;
+        bottom: 50%;
+        background: linear-gradient(rgba(65, 171, 255, 0.68), .1%, #f3f3f3);
+        opacity: .9;
+        z-index: -11;
+      }
+      @-webkit-keyframes ball-1 {
+        0% {
+          transform: translateX(0) translateY(0);
+        }
+        50% {
+          transform: translateX(25px) translateY(-25px);
+        }
+        100% {
+          transform: translateX(0) translateY(0);
+        }
+      }
+
+      @-webkit-keyframes ball-2 {
+        0% {
+          transform: translateX(0) translateY(0);
+        }
+        50% {
+          transform: translateX(-5px) translateY(5px);
+        }
+        100% {
+          transform: translateX(0) translateY(0);
+        }
+      }
+      .ball-1 {
+        position: absolute;
+        right: -20vw;
+        top: -20vw;
+        width: 50vw;
+        height: 50vw;
+        background-color: #40a9ff;
+        border-radius: 50%;
+        background-image: radial-gradient(at 25vw 25vw, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.35));
+        opacity: 0.8;
+        animation: ball-1 9s infinite linear;
+        z-index: -1;
+      }
+      .ball-2 {
+        position: absolute;
+        right: 15vw;
+        top: 1vw;
+        width: 20vw;
+        height: 20vw;
+        background-color: #40a9ff;
+        border-radius: 50%;
+        background-image: radial-gradient(at 10vw 10vw, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.2));
+        opacity: .35;
+        animation: ball-2 9s infinite linear;
+        z-index: -2;
+        filter: blur(1px);
+      }
+      .ball-3 {
+        position: absolute;
+        left: -13vw;
+        top: -13vw;
+        width: 30vw;
+        height: 30vw;
+        background-color: #40a9ff;
+        border-radius: 50%;
+        background-image: radial-gradient(at 15vw 15vw, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.2));
+        opacity: .35;
+        animation: ball-1 9s infinite linear;
+        z-index: -3;
+      }
+    }
     .home-info-container {
       padding-left: 20px;
       padding-right: 20px;
-      background-color: #fff;
-      box-shadow: 0 1px 10px rgba(0, 0, 0, .1);
+      min-height: 90px;
       .top {
         height: 55px;
         display: flex;
@@ -460,7 +547,7 @@ export default class Home extends wepy.page {
           font-size: 19px;
           font-weight: bold;
           letter-spacing: 1px;
-          color: #40a9ff;
+          color: #2967a1;
         }
         // 添加设备按钮
         .to-add-deice {
@@ -469,12 +556,18 @@ export default class Home extends wepy.page {
           justify-content: center;
           width: 33px;
           height: 33px;
-          line-height: 33px;
           border-radius: 50%;
-          font-size: 20px;
-          font-weight: bold;
-          background-color: #40a9ff;
-          color: #fff;
+          background-color: #fff;
+          .text {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 25px;
+            height: 25px;
+            font-size: 25px;
+            font-weight: bold;
+            color: #2967a1;
+          }
         }
       }
       .bottom {
@@ -483,7 +576,7 @@ export default class Home extends wepy.page {
           display: flex;
           align-items: center;
           font-size: 13px;
-          color: #40a9ff;
+          color: #2967a1;
           opacity: .9;
           .number {
             font-size: 15px;
@@ -502,8 +595,6 @@ export default class Home extends wepy.page {
         margin-top: 10px;
         padding-left: 10px;
         padding-right: 10px;
-        background-color: #fff;
-        box-shadow: 0 0 10px rgba(0, 0, 0, .05);
         .scroll-view {
           white-space: nowrap;
           view {
@@ -512,7 +603,8 @@ export default class Home extends wepy.page {
             font-size: 13px;
             color: #888;
             &.active {
-              color: #40a9ff;
+              font-weight: bold;
+              color: #2967a1;
             }
             &:last-child {
               margin-right: 0;

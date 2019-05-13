@@ -15,17 +15,29 @@
         <i-cell
           is-link
           i-class="function-item"
-          title="房间管理"
           data-url="/pages/room/edit-room/index"
           @tap="handlerFunctionItemClick"
-        ></i-cell>
+        >
+          <view class="item-base-info room">
+            <view class="image">
+              <image src="../../../assets/images/room.png"/>
+            </view>
+            <view>房间管理</view>
+          </view>
+        </i-cell>
         <i-cell
           is-link
           i-class="function-item"
-          title="设备管理"
           data-url="/pages/device/edit-device/index"
           @tap="handlerFunctionItemClick"
-        ></i-cell>
+        >
+          <view class="item-base-info device">
+            <view class="image">
+              <image src="../../../assets/images/device.png"/>
+            </view>
+            <view>设备管理</view>
+          </view>
+        </i-cell>
       </i-cell-group>
     </view>
   </view>
@@ -124,6 +136,39 @@ export default class Person extends wepy.page {
       .function-item {
         &:active {
           background-color: #eee;
+        }
+        .item-base-info {
+          display: flex;
+          align-items: center;
+          &.room {
+            .image {
+              image {
+                width: 20px;
+                height: 20px;
+              }
+            }
+          }
+          &.device {
+            .image {
+              image {
+                width: 25px;
+                height: 25px;
+              }
+            }
+          }
+          .image {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 25px;
+            height: 25px;
+            margin-right: 5px;
+            image {
+              width: 100%;
+              height: 100%;
+            }
+          }
+
         }
       }
     }

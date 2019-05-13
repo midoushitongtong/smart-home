@@ -1,6 +1,6 @@
 <template>
   <view class="add-device-container">
-    <view class="nearby-device-container">附近暂未添加的设备</view>
+    <view class="nearby-device-container">暂未添加的设备</view>
     <view class="loading-container" wx:if="{{isLoading}}">
       <i-spin size="large" fix></i-spin>
     </view>
@@ -34,7 +34,7 @@
             </i-cell-group>
           </view>
         </view>
-        <view class="not-nearby-device-list-container" wx:else>暂无设备可用~</view>
+        <view class="not-nearby-device-list-container" wx:else>暂无可添加设备~</view>
       </view>
     </view>
 

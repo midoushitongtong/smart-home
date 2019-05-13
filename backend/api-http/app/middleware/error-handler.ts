@@ -10,7 +10,7 @@ module.exports = () => {
           ctx.body = error;
         }
         resolve();
-      }, 100);
+      }, 50);
     });
   };
 };
