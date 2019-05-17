@@ -70,18 +70,18 @@ const obj = {
   },
   handlerSocketData: (socket, str) => {
     // 发送警告短信
-    if (str.substring(0, 'call1'.length) === 'call1') {
+    if (str.substring(0, 'call'.length) === 'call') {
       const flag = str.split('-')[1];
       if (flag === '1') {
-        const params = ['报警', '1'];
+        const params = ['安防报警', str.substr('call'.length, 1)];
         const phoneNumberList = ['13026628310', '14715142455', '13537279739'];
         phoneNumberList.forEach(phone => smsUtil.sendSMSMessage([phone], params));
       }
     }
-    if (str.substring(0, 'smoke1'.length) === 'smoke1') {
+    if (str.substring(0, 'smoke'.length) === 'smoke') {
       const flag = str.split('-')[1];
       if (flag === '1') {
-        const params = ['烟雾报警', '1'];
+        const params = ['烟雾报警', str.substr('smoke'.length, 1)];
         const phoneNumberList = ['13026628310', '14715142455', '13537279739'];
         phoneNumberList.forEach(phone => smsUtil.sendSMSMessage([phone], params));
       }

@@ -9,7 +9,7 @@
                 <i-cell
                   i-class="i-cell-device-list-item"
                   is-link
-                  url='/pages/device/edit-device-detail/index?id={{item2.id}}&name={{item2.name}}&originName={{item2.originName}}&originControlName={{item2.originControlName}}&controlName={{item2.controlName}}&icon={{item2.icon}}&roomId={{item2.roomId}}'
+                  url='/pages/device/edit-device-detail/index?id={{item2.id}}&name={{item2.name}}&originName={{item2.originName}}&originControlName={{item2.originControlName}}&controlName={{item2.controlName}}&icon={{item2.icon}}&roomId={{item2.roomId}}&relateInfo={{item2.relateInfo}}'
                 >
                   <view class="device-base-info-container" slot="icon">
                     <image src="{{item2.icon}}"/>

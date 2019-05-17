@@ -26,6 +26,10 @@
         <view class="tem" wx:if="{{temHum1.hum}}">室内湿度
           <view class="number">{{temHum1.hum}}°</view>
         </view>
+        <view class="call" wx:if="{{call1 === '0'}}">安防报警器1正常</view>
+        <view class="call open" wx:if="{{call1 === '1'}}">安防报警器1已打开</view>
+        <view class="smoke" wx:if="{{smoke1 === '0'}}">烟雾报警器1正常</view>
+        <view class="smoke open" wx:if="{{smoke1 === '1'}}">烟雾报警器1已打开</view>
       </view>
     </view>
     <view class="room-device-container" wx:if="{{!loading}}">
@@ -62,7 +66,7 @@
                         <!-- 只有swiper的设备 -->
                         <view
                           class="action-power {{featureInfo[item2.controlName] === '1' ? 'active' : ''}} {{featureInfo[item2.controlName] == undefined ? 'offline' : ''}}"
-                          wx:if="{{item2.originControlName === 'LED' || item2.originControlName === 'door' || item2.originControlName === 'hood' || item2.originControlName === 'cur'}}"
+                          wx:if="{{item2.originControlName === 'LED' || item2.originControlName === 'door' || item2.originControlName === 'hood' || item2.originControlName === 'cur' || item2.originControlName === 'call' || item2.originControlName === 'smoke'}}"
                         >
                           <view class="offline" wx:if="{{featureInfo[item2.controlName] == undefined}}">离线</view>
                           <view class="online" wx:else>
@@ -151,7 +155,7 @@
 
         <!-- 只有swiper的设备 -->
         <i-cell-group
-          wx:if="{{actionDeviceInfo.originControlName === 'LED' || actionDeviceInfo.originControlName === 'door' || actionDeviceInfo.originControlName === 'cur' || actionDeviceInfo.originControlName === 'hood'}}"
+          wx:if="{{actionDeviceInfo.originControlName === 'LED' || actionDeviceInfo.originControlName === 'door' || actionDeviceInfo.originControlName === 'cur' || actionDeviceInfo.originControlName === 'hood' || actionDeviceInfo.originControlName === 'call' || actionDeviceInfo.originControlName === 'smoke'}}"
         >
           <i-cell title="开关">
             <i-switch
@@ -254,7 +258,11 @@ export default class Home extends wepy.page {
     temHum1: {
       tem: null,
       hum: null
-    }
+    },
+    // 安防报警器1
+    call1: null,
+    // 烟雾报警器1
+    smoke1: null
   };
 
   methods = {
@@ -344,6 +352,8 @@ export default class Home extends wepy.page {
         case 'door':
         case 'cur':
         case 'hood':
+        case 'call':
+        case 'smoke':
           featureSocket.sendWebSocketData(`${this.actionDeviceInfo.controlName}-${e.detail.value ? '1' : '0'}`);
           break;
         case 'fan':
@@ -398,6 +408,12 @@ export default class Home extends wepy.page {
     },
     // 更新底部信息
     updateBottomInfo: () => {
+      this.temHum1 = {
+        tem: null,
+        hum: null
+      };
+      this.call1 = null;
+      this.smoke1 = null;
       // 更新温度和湿度
       if (this.featureInfo && this.featureInfo['tem-hum1']) {
         // 已绑定设备才能更新
@@ -408,6 +424,21 @@ export default class Home extends wepy.page {
           };
         }
       }
+      // 更新安防报警器
+      if (this.featureInfo && this.featureInfo['call1']) {
+        // 已绑定设备才能更新
+        if (this.deviceInfoList.find(deviceInfoItem => deviceInfoItem.controlName === 'call1')) {
+          this.call1 = this.featureInfo['call1'] === '1' ? '1' : '0';
+        }
+      }
+      // 更新烟雾报警器
+      if (this.featureInfo && this.featureInfo['smoke1']) {
+        // 已绑定设备才能更新
+        if (this.deviceInfoList.find(deviceInfoItem => deviceInfoItem.controlName === 'smoke1')) {
+          this.smoke1 = this.featureInfo['smoke1'] === '1' ? '1' : '0';
+        }
+      }
+      this.$apply();
     }
   };
 
@@ -429,6 +460,7 @@ export default class Home extends wepy.page {
       this.methods.updateBottomInfo();
     },
     featureInfo: (newValue) => {
+      console.log(newValue);
       if (this.actionDeviceInfo.controlName) {
         // 如果当前操作的设备不存在, 隐藏模态框
         if (!newValue.hasOwnProperty(this.actionDeviceInfo.controlName)) {
@@ -599,20 +631,23 @@ export default class Home extends wepy.page {
       }
       .bottom {
         .tem,
-        .hum {
+        .hum,
+        .call,
+        .smoke {
           display: flex;
           align-items: center;
           font-size: 13px;
           color: #2967a1;
           opacity: .9;
+          height: 25px;
+          &.open {
+            color: #f02517;
+          }
           .number {
             font-size: 15px;
             margin-left: 5px;
             font-weight: bold;
           }
-        }
-        .tem {
-          padding-bottom: 10px;
         }
       }
     }

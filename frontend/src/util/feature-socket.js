@@ -88,18 +88,18 @@ const featureSocket = {
   // 处理 webSocket 发送的数据
   handlerWebSocketData: (updateFeatureInfo, data, isDispatch) => {
     // 是否是警告通知
-    if (data.substring(0, 'call1'.length) === 'call1') {
+    if (data.substring(0, 'call'.length) === 'call') {
       if (data.split('-')[1] === '1') {
         Base.$Message({
-          content: `报警系统1已打开`,
+          content: `安防报警器${data.substr('call'.length, 1)}已打开`,
           type: 'error'
         });
       }
     }
-    if (data.substring(0, 'smoke1'.length) === 'smoke1') {
+    if (data.substring(0, 'smoke'.length) === 'smoke') {
       if (data.split('-')[1] === '1') {
         Base.$Message({
-          content: `烟雾报警系统1已打开`,
+          content: `烟雾报警器${data.substr('smoke'.length, 1)}已打开`,
           type: 'error'
         });
       }

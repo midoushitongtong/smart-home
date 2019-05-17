@@ -17,7 +17,7 @@ export interface DeviceModel {
   // 设备控制名
   controlName?: string;
   // 设备相关信息
-  relateInfo: string;
+  relateInfo?: string;
   // 创建时间
   createdAt?: Date;
   // 修改时间

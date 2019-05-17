@@ -25,7 +25,8 @@ export default class DeviceController extends Controller {
       originName: body.originName,
       name: body.name,
       originControlName: body.originControlName,
-      controlName: body.controlName
+      controlName: body.controlName,
+      relateInfo: body.relateInfo
     };
     await ctx.service.device.insertDevice(data);
     ctx.body = {
@@ -45,7 +46,8 @@ export default class DeviceController extends Controller {
       originName: body.originName,
       name: body.name,
       originControlName: body.originControlName,
-      controlName: body.controlName
+      controlName: body.controlName,
+      relateInfo: body.relateInfo
     };
     await ctx.service.device.updateDeviceById(data);
     ctx.body = {

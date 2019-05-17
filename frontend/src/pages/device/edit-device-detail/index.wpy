@@ -24,6 +24,15 @@
             @tap="toggleModal({{true}})"
           />
         </i-cell>
+        <i-cell title="告警联系人" wx:if="{{form.originControlName === 'call' || form.originControlName === 'smoke'}}">
+          <input
+            slot="footer"
+            value="{{form.phoneNumber}}"
+            type="text"
+            placeholder="联系人手机号"
+            @input="changePhoneNumber"
+          />
+        </i-cell>
       </i-cell-group>
     </view>
     <view class="action-container">
@@ -124,7 +133,9 @@ export default class Home extends wepy.page {
       // 设备所属房间, 用于延迟修改
       roomIdBuf: '',
       // 设备所属房间
-      roomName: ''
+      roomName: '',
+      // 设备手机号
+      phoneNumber: {}
     },
     // 控制 显示/隐藏 选中房间容器
     visible: false,
@@ -161,6 +172,10 @@ export default class Home extends wepy.page {
     changeName: (e) => {
       this.form.name = e.detail.value;
     },
+    // 改变设备手机号
+    changePhoneNumber: (e) => {
+      this.form.phoneNumber = e.detail.value;
+    },
     // 显示/隐藏 选择房间列表容器
     toggleModal: (flag) => {
       this.visible = flag;
@@ -191,6 +206,12 @@ export default class Home extends wepy.page {
       this.loading = true;
       this.$apply();
 
+      // 构建表单信息
+      const relateInfo = {};
+      // 如果是安防报警器, 烟雾报警器, 获取手机号
+      if (this.form.originControlName === 'call' || this.form.originControlName === 'smoke') {
+        relateInfo.phoneNumber = this.form.phoneNumber;
+      }
       const deviceInfo = {
         openid: this.userInfo.openid,
         id: this.form.id,
@@ -199,9 +220,11 @@ export default class Home extends wepy.page {
         originControlName: this.form.originControlName,
         controlName: this.form.controlName,
         icon: this.form.icon,
-        roomId: this.form.roomId
+        roomId: this.form.roomId,
+        relateInfo: JSON.stringify(relateInfo)
       };
 
+      // 表单验证
       if (!deviceInfo.roomId) {
         Base.$Message({
           content: '请选择设备所属房间',
@@ -212,6 +235,19 @@ export default class Home extends wepy.page {
         this.$apply();
 
         return;
+      }
+      if ((this.form.originControlName === 'call' || this.form.originControlName === 'smoke')) {
+        if (!/^1([38][0-9]|4[579]|5[0-3,5-9]|6[6]|7[0135678]|9[89])\d{8}$/.test(this.form.phoneNumber)) {
+          Base.$Message({
+            content: '手机号格式不正确!',
+            type: 'error'
+          });
+
+          this.loading = false;
+          this.$apply();
+
+          return;
+        }
       }
 
       // 修改设备数据
@@ -268,19 +304,21 @@ export default class Home extends wepy.page {
   };
 
   onLoad(options) {
+    console.log(options);
     // 调试
     let deviceInfo = {};
     if (!options.originName) {
       // 开发调试数据
       deviceInfo = {
-        id: 2,
-        originName: '科创暖白灯5',
-        name: '灯5',
+        id: 218,
+        originName: '烟雾报警器1',
+        name: '烟雾报警器122',
         originControlName: 'LED',
-        controlName: 'LED5',
-        icon: '/assets/images/LED.png',
+        controlName: 'smoke1',
+        icon: '/assets/images/smoke.png',
         roomId: 2,
-        roomIdBuf: 2
+        roomIdBuf: 2,
+        relateInfo: JSON.parse('{"phoneNumber":"13026628310"}')
       };
     } else {
       deviceInfo.id = options.id;
@@ -291,6 +329,8 @@ export default class Home extends wepy.page {
       deviceInfo.icon = options.icon;
       deviceInfo.roomId = parseInt(options.roomId);
       deviceInfo.roomIdBuf = parseInt(options.roomId);
+      deviceInfo.relateInfo = JSON.parse(options.relateInfo);
+      deviceInfo.phoneNumber = deviceInfo.relateInfo.phoneNumber;
     }
     deviceInfo.roomName = this.roomInfoList.find(roomInfoItem => roomInfoItem.id === deviceInfo.roomId).name;
     // 动态设置标题

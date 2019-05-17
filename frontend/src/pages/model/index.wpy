@@ -64,8 +64,19 @@
                     >
                       <view class="offline" wx:if="{{featureInfo[item.controlName] == undefined}}">离线</view>
                       <view class="online" wx:else>
-                        <view wx:if="{{item.controlValue === '1'}}">开启</view>
+                        <view wx:if="{{item.controlValue === '1'}}">启动</view>
                         <view wx:else class="close">关闭</view>
+                      </view>
+                    </view>
+                    <!-- 报警器 -->
+                    <view
+                      class="action-power {{item.controlValue === '1' ? 'active' : ''}} {{featureInfo[item.controlName] == undefined ? 'offline' : ''}}"
+                      wx:if="{{item.originControlName === 'call' || item.originControlName === 'smoke'}}"
+                    >
+                      <view class="offline" wx:if="{{featureInfo[item.controlName] == undefined}}">离线</view>
+                      <view class="online" wx:else>
+                        <view wx:if="{{item.controlValue === '1'}}">启动报警器</view>
+                        <view wx:else class="close">关闭报警器</view>
                       </view>
                     </view>
                     <!-- 风扇 -->
@@ -143,7 +154,7 @@
               <view class="device-action-form">
                 <!-- 只有swiper的设备 -->
                 <i-cell-group
-                  wx:if="{{item.originControlName === 'LED' || item.originControlName === 'door' || item.originControlName === 'cur' || item.originControlName === 'hood'}}"
+                  wx:if="{{item.originControlName === 'LED' || item.originControlName === 'door' || item.originControlName === 'cur' || item.originControlName === 'hood' || item.originControlName === 'call' || item.originControlName === 'smoke'}}"
                 >
                   <i-cell title="开关">
                     <i-switch
@@ -367,6 +378,8 @@ export default class Home extends wepy.page {
               case 'door':
               case 'cur':
               case 'hood':
+              case 'call':
+              case 'smoke':
                 featureSocket.sendWebSocketData(`${newModelRoomDeviceInfoItem.controlName}-${newModelRoomDeviceInfoItem.controlValue}`);
                 break;
               case 'fan':
@@ -420,6 +433,8 @@ export default class Home extends wepy.page {
         case 'door':
         case 'cur':
         case 'hood':
+        case 'call':
+        case 'smoke':
           data.controlValue = e.detail.value ? '1' : '0';
           break;
         case 'fan':
@@ -591,7 +606,7 @@ export default class Home extends wepy.page {
                     display: flex;
                     justify-content: center;
                     align-items: center;
-                    width: 28px;
+                    min-width: 28px;
                     height: 28px;
                     border-radius: 50%;
                     &.offline {

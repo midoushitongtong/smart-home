@@ -17,16 +17,6 @@ function connect() {
       try {
         switch (str) {
           case 'INIT':
-            // 发送警告数据
-            setTimeout(() => {
-              setTimeout(() => {
-                socket.write('call1-0');
-              }, 50);
-              setTimeout(() => {
-                socket.write('smoke1-0');
-              }, 100);
-            }, 3000);
-
             // 初始化数据
             socket.write(data);
             break;

@@ -12,7 +12,7 @@
               i-class="i-button-add-all-device"
               type="success"
               @tap="toggleModal({{true}})"
-            >一键添加所有设备
+            >一键添加非报警设备
             </i-button>
           </view>
           <view class="nearby-device-list-container">
@@ -221,8 +221,24 @@ export default class Home extends wepy.page {
     },
     // 显示/隐藏 选择房间列表容器
     toggleModal: (flag) => {
-      this.visible = flag;
-      this.$apply();
+      // 判断是否有非报警设备
+      let flag2 = false;
+      this.nearbyDeviceList.forEach(nearbyDeviceListItem => {
+        if (nearbyDeviceListItem.originControlName !== 'call' && nearbyDeviceListItem.originControlName !== 'smoke') {
+          flag2 = true;
+        }
+      });
+      if (!flag2) {
+        Base.$Message({
+          content: '当前暂无非报警设备可添加!',
+          type: 'error'
+        });
+        return;
+      }
+      if (flag2) {
+        this.visible = flag;
+        this.$apply();
+      }
     },
     // 改变当前选中的房间
     changeRoomBuf: (e) => {
@@ -248,11 +264,15 @@ export default class Home extends wepy.page {
         this.$apply();
 
         await Promise.all(this.nearbyDeviceList.map(async (nearbyDeviceListItem) => {
-          nearbyDeviceListItem.openid = this.userInfo.openid;
-          nearbyDeviceListItem.roomId = this.form.roomId;
-          nearbyDeviceListItem.name = nearbyDeviceListItem.originName;
-          // 添加设备
-          await api.device.insertDevice(nearbyDeviceListItem);
+          // 只添加非报警设备
+          if (nearbyDeviceListItem.originControlName !== 'call' && nearbyDeviceListItem.originControlName !== 'smoke') {
+            nearbyDeviceListItem.openid = this.userInfo.openid;
+            nearbyDeviceListItem.roomId = this.form.roomId;
+            nearbyDeviceListItem.name = nearbyDeviceListItem.originName;
+            nearbyDeviceListItem.relateInfo = JSON.stringify({});
+            // 添加设备
+            await api.device.insertDevice(nearbyDeviceListItem);
+          }
         }));
 
         // 刷新列表数据
