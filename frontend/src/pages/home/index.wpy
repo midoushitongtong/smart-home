@@ -97,6 +97,19 @@
                             <image src="/assets/images/power-off.png" wx:else/>
                           </view>
                         </view>
+                        <!-- 温度湿度 -->
+                        <view
+                          class="action-tem-hum {{featureInfo[item2.controlName] !== '0' ? 'active' : ''}} {{featureInfo[item2.controlName] == undefined ? 'offline' : ''}}"
+                          wx:if="{{item2.originControlName === 'tem-hum'}}"
+                        >
+                          <view class="offline" wx:if="{{featureInfo[item2.controlName] == undefined}}">离线</view>
+                          <view class="online" wx:else>
+                            <view class="fan-number" wx:if="{{featureInfo[item2.controlName] !== '0'}}">
+                              {{temHum1.tem}}°-{{temHum1.hum}}°
+                            </view>
+                            <image src="/assets/images/power-off.png" wx:else/>
+                          </view>
+                        </view>
                       </view>
                     </view>
                   </view>
@@ -128,6 +141,14 @@
     >
       <view class="device-name">{{actionDeviceInfo.name}}</view>
       <view class="device-action-form">
+
+        <!-- 不可控设备 -->
+        <view
+          wx:if="{{actionDeviceInfo.originControlName === 'tem-hum'}}"
+          class="not-control"
+        >当前设备暂时无法操作!
+        </view>
+
         <!-- 只有swiper的设备 -->
         <i-cell-group
           wx:if="{{actionDeviceInfo.originControlName === 'LED' || actionDeviceInfo.originControlName === 'door' || actionDeviceInfo.originControlName === 'cur' || actionDeviceInfo.originControlName === 'hood'}}"
@@ -374,29 +395,40 @@ export default class Home extends wepy.page {
         this.updateRoomDeviceInfoListFlag = false;
         this.$apply();
       }, 500);
+    },
+    // 更新底部信息
+    updateBottomInfo: () => {
+      // 更新温度和湿度
+      if (this.featureInfo && this.featureInfo['tem-hum1']) {
+        // 已绑定设备才能更新
+        if (this.deviceInfoList.find(deviceInfoItem => deviceInfoItem.controlName === 'tem-hum1')) {
+          this.temHum1 = {
+            tem: this.featureInfo['tem-hum1'].split('-')[0],
+            hum: this.featureInfo['tem-hum1'].split('-')[1]
+          };
+        }
+      }
     }
   };
 
   watch = {
     userInfo: async () => {
-      console.log('home1');
       // 监听用户信息, 初始化房间与设备数据
       if (this.userInfo.openid && this.deviceInfoList.length === 0 && this.roomInfoList.length === 0) {
         await this.methods.updateRoomDeviceInfoList();
       }
     },
     roomInfoList: () => {
-      console.log('home2');
       // 监听房间数据, 更新房间与设备对应的数据
       this.methods.refreshNewRoomDeviceInfoList();
     },
     deviceInfoList: () => {
-      console.log('home3');
       // 监听设备数据, 更新房间与设备对应的数据
       this.methods.refreshNewRoomDeviceInfoList();
+      // 更新底部数据
+      this.methods.updateBottomInfo();
     },
     featureInfo: (newValue) => {
-      console.log('home4');
       if (this.actionDeviceInfo.controlName) {
         // 如果当前操作的设备不存在, 隐藏模态框
         if (!newValue.hasOwnProperty(this.actionDeviceInfo.controlName)) {
@@ -409,13 +441,8 @@ export default class Home extends wepy.page {
           });
         }
       }
-      // 更新温度和湿度
-      if (newValue.temHum1) {
-        this.temHum1 = {
-          tem: newValue.temHum1.split('-')[0],
-          hum: newValue.temHum1.split('-')[1]
-        };
-      }
+      // 更新底部数据
+      this.methods.updateBottomInfo();
     }
   };
 
@@ -443,14 +470,7 @@ export default class Home extends wepy.page {
 
     // 初始化数据
     this.methods.refreshNewRoomDeviceInfoList();
-
-    // 更新温度和湿度
-    if (this.featureInfo && this.featureInfo.temHum1) {
-      this.temHum1 = {
-        tem: this.featureInfo.temHum1.split('-')[0],
-        hum: this.featureInfo.temHum1.split('-')[1]
-      };
-    }
+    this.methods.updateBottomInfo();
   }
 }
 </script>
@@ -715,7 +735,8 @@ export default class Home extends wepy.page {
                     }
                   }
                   .action-fan,
-                  .action-tem {
+                  .action-tem,
+                  .action-tem-hum {
                     display: flex;
                     justify-content: center;
                     align-items: center;
@@ -750,6 +771,10 @@ export default class Home extends wepy.page {
                         height: 15px;
                       }
                     }
+                  }
+                  .action-tem-hum {
+                    width: auto;
+                    height: auto;
                   }
                 }
               }
@@ -825,6 +850,13 @@ export default class Home extends wepy.page {
               &:after {
                 transition: 0s;
               }
+            }
+            .not-control {
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              padding-top: 10px;
+              padding-bottom: 10px;
             }
           }
         }

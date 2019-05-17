@@ -135,6 +135,7 @@ export default class Home extends wepy.page {
 
       const newNearbyDeviceList = [];
       Object.keys(currentData).forEach(controlName => {
+        console.log(controlName);
         // 设备已存在加则不显示
         if (this.deviceInfoList.find(deviceInfoItem => deviceInfoItem.controlName === controlName)) {
           return;
@@ -168,7 +169,7 @@ export default class Home extends wepy.page {
             controlName,
             icon: '/assets/images/fan.png'
           };
-        } else if (controlName.substring(0, 'tem'.length) === 'tem' && controlName.substring(0, 'temHum'.length) !== 'temHum') {
+        } else if (controlName.substring(0, 'tem'.length) === 'tem' && controlName.substring(0, 'tem-hum'.length) !== 'tem-hum') {
           data = {
             originName: `变频空调${controlName.substr('tem'.length, 1)}`,
             originControlName: 'tem',
@@ -181,6 +182,27 @@ export default class Home extends wepy.page {
             originControlName: 'hood',
             controlName,
             icon: '/assets/images/hood.png'
+          };
+        } else if (controlName.substring(0, 'tem-hum'.length) === 'tem-hum') {
+          data = {
+            originName: `温度湿度传感器${controlName.substr('tem-hum'.length, 1)}`,
+            originControlName: 'tem-hum',
+            controlName,
+            icon: '/assets/images/tem-hum.png'
+          };
+        } else if (controlName.substring(0, 'call'.length) === 'call') {
+          data = {
+            originName: `安防报警器${controlName.substr('call'.length, 1)}`,
+            originControlName: 'call',
+            controlName,
+            icon: '/assets/images/call.png'
+          };
+        } else if (controlName.substring(0, 'smoke'.length) === 'smoke') {
+          data = {
+            originName: `烟雾报警器${controlName.substr('smoke'.length, 1)}`,
+            originControlName: 'smoke',
+            controlName,
+            icon: '/assets/images/smoke.png'
           };
         }
         if (data) {

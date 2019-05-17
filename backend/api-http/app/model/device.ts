@@ -5,17 +5,19 @@ export interface DeviceModel {
   // openid
   openid?: string;
   // 房间id
-  roomId?: number,
+  roomId?: number;
   // 图标
-  icon?: string,
+  icon?: string;
   // 设备原名称
-  originName?: string,
+  originName?: string;
   // 设备名称
-  name?: string,
+  name?: string;
   // 设备原控制名
-  originControlName?: string,
+  originControlName?: string;
   // 设备控制名
-  controlName?: string,
+  controlName?: string;
+  // 设备相关信息
+  relateInfo: string;
   // 创建时间
   createdAt?: Date;
   // 修改时间
@@ -35,6 +37,7 @@ export default (app) => {
     originControlName: STRING(50),
     controlName: STRING(50),
     icon: STRING(255),
+    relateInfo: STRING(255),
     createdAt: {
       type: DATE,
       get() {

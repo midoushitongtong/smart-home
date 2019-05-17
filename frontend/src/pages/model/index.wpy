@@ -463,23 +463,19 @@ export default class Home extends wepy.page {
     userInfo: async () => {
       // 监听用户信息, 更新智能设备
       if (this.userInfo.openid && this.newRoomSmartDeviceInfoList.length === 0) {
-        console.log('model1');
         await this.methods.updateNewSmartDeviceList();
       }
     },
     // 监听房间数据, 更新智能设备数据
     roomInfoList: () => {
-      console.log('model2');
       this.methods.updateNewSmartDeviceList();
     },
     // 监听设备数据, 更新智能设备数据
     deviceInfoList: () => {
-      console.log('model3');
       this.methods.updateNewSmartDeviceList();
     },
     // 监听智能设备数据, 更新新的智能设备数据
     smartDeviceInfoList: () => {
-      console.log('model4');
       this.methods.refreshNewRoomSmartDeviceInfoList();
     }
   };

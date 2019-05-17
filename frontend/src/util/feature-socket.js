@@ -95,7 +95,6 @@ const featureSocket = {
           type: 'error'
         });
       }
-      return;
     }
     if (data.substring(0, 'smoke1'.length) === 'smoke1') {
       if (data.split('-')[1] === '1') {
@@ -104,7 +103,6 @@ const featureSocket = {
           type: 'error'
         });
       }
-      return;
     }
 
     // 将数据保存到 reudx 中
@@ -185,6 +183,28 @@ const featureSocket = {
         return;
       }
       return featureInfo;
+    } else if (data.substring(0, 'call'.length) === 'call') {
+      const controlName = featureSocket.getControlName(data);
+      const controlValue = data.split('-')[1];
+      const featureInfo = {
+        [controlName]: controlValue
+      };
+      if (isDispatch) {
+        updateFeatureInfo(featureInfo);
+        return;
+      }
+      return featureInfo;
+    } else if (data.substring(0, 'smoke'.length) === 'smoke') {
+      const controlName = featureSocket.getControlName(data);
+      const controlValue = data.split('-')[1];
+      const featureInfo = {
+        [controlName]: controlValue
+      };
+      if (isDispatch) {
+        updateFeatureInfo(featureInfo);
+        return;
+      }
+      return featureInfo;
     }
 
     // 提示返回的数据
@@ -236,7 +256,11 @@ const featureSocket = {
     } else if (data.substring(0, 'tem'.length) === 'tem' && data.substring(0, 'tem-hum'.length) !== 'tem-hum') {
       return `tem${data.substr('tem'.length, 1)}`;
     } else if (data.substring(0, 'tem-hum'.length) === 'tem-hum') {
-      return `temHum${data.substr('tem-hum'.length, 1)}`;
+      return `tem-hum${data.substr('tem-hum'.length, 1)}`;
+    } else if (data.substring(0, 'call'.length) === 'call') {
+      return `call${data.substr('call'.length, 1)}`;
+    } else if (data.substring(0, 'smoke'.length) === 'smoke') {
+      return `smoke${data.substr('smoke'.length, 1)}`;
     }
   }
 };

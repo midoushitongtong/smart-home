@@ -95,7 +95,10 @@ export default compose<React.ComponentClass>(
           '/assets/images/master-bedroom.png': require('../../../../../../../assets/images/master-bedroom.png'),
           '/assets/images/restaurant.png': require('../../../../../../../assets/images/restaurant.png'),
           '/assets/images/second-bedroom.png': require('../../../../../../../assets/images/second-bedroom.png'),
-          '/assets/images/tem.png': require('../../../../../../../assets/images/tem.png')
+          '/assets/images/tem.png': require('../../../../../../../assets/images/tem.png'),
+          '/assets/images/tem-hum.png': require('../../../../../../../assets/images/tem-hum.png'),
+          '/assets/images/call.png': require('../../../../../../../assets/images/call.png'),
+          '/assets/images/smoke.png': require('../../../../../../../assets/images/smoke.png')
         },
         personUserRoomDevice: {},
         personUserRoomDeviceModalVisible: false,
