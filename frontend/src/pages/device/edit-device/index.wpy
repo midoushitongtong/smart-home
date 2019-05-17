@@ -55,6 +55,7 @@
       <view>将删除所有已添加的设备, 设备现有状态不会被改变</view>
     </i-modal>
   </view>
+  <i-message id="message"/>
 </template>
 
 <script>

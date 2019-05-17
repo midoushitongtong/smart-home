@@ -18,9 +18,8 @@ const qcloudsms = QcloudSms(appid, appkey);
 // 设置请求回调处理, 这里只是演示，用户需要自定义相应处理回调
 const obj = {
   sendSMSMessage: (phoneNumbers, params) => {
-    console.log(phoneNumbers);
-    return;
-    var ssender = qcloudsms.SmsSingleSender();
+    console.log(phoneNumbers, params);
+    const ssender = qcloudsms.SmsSingleSender();
     ssender.sendWithParam(
       86,
       phoneNumbers,
@@ -33,8 +32,7 @@ const obj = {
         if (err) {
           console.log('err: ', err);
         } else {
-          console.log('request data: ', res.req);
-          console.log('response data: ', resData);
+          console.log('短信发送成功, ', phoneNumbers, params);
         }
       }
     );

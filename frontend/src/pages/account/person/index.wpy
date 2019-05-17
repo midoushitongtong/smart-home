@@ -39,6 +39,7 @@
       </i-cell-group>
     </view>
   </view>
+  <i-message id="message"/>
 </template>
 
 <script>

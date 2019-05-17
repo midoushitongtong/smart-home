@@ -71,15 +71,15 @@ export default class Device extends Service {
           break;
         // 安防装置
         case 'call':
-          onlineControlValue = '0';
-          offlineControlValue = '0';
-          sleepControlValue = '0';
+          onlineControlValue = '1';
+          offlineControlValue = '1';
+          sleepControlValue = '1';
           break;
           // 烟雾报警装置
         case 'smoke':
-          onlineControlValue = '0';
-          offlineControlValue = '0';
-          sleepControlValue = '0';
+          onlineControlValue = '1';
+          offlineControlValue = '1';
+          sleepControlValue = '1';
           break;
         default:
           console.log('未知 originControlName');

@@ -73,10 +73,22 @@ const featureSocket = {
     wx.onSocketClose((e) => {
       // 提示连接已关闭
       console.info('==webSocket server connect close', e);
+      // 重新连接
+
+      setTimeout(() => {
+        // 重连 socket
+        featureSocket.initWebSocketClient(() => {
+          Base.$Message({
+            content: '服务端连接已重连!',
+            type: 'info',
+            duration: 2
+          });
+        });
+      }, 500);
       Base.$Message({
         content: '服务端连接已关闭!',
         type: 'error',
-        duration: 3
+        duration: 0
       });
     });
 
@@ -89,7 +101,7 @@ const featureSocket = {
   handlerWebSocketData: (updateFeatureInfo, data, isDispatch) => {
     // 是否是警告通知
     if (data.substring(0, 'call'.length) === 'call') {
-      if (data.split('-')[1] === '1') {
+      if (data.split('-')[1] === '2') {
         Base.$Message({
           content: `安防报警器${data.substr('call'.length, 1)}已打开`,
           type: 'error'
@@ -97,7 +109,7 @@ const featureSocket = {
       }
     }
     if (data.substring(0, 'smoke'.length) === 'smoke') {
-      if (data.split('-')[1] === '1') {
+      if (data.split('-')[1] === '2') {
         Base.$Message({
           content: `烟雾报警器${data.substr('smoke'.length, 1)}已打开`,
           type: 'error'

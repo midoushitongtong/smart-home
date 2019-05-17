@@ -1,4 +1,7 @@
-const smsUtil = require('../util/sms');
+// 数据库获取手机号发送
+const Sequelize = require('sequelize');
+const DeviceModel = require('../model/device');
+const SmsUtil = require('../util/sms');
 
 const obj = {
   validSocketList: [],
@@ -69,33 +72,50 @@ const obj = {
     });
   },
   handlerSocketData: (socket, str) => {
-    // 发送警告短信
-    if (str.substring(0, 'call'.length) === 'call') {
-      const flag = str.split('-')[1];
-      if (flag === '1') {
-        const params = ['安防报警', str.substr('call'.length, 1)];
-        const phoneNumberList = ['13026628310', '14715142455', '13537279739'];
-        phoneNumberList.forEach(phone => smsUtil.sendSMSMessage([phone], params));
-      }
-    }
-    if (str.substring(0, 'smoke'.length) === 'smoke') {
-      const flag = str.split('-')[1];
-      if (flag === '1') {
-        const params = ['烟雾报警', str.substr('smoke'.length, 1)];
-        const phoneNumberList = ['13026628310', '14715142455', '13537279739'];
-        phoneNumberList.forEach(phone => smsUtil.sendSMSMessage([phone], params));
-      }
-    }
-
     // 发送给所有 webSocket 客户端
     obj.validWebSocketList.forEach((validWebSocketItem) => {
       validWebSocketItem.send(str);
     });
+
+    // 发送警告短信
+    if (str.substring(0, 'call'.length) === 'call') {
+      const flag = str.split('-')[1];
+      if (flag === '2') {
+        const params = ['安防报警', str.substr('call'.length, 1)];
+        obj.sendPhoneNumber('call', params);
+      }
+    }
+    if (str.substring(0, 'smoke'.length) === 'smoke') {
+      const flag = str.split('-')[1];
+      if (flag === '2') {
+        const params = ['烟雾报警', str.substr('smoke'.length, 1)];
+        obj.sendPhoneNumber('smoke', params);
+      }
+    }
   },
   handlerWebSocketData: (webSocket, str) => {
     // 发送给所有 socket 客户端
     obj.validSocketList.forEach((validSocketItem) => {
       validSocketItem.write(str);
+    });
+  },
+  sendPhoneNumber: async (type, params) => {
+    const sequelize = new Sequelize('smart_home', 'root', '123456', {
+      dialect: 'mysql'
+    });
+
+    const deviceModel = DeviceModel(sequelize, Sequelize);
+
+    const deviceList = await deviceModel.findAll({
+      where: {
+        originControlName: {
+          [Sequelize.Op.eq]: type
+        }
+      }
+    });
+    deviceList.forEach(device => {
+      const phoneNumber = JSON.parse(device.relateInfo).phoneNumber;
+      SmsUtil.sendSMSMessage(phoneNumber, params);
     });
   }
 };

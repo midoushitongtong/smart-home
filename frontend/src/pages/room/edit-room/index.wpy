@@ -53,6 +53,7 @@
       <view>除了默认房间的信息, 其余房间信息与对应的设备将会被删除</view>
     </i-modal>
   </view>
+  <i-message id="message"/>
 </template>
 
 <script>

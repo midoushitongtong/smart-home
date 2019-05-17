@@ -64,7 +64,7 @@
                     >
                       <view class="offline" wx:if="{{featureInfo[item.controlName] == undefined}}">离线</view>
                       <view class="online" wx:else>
-                        <view wx:if="{{item.controlValue === '1'}}">启动</view>
+                        <view wx:if="{{item.controlValue === '1'}}">启用</view>
                         <view wx:else class="close">关闭</view>
                       </view>
                     </view>
@@ -75,7 +75,7 @@
                     >
                       <view class="offline" wx:if="{{featureInfo[item.controlName] == undefined}}">离线</view>
                       <view class="online" wx:else>
-                        <view wx:if="{{item.controlValue === '1'}}">启动报警器</view>
+                        <view wx:if="{{item.controlValue === '1'}}">启用报警器</view>
                         <view wx:else class="close">关闭报警器</view>
                       </view>
                     </view>

@@ -26,10 +26,10 @@
         <view class="tem" wx:if="{{temHum1.hum}}">室内湿度
           <view class="number">{{temHum1.hum}}°</view>
         </view>
-        <view class="call" wx:if="{{call1 === '0'}}">安防报警器1正常</view>
-        <view class="call open" wx:if="{{call1 === '1'}}">安防报警器1已打开</view>
-        <view class="smoke" wx:if="{{smoke1 === '0'}}">烟雾报警器1正常</view>
-        <view class="smoke open" wx:if="{{smoke1 === '1'}}">烟雾报警器1已打开</view>
+        <view class="call" wx:if="{{call1 === '1'}}">安防报警器已启用</view>
+        <view class="call open" wx:if="{{call1 === '2'}}">安防报警器已报警!</view>
+        <view class="smoke" wx:if="{{smoke1 === '1'}}">烟雾报警器已启用</view>
+        <view class="smoke open" wx:if="{{smoke1 === '2'}}">烟雾报警器已报警!</view>
       </view>
     </view>
     <view class="room-device-container" wx:if="{{!loading}}">
@@ -66,12 +66,13 @@
                         <!-- 只有swiper的设备 -->
                         <view
                           class="action-power {{featureInfo[item2.controlName] === '1' ? 'active' : ''}} {{featureInfo[item2.controlName] == undefined ? 'offline' : ''}}"
-                          wx:if="{{item2.originControlName === 'LED' || item2.originControlName === 'door' || item2.originControlName === 'hood' || item2.originControlName === 'cur' || item2.originControlName === 'call' || item2.originControlName === 'smoke'}}"
+                          wx:if="{{item2.originControlName === 'LED' || item2.originControlName === 'door' || item2.originControlName === 'hood' || item2.originControlName === 'cur'}}"
                         >
                           <view class="offline" wx:if="{{featureInfo[item2.controlName] == undefined}}">离线</view>
                           <view class="online" wx:else>
-                            <image src="/assets/images/power-on.png"
-                                   wx:if="{{featureInfo[item2.controlName] === '1'}}"/>
+                            <image
+                              src="/assets/images/power-on.png"
+                              wx:if="{{featureInfo[item2.controlName] === '1'}}"/>
                             <image src="/assets/images/power-off.png" wx:else/>
                           </view>
                         </view>
@@ -112,6 +113,27 @@
                               {{temHum1.tem}}°-{{temHum1.hum}}°
                             </view>
                             <image src="/assets/images/power-off.png" wx:else/>
+                          </view>
+                        </view>
+                        <!-- 报警器 -->
+                        <view
+                          class="action-call-smoke {{featureInfo[item2.controlName] === '1' ? 'active' : ''}} {{featureInfo[item2.controlName] === '2' ? 'alert' : ''}} {{featureInfo[item2.controlName] == undefined ? 'offline' : ''}}"
+                          wx:if="{{item2.originControlName === 'call' || item2.originControlName === 'smoke'}}"
+                        >
+                          <view class="offline" wx:if="{{featureInfo[item2.controlName] == undefined}}">离线</view>
+                          <view class="online" wx:else>
+                            <image
+                              src="/assets/images/power-on.png"
+                              wx:if="{{featureInfo[item2.controlName] === '1'}}"/>
+                            <view
+                              class="alert"
+                              wx:if="{{featureInfo[item2.controlName] === '2'}}"
+                            >已报警！
+                            </view>
+                            <image
+                              src="/assets/images/power-off.png"
+                              wx:if="{{featureInfo[item2.controlName] === '0'}}"
+                            />
                           </view>
                         </view>
                       </view>
@@ -155,12 +177,12 @@
 
         <!-- 只有swiper的设备 -->
         <i-cell-group
-          wx:if="{{actionDeviceInfo.originControlName === 'LED' || actionDeviceInfo.originControlName === 'door' || actionDeviceInfo.originControlName === 'cur' || actionDeviceInfo.originControlName === 'hood' || actionDeviceInfo.originControlName === 'call' || actionDeviceInfo.originControlName === 'smoke'}}"
+          wx:if="{{actionDeviceInfo.originControlName === 'LED' || actionDeviceInfo.originControlName === 'door' || actionDeviceInfo.originControlName === 'cur' || actionDeviceInfo.originControlName === 'hood'}}"
         >
           <i-cell title="开关">
             <i-switch
               i-class="{{openLoading ? 'open-loading' : ''}}"
-              value="{{featureInfo[actionDeviceInfo.controlName] === '1'}}"
+              value="{{featureInfo[actionDeviceInfo.controlName] !== '0'}}"
               @change="changeFeatureInfo"
               slot="footer"
             />
@@ -204,6 +226,27 @@
               value="{{featureInfo[actionDeviceInfo.controlName]}}"
               min="1" max="25"
               bindchange="changeFeatureInfo"
+              slot="footer"
+            />
+          </i-cell>
+        </i-cell-group>
+        <!-- 报警器 -->
+        <i-cell-group
+          wx:if="{{actionDeviceInfo.originControlName === 'call' || actionDeviceInfo.originControlName === 'smoke'}}"
+        >
+          <i-cell title="开关">
+            <i-switch
+              i-class="{{openLoading ? 'open-loading' : ''}}"
+              value="{{featureInfo[actionDeviceInfo.controlName] !== '0'}}"
+              @change="changeFeatureInfo"
+              slot="footer"
+            />
+          </i-cell>
+          <i-cell title="关闭警报" wx:if="{{featureInfo[actionDeviceInfo.controlName] === '2'}}">
+            <i-switch
+              i-class="{{openLoading ? 'open-loading' : ''}}"
+              value="{{featureInfo[actionDeviceInfo.controlName] !== '0'}}"
+              @change="changeFeatureInfo('close-alert')"
               slot="footer"
             />
           </i-cell>
@@ -347,33 +390,38 @@ export default class Home extends wepy.page {
     },
     // 改变设备状态
     changeFeatureInfo: (e) => {
-      switch (this.actionDeviceInfo.originControlName) {
-        case 'LED':
-        case 'door':
-        case 'cur':
-        case 'hood':
-        case 'call':
-        case 'smoke':
-          featureSocket.sendWebSocketData(`${this.actionDeviceInfo.controlName}-${e.detail.value ? '1' : '0'}`);
-          break;
-        case 'fan':
-          // 判断是开关还是挡位
-          if (typeof e.detail.value === 'boolean') {
+      // 关闭警报
+      if (e === 'close-alert') {
+        featureSocket.sendWebSocketData(`${this.actionDeviceInfo.controlName}-1`);
+      } else {
+        switch (this.actionDeviceInfo.originControlName) {
+          case 'LED':
+          case 'door':
+          case 'cur':
+          case 'hood':
+          case 'call':
+          case 'smoke':
             featureSocket.sendWebSocketData(`${this.actionDeviceInfo.controlName}-${e.detail.value ? '1' : '0'}`);
-          } else if (typeof e.detail.value === 'number') {
-            featureSocket.sendWebSocketData(`${this.actionDeviceInfo.controlName}-${e.detail.value}`);
-          }
-          break;
-        case 'tem':
-          // 判断是开关还是挡位
-          if (typeof e.detail.value === 'boolean') {
-            featureSocket.sendWebSocketData(`${this.actionDeviceInfo.controlName}-${e.detail.value ? '23' : '0'}`);
-          } else if (typeof e.detail.value === 'number') {
-            featureSocket.sendWebSocketData(`${this.actionDeviceInfo.controlName}-${e.detail.value}`);
-          }
-          break;
-        default:
-          console.log('未知 originControlName');
+            break;
+          case 'fan':
+            // 判断是开关还是挡位
+            if (typeof e.detail.value === 'boolean') {
+              featureSocket.sendWebSocketData(`${this.actionDeviceInfo.controlName}-${e.detail.value ? '1' : '0'}`);
+            } else if (typeof e.detail.value === 'number') {
+              featureSocket.sendWebSocketData(`${this.actionDeviceInfo.controlName}-${e.detail.value}`);
+            }
+            break;
+          case 'tem':
+            // 判断是开关还是挡位
+            if (typeof e.detail.value === 'boolean') {
+              featureSocket.sendWebSocketData(`${this.actionDeviceInfo.controlName}-${e.detail.value ? '23' : '0'}`);
+            } else if (typeof e.detail.value === 'number') {
+              featureSocket.sendWebSocketData(`${this.actionDeviceInfo.controlName}-${e.detail.value}`);
+            }
+            break;
+          default:
+            console.log('未知 originControlName');
+        }
       }
     },
     // 前往登陆页面
@@ -412,6 +460,16 @@ export default class Home extends wepy.page {
         tem: null,
         hum: null
       };
+      // 更新温度和湿度
+      if (this.featureInfo && this.featureInfo['tem-hum1']) {
+        // 已绑定设备才能更新
+        if (this.deviceInfoList.find(deviceInfoItem => deviceInfoItem.controlName === 'tem-hum1')) {
+          this.temHum1 = {
+            tem: this.featureInfo['tem-hum1'].split('-')[0],
+            hum: this.featureInfo['tem-hum1'].split('-')[1]
+          };
+        }
+      }
       this.call1 = null;
       this.smoke1 = null;
       // 更新温度和湿度
@@ -428,14 +486,14 @@ export default class Home extends wepy.page {
       if (this.featureInfo && this.featureInfo['call1']) {
         // 已绑定设备才能更新
         if (this.deviceInfoList.find(deviceInfoItem => deviceInfoItem.controlName === 'call1')) {
-          this.call1 = this.featureInfo['call1'] === '1' ? '1' : '0';
+          this.call1 = this.featureInfo['call1'];
         }
       }
       // 更新烟雾报警器
       if (this.featureInfo && this.featureInfo['smoke1']) {
         // 已绑定设备才能更新
         if (this.deviceInfoList.find(deviceInfoItem => deviceInfoItem.controlName === 'smoke1')) {
-          this.smoke1 = this.featureInfo['smoke1'] === '1' ? '1' : '0';
+          this.smoke1 = this.featureInfo['smoke1'];
         }
       }
       this.$apply();
@@ -460,7 +518,6 @@ export default class Home extends wepy.page {
       this.methods.updateBottomInfo();
     },
     featureInfo: (newValue) => {
-      console.log(newValue);
       if (this.actionDeviceInfo.controlName) {
         // 如果当前操作的设备不存在, 隐藏模态框
         if (!newValue.hasOwnProperty(this.actionDeviceInfo.controlName)) {
@@ -801,6 +858,38 @@ export default class Home extends wepy.page {
                         letter-spacing: 1px;
                         color: #40a9ff;
                       }
+                      image {
+                        width: 15px;
+                        height: 15px;
+                      }
+                    }
+                  }
+                  .action-call-smoke {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    width: 28px;
+                    height: 28px;
+                    border-radius: 50%;
+                    background-color: #eee;
+                    &.alert {
+                      width: auto;
+                      font-size: 14px;
+                      background-color: #fff;
+                      color: #f02517;
+                    }
+                    &.offline {
+                      background-color: transparent;
+                      .offline {
+                        overflow: hidden;
+                        white-space: nowrap;
+                        text-overflow: ellipsis;
+                        font-size: 12px;
+                        color: #888;
+                      }
+                    }
+                    .online {
+                      display: flex;
                       image {
                         width: 15px;
                         height: 15px;
