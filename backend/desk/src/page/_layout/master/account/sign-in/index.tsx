@@ -102,7 +102,7 @@ export default compose<React.ComponentClass>(
           <section className="sign-in-form-wrapper">
             <section className="sign-in-form-container">
               <section className="header-container">
-                <span>科创家居助手管理中心</span>
+                <span>物联家居平台管理中心</span>
               </section>
               <Form onSubmit={this.handleSubmit}>
                 <Form.Item>

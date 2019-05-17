@@ -379,20 +379,24 @@ export default class Home extends wepy.page {
 
   watch = {
     userInfo: async () => {
+      console.log('home1');
       // 监听用户信息, 初始化房间与设备数据
       if (this.userInfo.openid && this.deviceInfoList.length === 0 && this.roomInfoList.length === 0) {
         await this.methods.updateRoomDeviceInfoList();
       }
     },
     roomInfoList: () => {
+      console.log('home2');
       // 监听房间数据, 更新房间与设备对应的数据
       this.methods.refreshNewRoomDeviceInfoList();
     },
     deviceInfoList: () => {
+      console.log('home3');
       // 监听设备数据, 更新房间与设备对应的数据
       this.methods.refreshNewRoomDeviceInfoList();
     },
     featureInfo: (newValue) => {
+      console.log('home4');
       if (this.actionDeviceInfo.controlName) {
         // 如果当前操作的设备不存在, 隐藏模态框
         if (!newValue.hasOwnProperty(this.actionDeviceInfo.controlName)) {
@@ -453,6 +457,9 @@ export default class Home extends wepy.page {
 
 <style lang="less">
   .home-container {
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
     .bg-container {
       z-index: -1;
       position: absolute;
@@ -635,7 +642,7 @@ export default class Home extends wepy.page {
                 height: 105px;
                 background-color: #fff;
                 border-radius: 11px;
-                box-shadow: 0 0 10px rgba(0, 0, 0, .1);
+                box-shadow: 0 0 1px rgba(0, 0, 0, .1);
                 &.offline {
                   background-color: rgba(0, 0, 0, .1);
                 }

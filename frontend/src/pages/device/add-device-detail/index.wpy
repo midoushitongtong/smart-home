@@ -14,7 +14,7 @@
             @input="changeName"
           />
         </i-cell>
-        <i-cell title="设备所属房间" is-link @tap="toggleModal({{true}})">
+        <i-cell title="设备所属房间" @tap="toggleModal({{true}})">
           <input
             slot="footer"
             value="{{form.roomName}}"

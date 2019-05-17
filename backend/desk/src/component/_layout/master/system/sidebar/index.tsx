@@ -150,7 +150,7 @@ export default compose<React.ComponentClass>(
         <section
           className={`layout-master-system-sidebar-container ${props.systemSidebarIsCollapse ? 'collapse' : ''}`}>
           <section className="logo-container">
-            <NavLink to="/">科创家居助手</NavLink>
+            <NavLink to="/">物联家居平台</NavLink>
           </section>
           <Menu
             // 折叠状态默认不展开菜单

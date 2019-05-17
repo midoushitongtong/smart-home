@@ -14,9 +14,8 @@
       <i-cell-group>
         <i-cell
           is-link
-          i-class="function-item"
-          data-url="/pages/room/edit-room/index"
-          @tap="handlerFunctionItemClick"
+          i-class="function-item first"
+          url="{{userInfo.userInfo !== undefined ? '/pages/room/edit-room/index' : '/pages/account/sign-in/index'}}"
         >
           <view class="item-base-info room">
             <view class="image">
@@ -27,9 +26,8 @@
         </i-cell>
         <i-cell
           is-link
-          i-class="function-item"
-          data-url="/pages/device/edit-device/index"
-          @tap="handlerFunctionItemClick"
+          i-class="function-item last"
+          url="{{userInfo.userInfo !== undefined ? '/pages/device/edit-device/index' : '/pages/account/sign-in/index'}}"
         >
           <view class="item-base-info device">
             <view class="image">
@@ -56,17 +54,6 @@ export default class Person extends wepy.page {
   };
 
   methods = {
-    // 功能项点击
-    handlerFunctionItemClick: (e) => {
-      if (this.userInfo.userInfo !== undefined) {
-        wx.navigateTo({
-          url: e.target.dataset.url
-        });
-      } else {
-        // 未授权登陆, 跳转登录页
-        this.methods.toSignIn();
-      }
-    },
     // 前往登陆页面
     toSignIn: () => {
       wx.navigateTo({
@@ -136,6 +123,14 @@ export default class Person extends wepy.page {
       .function-item {
         &:active {
           background-color: #eee;
+        }
+        &.first {
+          border-top-left-radius: 5px;
+          border-top-right-radius: 5px;
+        }
+        &.last {
+          border-bottom-left-radius: 5px;
+          border-bottom-right-radius: 5px;
         }
         .item-base-info {
           display: flex;

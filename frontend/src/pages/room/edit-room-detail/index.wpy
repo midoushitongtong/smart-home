@@ -11,7 +11,7 @@
             @input="changeName"
           />
         </i-cell>
-        <i-cell title="房间图标" is-link @tap="toggleModal({{true}})">
+        <i-cell title="房间图标" @tap="toggleModal({{true}})">
           <image
             slot="footer"
             src="{{form.icon}}"

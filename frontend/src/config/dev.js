@@ -1,4 +1,4 @@
 export default {
-  API_HTTP_ROOT: 'https://project.yyccyy.com/smart-home/backend/api/http',
-  API_WEB_SOCKET_ROOT: 'wss://project.yyccyy.com/smart-home/backend/api/webSocket'
+  API_HTTP_ROOT: 'http://10.0.19.175:3006',
+  API_WEB_SOCKET_ROOT: 'ws://10.0.19.175:5002'
 };
