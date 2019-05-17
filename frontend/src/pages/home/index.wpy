@@ -242,7 +242,7 @@
               slot="footer"
             />
           </i-cell>
-          <i-cell title="关闭警报" wx:if="{{featureInfo[actionDeviceInfo.controlName] === '2'}}">
+          <i-cell title="关闭报警状态" wx:if="{{featureInfo[actionDeviceInfo.controlName] === '2'}}">
             <i-switch
               i-class="{{openLoading ? 'open-loading' : ''}}"
               value="{{featureInfo[actionDeviceInfo.controlName] !== '0'}}"
@@ -872,6 +872,9 @@ export default class Home extends wepy.page {
                     height: 28px;
                     border-radius: 50%;
                     background-color: #eee;
+                    &.active {
+                      background-color: rgba(67, 162, 255, 0.25);
+                    }
                     &.alert {
                       width: auto;
                       font-size: 14px;
