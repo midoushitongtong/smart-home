@@ -363,42 +363,50 @@ export default class Home extends wepy.page {
 
         this.actions[1].loading = true;
 
-        let newModelRoomSmartDeviceInfoListCount = this.newModelRoomSmartDeviceInfoList.length;
+        // 过滤不在线设备
+        const newModelRoomSmartDeviceInfoListBuf = this.newModelRoomSmartDeviceInfoList.filter(newModelRoomDeviceInfoItem => this.featureInfo[newModelRoomDeviceInfoItem.controlName] !== undefined);
 
-        this.newModelRoomSmartDeviceInfoList.forEach((newModelRoomDeviceInfoItem, index) => {
-          // 离线设备不进行操作
-          if (this.featureInfo[newModelRoomDeviceInfoItem.controlName] === undefined) {
-            newModelRoomSmartDeviceInfoListCount--;
-            return;
-          }
-          setTimeout(() => {
-            // 发送 socket 指令
-            switch (newModelRoomDeviceInfoItem.originControlName) {
-              case 'LED':
-              case 'door':
-              case 'cur':
-              case 'hood':
-              case 'call':
-              case 'smoke':
-                featureSocket.sendWebSocketData(`${newModelRoomDeviceInfoItem.controlName}-${newModelRoomDeviceInfoItem.controlValue}`);
-                break;
-              case 'fan':
-                featureSocket.sendWebSocketData(`${newModelRoomDeviceInfoItem.controlName}-${newModelRoomDeviceInfoItem.controlValue}`);
-                break;
-              case 'tem':
-                // 判断是开关还是挡位
-                featureSocket.sendWebSocketData(`${newModelRoomDeviceInfoItem.controlName}-${newModelRoomDeviceInfoItem.controlValue}`);
-                break;
-              default:
-                console.log('未知 originControlName');
+        let newModelRoomSmartDeviceInfoListCount = newModelRoomSmartDeviceInfoListBuf.length;
+
+        if (newModelRoomSmartDeviceInfoListBuf.length > 0) {
+          newModelRoomSmartDeviceInfoListBuf.forEach((newModelRoomDeviceInfoItem, index) => {
+            // 离线设备不进行操作
+            if (this.featureInfo[newModelRoomDeviceInfoItem.controlName] === undefined) {
+              newModelRoomSmartDeviceInfoListCount--;
+              return;
             }
-            // 执行完成, 将checked改成全选
-            if (index === newModelRoomSmartDeviceInfoListCount - 1) {
-              this.actions[1].loading = false;
-              this.methods.toggleModal(false);
-            }
-          }, index * 351);
-        });
+            setTimeout(() => {
+              // 发送 socket 指令
+              switch (newModelRoomDeviceInfoItem.originControlName) {
+                case 'LED':
+                case 'door':
+                case 'cur':
+                case 'hood':
+                case 'call':
+                case 'smoke':
+                  featureSocket.sendWebSocketData(`${newModelRoomDeviceInfoItem.controlName}-${newModelRoomDeviceInfoItem.controlValue}`);
+                  break;
+                case 'fan':
+                  featureSocket.sendWebSocketData(`${newModelRoomDeviceInfoItem.controlName}-${newModelRoomDeviceInfoItem.controlValue}`);
+                  break;
+                case 'tem':
+                  // 判断是开关还是挡位
+                  featureSocket.sendWebSocketData(`${newModelRoomDeviceInfoItem.controlName}-${newModelRoomDeviceInfoItem.controlValue}`);
+                  break;
+                default:
+                  console.log('未知 originControlName');
+              }
+              // 执行完成, 将checked改成全选
+              if (index === newModelRoomSmartDeviceInfoListCount - 1) {
+                this.actions[1].loading = false;
+                this.methods.toggleModal(false);
+              }
+            }, index * 351);
+          });
+        } else {
+          this.actions[1].loading = false;
+          this.methods.toggleModal(false);
+        }
       } else {
         this.methods.toggleModal(false);
       }
