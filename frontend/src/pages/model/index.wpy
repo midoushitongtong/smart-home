@@ -401,7 +401,7 @@ export default class Home extends wepy.page {
                 this.actions[1].loading = false;
                 this.methods.toggleModal(false);
               }
-            }, index * 351);
+            }, index * 1050);
           });
         } else {
           this.actions[1].loading = false;
