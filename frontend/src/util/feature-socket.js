@@ -83,6 +83,8 @@ const featureSocket = {
             type: 'info',
             duration: 2
           });
+          // 初始化数据
+          featureSocket.sendWebSocketData('INIT');
         });
       }, 500);
       Base.$Message({

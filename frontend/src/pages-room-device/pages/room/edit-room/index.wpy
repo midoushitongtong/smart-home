@@ -7,7 +7,7 @@
             <i-cell
               i-class="i-cell-room-list-item"
               is-link
-              url='/pages/room/edit-room-detail/index?id={{item.id}}&name={{item.name}}&icon={{item.icon}}'
+              url='/pages-room-device/pages/room/edit-room-detail/index?id={{item.id}}&name={{item.name}}&icon={{item.icon}}'
             >
               <view class="room-base-info-container" slot="icon">
                 <image src="{{item.icon}}"/>
@@ -59,8 +59,8 @@
 <script>
 import wepy from 'wepy';
 import { connect } from 'wepy-redux';
-import { updateRoomInfoList, updateDeviceInfoList } from '../../../store/feature';
-import api from '../../../api';
+import { updateRoomInfoList, updateDeviceInfoList } from '../../../../store/feature/index';
+import api from '../../../../api/index';
 
 @connect({
   userInfo: (state) => state.account.userInfo,
@@ -97,7 +97,7 @@ export default class Home extends wepy.page {
     // 前往添加房间页面
     toAddRoom: () => {
       wx.navigateTo({
-        url: '/pages/room/add-room-detail/index'
+        url: '/pages-room-device/pages/room/add-room-detail/index'
       });
     },
     refreshNewRoomInfoList: () => {

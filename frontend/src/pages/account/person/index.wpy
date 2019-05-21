@@ -15,7 +15,7 @@
         <i-cell
           is-link
           i-class="function-item first"
-          url="{{userInfo.userInfo !== undefined ? '/pages/room/edit-room/index' : '/pages/account/sign-in/index'}}"
+          url="{{userInfo.userInfo !== undefined ? '/pages-room-device/pages/room/edit-room/index' : '/pages/account/sign-in/index'}}"
         >
           <view class="item-base-info room">
             <view class="image">
@@ -27,7 +27,7 @@
         <i-cell
           is-link
           i-class="function-item last"
-          url="{{userInfo.userInfo !== undefined ? '/pages/device/edit-device/index' : '/pages/account/sign-in/index'}}"
+          url="{{userInfo.userInfo !== undefined ? '/pages-room-device/pages/device/edit-device/index' : '/pages/account/sign-in/index'}}"
         >
           <view class="item-base-info device">
             <view class="image">

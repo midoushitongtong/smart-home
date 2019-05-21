@@ -21,7 +21,7 @@
                 <i-cell
                   i-class="i-cell-device-list-item"
                   is-link
-                  url='/pages/device/add-device-detail/index?originName={{item.originName}}&originControlName={{item.originControlName}}&controlName={{item.controlName}}&icon={{item.icon}}'
+                  url='/pages-room-device/pages/device/add-device-detail/index?originName={{item.originName}}&originControlName={{item.originControlName}}&controlName={{item.controlName}}&icon={{item.icon}}'
                 >
                   <view class="device-base-info-container" slot="icon">
                     <image src="{{item.icon}}"/>
@@ -87,9 +87,9 @@
 <script>
 import wepy from 'wepy';
 import { connect } from 'wepy-redux';
-import Base from '../../../components/iview/base/index';
-import { updateDeviceInfoList } from '../../../store/feature';
-import api from '../../../api';
+import Base from '../../../../components/iview/base/index';
+import { updateDeviceInfoList } from '../../../../store/feature/index';
+import api from '../../../../api/index';
 
 @connect({
   userInfo: (state) => state.account.userInfo,
@@ -299,7 +299,7 @@ export default class Home extends wepy.page {
       // 在加载直接 return
       if (this.actions[0].loading) return;
       wx.navigateTo({
-        url: '/pages/room/add-room-detail/index'
+        url: '/pages-room-device/pages/room/add-room-detail/index'
       });
     }
   };

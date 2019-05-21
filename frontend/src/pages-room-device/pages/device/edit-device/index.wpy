@@ -9,7 +9,7 @@
                 <i-cell
                   i-class="i-cell-device-list-item"
                   is-link
-                  url='/pages/device/edit-device-detail/index?id={{item2.id}}&name={{item2.name}}&originName={{item2.originName}}&originControlName={{item2.originControlName}}&controlName={{item2.controlName}}&icon={{item2.icon}}&roomId={{item2.roomId}}&relateInfo={{item2.relateInfo}}'
+                  url='/pages-room-device/pages/device/edit-device-detail/index?id={{item2.id}}&name={{item2.name}}&originName={{item2.originName}}&originControlName={{item2.originControlName}}&controlName={{item2.controlName}}&icon={{item2.icon}}&roomId={{item2.roomId}}&relateInfo={{item2.relateInfo}}'
                 >
                   <view class="device-base-info-container" slot="icon">
                     <image src="{{item2.icon}}"/>
@@ -61,8 +61,8 @@
 <script>
 import wepy from 'wepy';
 import { connect } from 'wepy-redux';
-import { updateDeviceInfoList } from '../../../store/feature';
-import api from '../../../api';
+import { updateDeviceInfoList } from '../../../../store/feature/index';
+import api from '../../../../api/index';
 
 @connect({
   userInfo: (state) => state.account.userInfo,
@@ -98,7 +98,7 @@ export default class Home extends wepy.page {
     // 前往添加设备页面
     toAddDevice: () => {
       wx.navigateTo({
-        url: '/pages/device/add-device/index'
+        url: '/pages-room-device/pages/device/add-device/index'
       });
     },
     refreshNewRoomDeviceInfoList: () => {

@@ -313,7 +313,7 @@ export default class Home extends wepy.page {
     addFeature: () => {
       if (this.userInfo.userInfo !== undefined) {
         wx.navigateTo({
-          url: '/pages/device/add-device/index'
+          url: '/pages-room-device/pages/device/add-device/index'
         });
       } else {
         // 未登录, 跳转登陆

@@ -116,9 +116,9 @@
 <script>
 import wepy from 'wepy';
 import { connect } from 'wepy-redux';
-import Base from '../../../components/iview/base/index';
-import { updateRoomInfoList, updateDeviceInfoList } from '../../../store/feature';
-import api from '../../../api';
+import Base from '../../../../components/iview/base/index';
+import { updateRoomInfoList, updateDeviceInfoList } from '../../../../store/feature/index';
+import api from '../../../../api/index';
 
 @connect({
   userInfo: (state) => state.account.userInfo,
