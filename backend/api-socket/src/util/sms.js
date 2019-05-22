@@ -1,13 +1,13 @@
 const QcloudSms = require('qcloudsms_js');
 
 // 短信应用SDK AppID
-const appid = 1400178067;  // SDK AppID是1400开头
+const appid = 1400213577;  // SDK AppID是1400开头
 
 // 短信应用SDK AppKey
-const appkey = '394f4d977651965f78c15f907d214f72';
+const appkey = '7b9eb893331d58f06785fec8946c9a23';
 
 // 短信模板ID，需要在短信应用中申请
-const templateId = 334314;  // NOTE: 这里的模板ID`7839`只是一个示例，真实的模板ID需要在短信控制台中申请
+const templateId = 336938;  // NOTE: 这里的模板ID`7839`只是一个示例，真实的模板ID需要在短信控制台中申请
 
 // 签名
 const smsSign = '物联家居平台';  // NOTE: 这里的签名只是示例，请使用真实的已申请的签名, 签名参数使用的是`签名内容`，而不是`签名ID`

@@ -4,6 +4,7 @@ const DeviceModel = require('../model/device');
 const SmsUtil = require('../util/sms');
 
 const obj = {
+  sendSMSFlag: true,
   validSocketList: [],
   validWebSocketList: [],
   handlerSocketConnect: (socket) => {
@@ -81,15 +82,27 @@ const obj = {
     if (str.substring(0, 'call'.length) === 'call') {
       const flag = str.split('-')[1];
       if (flag === '2') {
-        const params = ['安防报警', str.substr('call'.length, 1)];
-        obj.sendPhoneNumber('call', params);
+        if (obj.sendSMSFlag) {
+          obj.sendSMSFlag = false;
+          const params = ['安防报警', str.substr('call'.length, 1), '报警'];
+          obj.sendPhoneNumber('call', params);
+          setTimeout(() => {
+            obj.sendSMSFlag = true;
+          }, 30000);
+        }
       }
     }
     if (str.substring(0, 'smoke'.length) === 'smoke') {
       const flag = str.split('-')[1];
       if (flag === '2') {
-        const params = ['烟雾报警', str.substr('smoke'.length, 1)];
-        obj.sendPhoneNumber('smoke', params);
+        if (obj.sendSMSFlag) {
+          obj.sendSMSFlag = false;
+          const params = ['烟雾报警', str.substr('smoke'.length, 1), '报警'];
+          obj.sendPhoneNumber('smoke', params);
+          setTimeout(() => {
+            obj.sendSMSFlag = true;
+          }, 30000);
+        }
       }
     }
   },
