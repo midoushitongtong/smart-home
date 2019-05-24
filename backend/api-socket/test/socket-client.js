@@ -6,7 +6,7 @@ function connect() {
   const socket = new net.Socket();
   socket.connect(PORT, HOST, function () {
     console.log('socket server connect success');
-    const data = 'INIT-LED1-0,LED2-1,LED3-0,LED4-0,LED5-0,LED6-0,LED7-0,door1-0,cur1-0,fan1-1,tem2-19,hood1-0,tem-hum1-23-33,call1-1,smoke1-1';
+    const data = 'INIT-tem-hum1-32.0-33.0,call1-1,smoke1-1,LED1-0,cur1-0,fan1-1,door1-0,hood1-0,LED2-1,LED3-0,LED4-0,LED5-0,LED6-0,LED7-0,tem2-19';
 
     // 初始化数据
     socket.write(data);
@@ -19,7 +19,6 @@ function connect() {
           case 'INIT':
             // 初始化数据
             socket.write(data);
-
             break;
           default:
             // 发送数据给服务端

@@ -26,6 +26,7 @@
         <view class="tem" wx:if="{{temHum1.hum}}">室内湿度
           <view class="number">{{temHum1.hum}}°</view>
         </view>
+        <view class="tooltip" wx:if="{{ tempTop }}">当前室外温度较高，出门记得带伞，涂好防晒霜</view>
         <view class="call" wx:if="{{call1 === '1'}}">安防报警器已启用</view>
         <view class="call open" wx:if="{{call1 === '2'}}">安防报警器已报警!</view>
         <view class="smoke" wx:if="{{smoke1 === '1'}}">烟雾报警器已启用</view>
@@ -305,7 +306,9 @@ export default class Home extends wepy.page {
     // 安防报警器1
     call1: null,
     // 烟雾报警器1
-    smoke1: null
+    smoke1: null,
+    // 温度太高提醒
+    tempTop: false
   };
 
   methods = {
@@ -460,6 +463,7 @@ export default class Home extends wepy.page {
         tem: null,
         hum: null
       };
+      this.tempTop = false;
       // 更新温度和湿度
       if (this.featureInfo && this.featureInfo['tem-hum1']) {
         // 已绑定设备才能更新
@@ -480,6 +484,10 @@ export default class Home extends wepy.page {
             tem: this.featureInfo['tem-hum1'].split('-')[0],
             hum: this.featureInfo['tem-hum1'].split('-')[1]
           };
+          // 更新高温提醒
+          if (parseInt(this.temHum1.tem) >= 32) {
+            this.tempTop = true;
+          }
         }
       }
       // 更新安防报警器
@@ -690,7 +698,8 @@ export default class Home extends wepy.page {
         .tem,
         .hum,
         .call,
-        .smoke {
+        .smoke,
+        .tooltip {
           display: flex;
           align-items: center;
           font-size: 13px;
