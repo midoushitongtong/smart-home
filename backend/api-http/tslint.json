@@ -3,12 +3,13 @@
     "tslint-config-egg"
   ],
   "rules": {
-    "adjacent-overload-signatures": true,
-    //  Enforces function overloads to be consecutive.
+    // 禁止使用逗号操作符
     "ban-comma-operator": true,
-    //禁止逗号运算符。
+    // 类型定义的冒号前面必须没有空格，后面必须有一个空格
     "typedef-whitespace": true,
-    //类型声明的冒号之前是否需要空格
-    "trailing-comma": false
+    // 限制对象、数组、解构赋值等的最后一项末尾是否需要逗号
+    "trailing-comma": false,
+    // 数组方括号前后不需要空格
+    "array-bracket-spacing": [2, "never"]
   }
 }
