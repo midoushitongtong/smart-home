@@ -55,4 +55,4 @@ export default (method: any, url: any, data = {}): object => {
       reject(e);
     }
   });
-}
+};

@@ -96,7 +96,7 @@ export default class PersonUser extends Service {
     if (data.orderBy.sortField && data.orderBy.sortOrder) {
       // 排序
       condition.order = [
-        [data.orderBy.sortField, data.orderBy.sortOrder]
+        [ data.orderBy.sortField, data.orderBy.sortOrder ]
       ];
     }
 

@@ -24,14 +24,14 @@ export default (appInfo: EggAppInfo) => {
     port: 3306,
     database: 'smart_home',
     username: 'root',
-    password: '123456',
+    password: 'YC66Dynamic',
     timezone: '+08:00'
   };
 
   // cros
   config.cors = {
     // 跨域白名单
-    origin: 'http://10.0.19.175:3000',
+    origin: 'http://10.0.19.128:3000',
     // 允许 携带 cookie
     credentials: true
   };

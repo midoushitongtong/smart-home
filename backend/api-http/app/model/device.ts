@@ -24,7 +24,7 @@ export interface DeviceModel {
   updatedAt?: Date;
 }
 
-export default (app) => {
+export default app => {
   const { DATE, INTEGER, STRING } = app.Sequelize;
 
   // 数据库字段
@@ -71,4 +71,4 @@ export default (app) => {
   };
 
   return app.model.define('device', databaseField, databaseConfig);
-}
+};

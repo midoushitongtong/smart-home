@@ -28,5 +28,5 @@ export default class PersonUserController extends Controller {
     ctx.body = {
       code: '0'
     };
-  };
+  }
 }

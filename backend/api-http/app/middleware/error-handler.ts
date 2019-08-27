@@ -1,4 +1,4 @@
-import { Context } from "egg";
+import { Context } from 'egg';
 
 module.exports = () => {
   return async function errorHandler(ctx: Context, next: any) {

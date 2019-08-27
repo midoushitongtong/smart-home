@@ -9,14 +9,14 @@ export interface SmartDeviceModel {
   // 模式
   model?: string;
   // 设备控制值
-  controlValue?: string,
+  controlValue?: string;
   // 创建时间
   created_at?: Date;
   // 修改时间
   updated_at?: Date;
 }
 
-export default (app) => {
+export default app => {
   const { DATE, INTEGER, STRING } = app.Sequelize;
 
   // 数据库字段
@@ -59,4 +59,4 @@ export default (app) => {
   };
 
   return app.model.define('smart_device', databaseField, databaseConfig);
-}
+};

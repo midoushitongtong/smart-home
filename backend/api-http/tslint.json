@@ -1,3 +1,14 @@
 {
-  "extends": ["tslint-config-egg"]
+  "extends": [
+    "tslint-config-egg"
+  ],
+  "rules": {
+    "adjacent-overload-signatures": true,
+    //  Enforces function overloads to be consecutive.
+    "ban-comma-operator": true,
+    //禁止逗号运算符。
+    "typedef-whitespace": true,
+    //类型声明的冒号之前是否需要空格
+    "trailing-comma": false
+  }
 }

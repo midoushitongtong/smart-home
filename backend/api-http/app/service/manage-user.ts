@@ -1,6 +1,6 @@
 import { Service } from 'egg';
 import { Op } from 'sequelize';
-import { ManageUserModel } from "../model/manage-user";
+import { ManageUserModel } from '../model/manage-user';
 
 /**
  * ManageUser Service
