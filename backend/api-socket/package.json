@@ -10,7 +10,7 @@
     "mysql2": "^1.6.5",
     "qcloudsms_js": "^0.1.1",
     "sequelize": "^5.8.6",
-    "ws": "^6.2.1"
+    "ws": "^7.4.6"
   },
   "devDependencies": {},
   "scripts": {
